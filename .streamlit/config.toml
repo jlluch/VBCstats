@@ -1,0 +1,10 @@
+[server]
+runOnSave = true
+
+[browser]
+pageTitle = "Estadísticas de Valencia Basket"
+pageIcon = "🏀"
+layout = "wide"
+
+[ui]
+initialSidebarState = "expanded"
