@@ -5,8 +5,6 @@
 # """
 import streamlit as st
 import pandas as pd
-import matplotlib.pyplot as plt
-import seaborn as sns
 from VBCstats import load_encrypted_data
 
 #Crear una función para cargar los datos de cada competición, de partidos y de jugadores
@@ -14,7 +12,7 @@ from VBCstats import load_encrypted_data
 
 @st.cache_data 
 def load_data():
-    path = r".\Data\\"
+    path = r"Data/"
     file_path = path+"estadisticas_jugadores_VBC_Eurocup.csv.enc"
     df_players_EC = load_encrypted_data(file_path)
 # Columns: ID Temporada,Jornada,Fase,Fecha,Hora,ID Partido,ID Equipo,Dorsal,Nombre,Titular,ID Jugador,Minutos,Puntos,
