@@ -5,8 +5,17 @@
 # """
 import streamlit as st
 import pandas as pd
-from VBCstats import load_encrypted_data
+from VBCpages.encrypt_utils import decrypt_csv_file
 
+def load_encrypted_data(file_path):
+    try:
+        # Get decryption key from secrets
+        decryption_key = st.secrets["data_encryption"]["key"]
+        return decrypt_csv_file(file_path, decryption_key)
+    except Exception as e:
+        st.error(f"Error accessing data: {str(e)}")
+        return None
+    
 #Crear una función para cargar los datos de cada competición, de partidos y de jugadores
 #Hacer cache de los datos para que no se carguen cada vez que se actualiza la página
 

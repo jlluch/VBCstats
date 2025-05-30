@@ -6,8 +6,13 @@
 import streamlit as st
 import pandas as pd
 from st_pages import get_nav_from_toml
-from encrypt_utils import decrypt_csv_file
 
+st.set_page_config(
+    page_title="Estadísticas de Valencia Basket",
+    page_icon="🏀",
+    layout="wide",  # This forces wide mode
+    initial_sidebar_state="expanded"
+)
 
 st.markdown("""
 <style>
@@ -16,16 +21,6 @@ st.markdown("""
     }
 </style>
 """, unsafe_allow_html=True)
-
-@st.cache_data
-def load_encrypted_data(file_path):
-    try:
-        # Get decryption key from secrets
-        decryption_key = st.secrets["data_encryption"]["key"]
-        return decrypt_csv_file(file_path, decryption_key)
-    except Exception as e:
-        st.error(f"Error accessing data: {str(e)}")
-        return None
     
 st.sidebar.header("Selecciona una competición")
 #Configurar páginas
