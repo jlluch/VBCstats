@@ -6,7 +6,6 @@
 import streamlit as st
 import pandas as pd
 from st_pages import get_nav_from_toml
-import streamlit.components.v1 as components
 
 google_analytics = """
 <!-- Google tag (gtag.js) -->
@@ -28,7 +27,7 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 # Añadir Google Analytics
-components.html(google_analytics, height=0)
+st.markdown(google_analytics, unsafe_allow_html=True)
 
 
 st.markdown("""
