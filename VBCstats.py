@@ -6,6 +6,20 @@
 import streamlit as st
 import pandas as pd
 from st_pages import get_nav_from_toml
+import streamlit.components.v1 as components
+
+google_analytics = """
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-HTHR3HRXS1"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-HTHR3HRXS1');
+</script>
+"""
+# Configuración de la página
 
 st.set_page_config(
     page_title="Estadísticas de Valencia Basket",
@@ -13,6 +27,9 @@ st.set_page_config(
     layout="wide",  # This forces wide mode
     initial_sidebar_state="expanded"
 )
+# Añadir Google Analytics
+components.html(google_analytics, height=0)
+
 
 st.markdown("""
 <style>
