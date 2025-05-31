@@ -19,7 +19,6 @@ ga_code = """
   gtag('config', 'G-HTHR3HRXS1');
 </script>
 """
-components.html(ga_code, height=0)
 
 # Configuración de la página
 st.set_page_config(
@@ -29,7 +28,7 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-
+components.html(ga_code, height=0)
 
 st.markdown("""
 <style>
