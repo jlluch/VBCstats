@@ -748,12 +748,19 @@ elif marco == "Récords equipo":
 elif marco == "Estadísticas jugadores de la temporada":
     # Crear un marco para mostrar las estadísticas de los jugadores de la temporada actual
     st.subheader("Estadísticas jugadores de la temporada")
+    
+    # Añadir radio button para seleccionar total o por partido
+    tipo_estadistica = st.radio("Tipo de estadística", ["Total", "Por Partido"], horizontal=True)
+    
     # Seleccionar la temporada actual, cogiendo el id del último partido
     season = df_games_ACB['ID Temporada'].max()
     # Filtrar los datos de los jugadores para la temporada actual
     season_players = df_players_ACB[df_players_ACB['ID Temporada'] == season]
     
-    # Contar partidos por jugador y puntos totales
+    # Crear un dataframe para almacenar las estadísticas de todos los jugadores
+    todos_jugadores_stats = []
+    
+    # Contar partidos por jugador y puntos totales para ordenar
     partidos_por_jugador = season_players.groupby('ID Jugador')['ID Partido'].count()
     puntos_por_jugador = season_players.groupby('ID Jugador')['Puntos'].sum()
 
@@ -769,77 +776,93 @@ elif marco == "Estadísticas jugadores de la temporada":
     # Obtener la lista de jugadores ya ordenada
     jugadores = jugadores_stats.index.tolist()
     
-    # Dividir los jugadores en filas de 5
-    filas = [jugadores[i:i + 5] for i in range(0, len(jugadores), 5)]
+    # Procesar cada jugador
+    for jugador_id in jugadores:
+        # Obtener el nombre del jugador usando el ID
+        nombre_jugador = df_players_ACB[df_players_ACB['ID Jugador'] == jugador_id]['Nombre'].unique()[0]
+        
+        # Filtrar los datos del jugador
+        jugador_stats = season_players[season_players['ID Jugador'] == jugador_id]
+        
+        # Calcular acumulados y medias por partido
+        partidos_jugados = len(jugador_stats)
+        
+        # Calcular % de victorias
+        id_partidos_jugados = jugador_stats['ID Partido'].unique()
+        victorias = len(df_games_ACB[df_games_ACB['ID Partido'].isin(id_partidos_jugados) & (df_games_ACB['VBC Victoria'] == 1)])
+        porcentaje_victorias = round(victorias * 100 / partidos_jugados, 1) if partidos_jugados > 0 else 0.0
+        
+        # Calcular porcentajes de tiro
+        t1_porcentaje = round(jugador_stats['T1a'].sum() / jugador_stats['T1i'].sum() * 100, 1) if jugador_stats['T1i'].sum() > 0 else 0.0
+        t2_porcentaje = round(jugador_stats['T2a'].sum() / jugador_stats['T2i'].sum() * 100, 1) if jugador_stats['T2i'].sum() > 0 else 0.0
+        t3_porcentaje = round(jugador_stats['T3a'].sum() / jugador_stats['T3i'].sum() * 100, 1) if jugador_stats['T3i'].sum() > 0 else 0.0
+        
+        # Crear diccionario con las estadísticas del jugador
+        jugador_row = {
+            'Nombre': nombre_jugador,
+            'Partidos': partidos_jugados,
+            '% Victorias': porcentaje_victorias
+        }
+        
+        # Añadir estadísticas totales o por partido según la selección
+        if tipo_estadistica == "Total":
+            jugador_row.update({
+                'Puntos': jugador_stats['Puntos'].sum(),
+                'Rebotes': jugador_stats['Rebotes'].sum(),
+                'Asistencias': jugador_stats['Asistencias'].sum(),
+                'Robos': jugador_stats['Robos'].sum(),
+                'Tapones': jugador_stats['Tapones'].sum(),
+                'Valoración': jugador_stats['Val'].sum(),
+                'T. Libres': jugador_stats['T1a'].sum(),
+                'T1%': t1_porcentaje,
+                'T2 puntos': jugador_stats['T2a'].sum(),
+                'T2%': t2_porcentaje,
+                'T3 puntos': jugador_stats['T3a'].sum(),
+                'T3%': t3_porcentaje
+            })
+        else:  # "Por Partido"
+            jugador_row.update({
+                'Puntos': round(jugador_stats['Puntos'].mean(), 1),
+                'Rebotes': round(jugador_stats['Rebotes'].mean(), 1),
+                'Asistencias': round(jugador_stats['Asistencias'].mean(), 1),
+                'Robos': round(jugador_stats['Robos'].mean(), 1),
+                'Tapones': round(jugador_stats['Tapones'].mean(), 1),
+                'Valoración': round(jugador_stats['Val'].mean(), 1),
+                'T. Libres': round(jugador_stats['T1a'].mean(), 1),
+                'T1%': t1_porcentaje,
+                'T2 puntos': round(jugador_stats['T2a'].mean(), 1),
+                'T2%': t2_porcentaje,
+                'T3 puntos': round(jugador_stats['T3a'].mean(), 1),
+                'T3%': t3_porcentaje
+            })
+        
+        todos_jugadores_stats.append(jugador_row)
     
-    # Mostrar estadísticas para cada fila de jugadores
-    for fila in filas:
-        cols = st.columns(len(fila))  # Crear columnas dinámicamente según el número de jugadores en la fila
-        for col, jugador in zip(cols, fila):
-            with col:
-                # Mostrar el nombre del jugador
-                # Obtener el nombre del jugador usando el ID
-                nombre_jugador = df_players_ACB[df_players_ACB['ID Jugador'] == jugador]['Nombre'].unique()[0]
-                st.write(f"**{nombre_jugador}**")
-                # Filtrar los datos del jugador
-                jugador_stats = season_players[season_players['ID Jugador'] == jugador]
-                # Calcular acumulados y medias por partido
-                partidos_jugados = len(jugador_stats)
-                # Calcular % de victorias
-                # Selecciononar id de partidos jugados
-                id_partidos_jugados = jugador_stats['ID Partido'].unique()
-                # Buscar partidos jugados en el dataframe de partidos y contar victorias
-                victorias = len(df_games_ACB[df_games_ACB['ID Partido'].isin(id_partidos_jugados) & (df_games_ACB['VBC Victoria'] == 1)])
-                # Calcular porcentaje de victorias
-                victorias = round(victorias * 100 / partidos_jugados, 1) if partidos_jugados > 0 else 0.0
-                                                
-                
-                # Calcular porcentajes de tiro
-                t1_porcentaje = round(jugador_stats['T1a'].sum() / jugador_stats['T1i'].sum() * 100, 1) if jugador_stats['T1i'].sum() > 0 else 0.0
-                t2_porcentaje = round(jugador_stats['T2a'].sum() / jugador_stats['T2i'].sum() * 100, 1) if jugador_stats['T2i'].sum() > 0 else 0.0
-                t3_porcentaje = round(jugador_stats['T3a'].sum() / jugador_stats['T3i'].sum() * 100, 1) if jugador_stats['T3i'].sum() > 0 else 0.0
-                
-                stats = {
-                    'Estadística': ['Partidos', '% Victorias', 'Puntos', 'Rebotes', 'Asistencias', 'Robos', 'Tapones', 'Valoración',
-                                   'T. Libres', 'T1%', 'T2 puntos', 'T2%', 'T3 puntos', 'T3%'],
-                    'Total': [
-                        partidos_jugados,
-                        victorias,
-                        jugador_stats['Puntos'].sum(),
-                        jugador_stats['Rebotes'].sum(),
-                        jugador_stats['Asistencias'].sum(),
-                        jugador_stats['Robos'].sum(),
-                        jugador_stats['Tapones'].sum(),
-                        jugador_stats['Val'].sum(),
-                        jugador_stats['T1a'].sum(),
-                        t1_porcentaje,
-                        jugador_stats['T2a'].sum(),
-                        t2_porcentaje,
-                        jugador_stats['T3a'].sum(),
-                        t3_porcentaje
-                    ],
-                    'Por Partido': [
-                        1.0,
-                        1.0,
-                        round(jugador_stats['Puntos'].mean(), 1),
-                        round(jugador_stats['Rebotes'].mean(), 1),
-                        round(jugador_stats['Asistencias'].mean(), 1),
-                        round(jugador_stats['Robos'].mean(), 1),
-                        round(jugador_stats['Tapones'].mean(), 1),
-                        round(jugador_stats['Val'].mean(), 1),
-                        round(jugador_stats['T1a'].mean(), 1),
-                        t1_porcentaje,
-                        round(jugador_stats['T2a'].mean(), 1),
-                        t2_porcentaje,
-                        round(jugador_stats['T3a'].mean(), 1),
-                        t3_porcentaje
-                    ]
-                }
-                # Crear un DataFrame con las estadísticas
-                jugador_df = pd.DataFrame(stats)
-                # Mostrar la tabla
-                st.dataframe(jugador_df, hide_index=True, width=300, height=528)
-
+    # Crear dataframe con las estadísticas de todos los jugadores
+    df_todos_jugadores = pd.DataFrame(todos_jugadores_stats)
+    
+    # Mostrar la tabla con todas las estadísticas directamente (sin dividir en columnas)
+    st.dataframe(
+        df_todos_jugadores,
+        hide_index=True,
+        column_config={
+            "Nombre": st.column_config.TextColumn(width="medium"),
+            "Partidos": st.column_config.NumberColumn(width="small"),
+            "% Victorias": st.column_config.NumberColumn(format="%.1f%%", width="small"),
+            "Puntos": st.column_config.NumberColumn(width="small"),
+            "Rebotes": st.column_config.NumberColumn(width="small"),
+            "Asistencias": st.column_config.NumberColumn(width="small"),
+            "Robos": st.column_config.NumberColumn(width="small"),
+            "Tapones": st.column_config.NumberColumn(width="small"),
+            "Valoración": st.column_config.NumberColumn(width="small"),
+            "T. Libres": st.column_config.NumberColumn(width="small"),
+            "T1%": st.column_config.NumberColumn(format="%.1f%%", width="small"),
+            "T2 puntos": st.column_config.NumberColumn(width="small"),
+            "T2%": st.column_config.NumberColumn(format="%.1f%%", width="small"),
+            "T3 puntos": st.column_config.NumberColumn(width="small"),
+            "T3%": st.column_config.NumberColumn(format="%.1f%%", width="small")
+        }
+    )
 elif marco == "Estadísticas contra un rival":
     
     st.subheader("Estadísticas contra un rival")
@@ -1147,7 +1170,7 @@ elif marco == "Comparativa temporada anterior":
 
 
 
-    
 
 
-    
+
+
