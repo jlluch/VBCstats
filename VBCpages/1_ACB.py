@@ -373,136 +373,186 @@ elif marco == "Acumulados de la temporada actual":
     #Seleccionar la temporada actual, cogiendo el id del último partido
     season = df_games_ACB['ID Temporada'].max()
     
-    #Calcular total partidos jugados, victorias y derrotas, total como local y como visitante y % de cada uno
-    total_games = df_games_ACB[df_games_ACB['ID Temporada'] == season]['ID Partido'].count()
-    total_wins = df_games_ACB[df_games_ACB['ID Temporada'] == season]['VBC Victoria'].sum()
-    total_losses = total_games - total_wins
-    total_home = df_games_ACB[df_games_ACB['ID Temporada'] == season]['VBC Local'].sum()
-    total_away = total_games - total_home
-    total_home_wins = df_games_ACB[(df_games_ACB['ID Temporada'] == season) & (df_games_ACB['VBC Local'] == 1)]['VBC Victoria'].sum()
-    total_away_wins = df_games_ACB[(df_games_ACB['ID Temporada'] == season) & (df_games_ACB['VBC Local'] == 0)]['VBC Victoria'].sum()
-    total_home_losses = total_home - total_home_wins
-    total_away_losses = total_away - total_away_wins
-    total_home_wins_percentage = round(total_home_wins * 100 / total_home, 1)
-    total_away_wins_percentage = round(total_away_wins * 100 / total_away, 1)
-    total_wins_percentage = round(total_wins * 100 / total_games, 1)
-    total_losses_percentage = round(total_losses * 100 / total_games, 1)
-    # Crear un dataframe con los datos
-    season_stats = pd.DataFrame({
-        'Partidos': [total_games],
-        'Victorias': [total_wins],
-        'Derrotas': [total_losses],
-        'Local': [total_home],
-        'Visitante': [total_away],
-        'Vic. Local': [total_home_wins],
-        'Vic. Visitante': [total_away_wins],
-        'Der. Local': [total_home_losses],
-        'Der. Visitante': [total_away_losses],
-        'Victorias %': [total_wins_percentage],
-        'Derrotas %': [total_losses_percentage],
-        'Vic. Local %': [total_home_wins_percentage],
-        'Vic. Visitante %': [total_away_wins_percentage],
-    })
-    # Crear 4 columnas para mostrar los datos
+    # Añadir filtros
+    st.write("Filtros")
     col1, col2, col3 = st.columns(3)
-    with col1:
-        st.write("Partidos")
-        st.dataframe(
-            season_stats[['Partidos', 'Victorias', 'Derrotas']],
-            hide_index=True,
-            column_config={
-                "Partidos": st.column_config.NumberColumn(width="small"),
-                "Victorias": st.column_config.NumberColumn(width="small"),
-                "Derrotas": st.column_config.NumberColumn(width="small"),
-            }
-        )   
-    with col2:
-        st.write("Local/Visitante")
-        st.dataframe(
-            season_stats[['Local', 'Visitante', 'Vic. Local', 'Vic. Visitante', 'Der. Local', 'Der. Visitante']],
-            hide_index=True,
-            column_config={
-                "Local": st.column_config.NumberColumn(width="small"),
-                "Visitante": st.column_config.NumberColumn(width="small"),
-                "Vic. Local": st.column_config.NumberColumn(width="small"),
-                "Vic. Visitante": st.column_config.NumberColumn(width="small"),
-                "Der. Local": st.column_config.NumberColumn(width="small"),
-                "Der. Visitante": st.column_config.NumberColumn(width="small"),
-            }
-        )   
-    with col3:
-        st.write("Porcentajes")
-        st.dataframe(
-            season_stats[['Victorias %', 'Derrotas %', 'Vic. Local %', 'Vic. Visitante %']],
-            hide_index=True,
-            column_config={
-                "Victorias %": st.column_config.NumberColumn(width="small"),
-                "Derrotas %": st.column_config.NumberColumn(width="small"),
-                "Vic. Local %": st.column_config.NumberColumn(width="small"),
-                "Vic. Visitante %": st.column_config.NumberColumn(width="small"),
-            }
-        )
-    
-    
-    # Calcular los acumulados de la temporada VBC
-    season_stats_vbc = pd.DataFrame(df_games_ACB[df_games_ACB['ID Temporada'] == season][['Puntos VBC', 'Rebotes VBC', 'Asistencias VBC', 'Robos VBC', 'Tapones VBC', 'Val VBC']].sum(), columns=['Acumulados'])
-    season_stats_vbc['Media'] = round(season_stats_vbc['Acumulados'] / len(df_games_ACB[df_games_ACB['ID Temporada'] == season]),1)
-    
-    # Calcular los acumulados de la temporada Rival
-    season_stats_rival = pd.DataFrame(df_games_ACB[df_games_ACB['ID Temporada'] == season][['Puntos Rival', 'Rebotes Rival', 'Asistencias Rival', 'Robos Rival', 'Tapones Rival', 'Val Rival']].sum(), columns=['Acumulados'])
-    season_stats_rival['Media'] = round(season_stats_rival['Acumulados'] / len(df_games_ACB[df_games_ACB['ID Temporada'] == season]),1)
-    
-    # Datos de tiros VBC
-    season_shots_vbc = pd.DataFrame(df_games_ACB[df_games_ACB['ID Temporada'] == season][['T1a VBC', 'T1i VBC', 'T2a VBC', 'T2i VBC', 'T3a VBC', 'T3i VBC']].sum(), columns=['Acumulados'])
-    season_shots_vbc['Media'] = round(season_shots_vbc['Acumulados'] / len(df_games_ACB[df_games_ACB['ID Temporada'] == season]), 1)
-    season_shots_vbc['%'] = round(season_shots_vbc['Acumulados']*100 / season_shots_vbc['Acumulados'].shift(-1), 1)
-    
-    # Datos de tiros Rival
-    season_shots_rival = pd.DataFrame(df_games_ACB[df_games_ACB['ID Temporada'] == season][['T1a Rival', 'T1i Rival', 'T2a Rival', 'T2i Rival', 'T3a Rival', 'T3i Rival']].sum(), columns=['Acumulados'])
-    season_shots_rival['Media'] = round(season_shots_rival['Acumulados'] / len(df_games_ACB[df_games_ACB['ID Temporada'] == season]), 1)
-    season_shots_rival['%'] = round(season_shots_rival['Acumulados']*100 / season_shots_rival['Acumulados'].shift(-1), 1)
-    
-    # Crear 4 columnas para mostrar los datos
-    col1, col2, col3, col4, col5 = st.columns(5)
     
     with col1:
-        st.write("VBC Estadísticas")
-        st.dataframe(
-            season_stats_vbc,
-            column_config={
-                "Acumulados": st.column_config.NumberColumn(width="small"),
-                "Media":      st.column_config.NumberColumn(width="small"),
-            }
-        )
+        # Radio button para filtrar por victorias/derrotas
+        resultado_filtro = st.radio("Resultado", ["Todos", "Victorias", "Derrotas"], horizontal=True)
+    
+    # Obtener el rango de jornadas de la temporada
+    jornadas_temporada = df_games_ACB[df_games_ACB['ID Temporada'] == season]['Jornada'].unique()
+    min_jornada = min(jornadas_temporada)
+    max_jornada = max(jornadas_temporada)
+    
     with col2:
-        st.write("Rival Estadísticas")
-        st.dataframe(
-            season_stats_rival,
-            column_config={
-                "Acumulados": st.column_config.NumberColumn(width="small"),
-                "Media":      st.column_config.NumberColumn(width="small"),
-            }
-        )
+        # Spinner para seleccionar jornada inicial
+        jornada_inicio = st.number_input("Jornada inicial", min_value=min_jornada, max_value=max_jornada, value=min_jornada)
+    
     with col3:
-        st.write("VBC Tiros")
-        st.dataframe(
-            season_shots_vbc.iloc[::2],
-            column_config={
-                "Acumulados": st.column_config.NumberColumn(width="small"),
-                "Media":      st.column_config.NumberColumn(width="small"),
-                "%":          st.column_config.NumberColumn(width="small"),
-            }
-        )
-    with col4:
-        st.write("Rival Tiros")
-        st.dataframe(
-            season_shots_rival.iloc[::2],
-            column_config={
-                "Acumulados": st.column_config.NumberColumn(width="small"),
-                "Media":      st.column_config.NumberColumn(width="small"),
-                "%":          st.column_config.NumberColumn(width="small"),
-            }
-        )
+        # Spinner para seleccionar jornada final, debe ser mayor o igual que jornada_inicio
+        jornada_fin = st.number_input("Jornada final", min_value=jornada_inicio, max_value=max_jornada, value=max_jornada)
+    
+    # Filtrar partidos por temporada
+    season_games = df_games_ACB[df_games_ACB['ID Temporada'] == season]
+    
+    # Filtrar por jornadas
+    season_games = season_games[(season_games['Jornada'] >= jornada_inicio) & 
+                                (season_games['Jornada'] <= jornada_fin)]
+    
+    # Filtrar por resultado (victorias/derrotas)
+    if resultado_filtro == "Victorias":
+        season_games = season_games[season_games['VBC Victoria'] == 1]
+    elif resultado_filtro == "Derrotas":
+        season_games = season_games[season_games['VBC Victoria'] == 0]
+    
+    # Mostrar información sobre los filtros aplicados
+    filtros_aplicados = []
+    if resultado_filtro != "Todos":
+        filtros_aplicados.append(f"Resultado: {resultado_filtro}")
+    if jornada_inicio > min_jornada or jornada_fin < max_jornada:
+        filtros_aplicados.append(f"Jornadas: {jornada_inicio} a {jornada_fin}")
+    
+    if filtros_aplicados:
+        st.write(f"**Filtros aplicados:** {', '.join(filtros_aplicados)}")
+    
+    # Si no quedan partidos después del filtrado, mostrar mensaje y salir
+    if len(season_games) == 0:
+        st.warning("No hay datos disponibles para los filtros seleccionados.")
+    else:
+        # Calcular total partidos jugados, victorias y derrotas, total como local y como visitante y % de cada uno
+        # usando los datos filtrados
+        total_games = len(season_games)
+        total_wins = season_games['VBC Victoria'].sum()
+        total_losses = total_games - total_wins
+        total_home = season_games['VBC Local'].sum()
+        total_away = total_games - total_home
+        total_home_wins = season_games[season_games['VBC Local'] == 1]['VBC Victoria'].sum()
+        total_away_wins = season_games[season_games['VBC Local'] == 0]['VBC Victoria'].sum()
+        total_home_losses = total_home - total_home_wins
+        total_away_losses = total_away - total_away_wins
+        total_home_wins_percentage = round(total_home_wins * 100 / total_home, 1) if total_home > 0 else 0
+        total_away_wins_percentage = round(total_away_wins * 100 / total_away, 1) if total_away > 0 else 0
+        total_wins_percentage = round(total_wins * 100 / total_games, 1) if total_games > 0 else 0
+        total_losses_percentage = round(total_losses * 100 / total_games, 1) if total_games > 0 else 0
+        
+        # Crear un dataframe con los datos
+        season_stats = pd.DataFrame({
+            'Partidos': [total_games],
+            'Victorias': [total_wins],
+            'Derrotas': [total_losses],
+            'Local': [total_home],
+            'Visitante': [total_away],
+            'Vic. Local': [total_home_wins],
+            'Vic. Visitante': [total_away_wins],
+            'Der. Local': [total_home_losses],
+            'Der. Visitante': [total_away_losses],
+            'Victorias %': [total_wins_percentage],
+            'Derrotas %': [total_losses_percentage],
+            'Vic. Local %': [total_home_wins_percentage],
+            'Vic. Visitante %': [total_away_wins_percentage],
+        })
+        
+        # Crear 3 columnas para mostrar los datos
+        col1, col2, col3 = st.columns(3)
+        with col1:
+            st.write("Partidos")
+            st.dataframe(
+                season_stats[['Partidos', 'Victorias', 'Derrotas']],
+                hide_index=True,
+                column_config={
+                    "Partidos": st.column_config.NumberColumn(width="small"),
+                    "Victorias": st.column_config.NumberColumn(width="small"),
+                    "Derrotas": st.column_config.NumberColumn(width="small"),
+                }
+            )   
+        with col2:
+            st.write("Local/Visitante")
+            st.dataframe(
+                season_stats[['Local', 'Visitante', 'Vic. Local', 'Vic. Visitante', 'Der. Local', 'Der. Visitante']],
+                hide_index=True,
+                column_config={
+                    "Local": st.column_config.NumberColumn(width="small"),
+                    "Visitante": st.column_config.NumberColumn(width="small"),
+                    "Vic. Local": st.column_config.NumberColumn(width="small"),
+                    "Vic. Visitante": st.column_config.NumberColumn(width="small"),
+                    "Der. Local": st.column_config.NumberColumn(width="small"),
+                    "Der. Visitante": st.column_config.NumberColumn(width="small"),
+                }
+            )   
+        with col3:
+            st.write("Porcentajes")
+            st.dataframe(
+                season_stats[['Victorias %', 'Derrotas %', 'Vic. Local %', 'Vic. Visitante %']],
+                hide_index=True,
+                column_config={
+                    "Victorias %": st.column_config.NumberColumn(width="small"),
+                    "Derrotas %": st.column_config.NumberColumn(width="small"),
+                    "Vic. Local %": st.column_config.NumberColumn(width="small"),
+                    "Vic. Visitante %": st.column_config.NumberColumn(width="small"),
+                }
+            )
+        
+        # Calcular los acumulados de la temporada VBC usando los datos filtrados
+        season_stats_vbc = pd.DataFrame(season_games[['Puntos VBC', 'Rebotes VBC', 'Asistencias VBC', 'Robos VBC', 'Tapones VBC', 'Val VBC']].sum(), columns=['Acumulados'])
+        season_stats_vbc['Media'] = round(season_stats_vbc['Acumulados'] / len(season_games), 1)
+        
+        # Calcular los acumulados de la temporada Rival
+        season_stats_rival = pd.DataFrame(season_games[['Puntos Rival', 'Rebotes Rival', 'Asistencias Rival', 'Robos Rival', 'Tapones Rival', 'Val Rival']].sum(), columns=['Acumulados'])
+        season_stats_rival['Media'] = round(season_stats_rival['Acumulados'] / len(season_games), 1)
+        
+        # Datos de tiros VBC
+        season_shots_vbc = pd.DataFrame(season_games[['T1a VBC', 'T1i VBC', 'T2a VBC', 'T2i VBC', 'T3a VBC', 'T3i VBC']].sum(), columns=['Acumulados'])
+        season_shots_vbc['Media'] = round(season_shots_vbc['Acumulados'] / len(season_games), 1)
+        season_shots_vbc['%'] = round(season_shots_vbc['Acumulados']*100 / season_shots_vbc['Acumulados'].shift(-1), 1)
+        
+        # Datos de tiros Rival
+        season_shots_rival = pd.DataFrame(season_games[['T1a Rival', 'T1i Rival', 'T2a Rival', 'T2i Rival', 'T3a Rival', 'T3i Rival']].sum(), columns=['Acumulados'])
+        season_shots_rival['Media'] = round(season_shots_rival['Acumulados'] / len(season_games), 1)
+        season_shots_rival['%'] = round(season_shots_rival['Acumulados']*100 / season_shots_rival['Acumulados'].shift(-1), 1)
+        
+        # Crear 4 columnas para mostrar los datos
+        col1, col2, col3, col4, col5 = st.columns(5)
+        
+        with col1:
+            st.write("VBC Estadísticas")
+            st.dataframe(
+                season_stats_vbc,
+                column_config={
+                    "Acumulados": st.column_config.NumberColumn(width="small"),
+                    "Media":      st.column_config.NumberColumn(width="small"),
+                }
+            )
+        with col2:
+            st.write("Rival Estadísticas")
+            st.dataframe(
+                season_stats_rival,
+                column_config={
+                    "Acumulados": st.column_config.NumberColumn(width="small"),
+                    "Media":      st.column_config.NumberColumn(width="small"),
+                }
+            )
+        with col3:
+            st.write("VBC Tiros")
+            st.dataframe(
+                season_shots_vbc.iloc[::2],
+                column_config={
+                    "Acumulados": st.column_config.NumberColumn(width="small"),
+                    "Media":      st.column_config.NumberColumn(width="small"),
+                    "%":          st.column_config.NumberColumn(width="small"),
+                }
+            )
+        with col4:
+            st.write("Rival Tiros")
+            st.dataframe(
+                season_shots_rival.iloc[::2],
+                column_config={
+                    "Acumulados": st.column_config.NumberColumn(width="small"),
+                    "Media":      st.column_config.NumberColumn(width="small"),
+                    "%":          st.column_config.NumberColumn(width="small"),
+                }
+            )
 
 elif marco == "Líderes de la temporada":
     #Crear un marco para mostrar los líderes de la temporada, lo mismo que en el marco de líderes históricos pero solo para la temporada actual
