@@ -65,7 +65,7 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 #Crear un selectnox para cada marco
-marco = st.selectbox("Selecciona una opción", ["Acumulados de la temporada actual", "Estadísticas jugadores de la temporada", "Líderes de la temporada", "Comparativa temporada anterior", "Estadísticas contra un rival", "Estadísticas de un partido", "Líderes históricos", "Récords equipo"])
+marco = st.selectbox("Selecciona una opción", ["Acumulados de la temporada actual", "Estadísticas jugadores de la temporada", "Líderes de la temporada", "Estadísticas contra un rival", "Estadísticas de un partido", "Líderes históricos", "Récords equipo"])
 if marco == "Estadísticas de un partido":
     #Crear un marco para mostrar las estadísticas de un partido en concreto
     st.subheader("Estadísticas de un partido")
@@ -91,8 +91,8 @@ if marco == "Estadísticas de un partido":
     st.subheader("Estadísticas Valencia Basket")
     columns_to_show = ['Minutos VBC', 'T2a VBC','T2i VBC', 'T2% VBC', 'T3a VBC', 'T3i VBC', 'T3% VBC', 'T1a VBC',
     'T1i VBC', 'T1% VBC', 'Rebotes VBC', 'R.Def VBC', 'R.Ofe VBC',
-    'Asistencias VBC', 'Robos VBC', 'Perdidas VBC', 'CTP VBC',
-    'Tapones VBC', 'TR VBC', 'Mates VBC', 'FPF VBC', 'FPC VBC', '+/- VBC', 'Val VBC', 
+    'Asistencias VBC', 'Robos VBC', 'Perdidas VBC', 
+    'Tapones VBC', 'TR VBC',  'FPF VBC', 'FPC VBC', '+/- VBC', 'Val VBC', 
     'P1VBC','P2VBC', 'Q1VBC', 'Q2VBC', 'Q3VBC', 'Q4VBC', 'PR1VBC', 'PR2VBC']
     st.dataframe(df_games_Eurocup[(df_games_Eurocup['ID Temporada'] == season) & (df_games_Eurocup['Fecha'] == date)][columns_to_show], hide_index=True)
     
@@ -100,8 +100,8 @@ if marco == "Estadísticas de un partido":
     columns_to_show = ['Minutos Rival', 'T2a Rival', 'T2i Rival',
     'T2% Rival', 'T3a Rival', 'T3i Rival', 'T3% Rival', 'T1a Rival',
     'T1i Rival', 'T1% Rival', 'Rebotes Rival', 'R.Def Rival', 'R.Ofe Rival',
-    'Asistencias Rival', 'Robos Rival', 'Perdidas Rival', 'CTP Rival',
-    'Tapones Rival', 'TR Rival', 'Mates Rival', 'FPF Rival', 'FPC Rival','+/- Rival', 'Val Rival', 
+    'Asistencias Rival', 'Robos Rival', 'Perdidas Rival', 
+    'Tapones Rival', 'TR Rival', 'FPF Rival', 'FPC Rival','+/- Rival', 'Val Rival', 
     'P1Rival', 'P2Rival', 'Q1Rival', 'Q2Rival', 'Q3Rival', 'Q4Rival',
     'PR1Rival', 'PR2Rival']
     st.dataframe(df_games_Eurocup[(df_games_Eurocup['ID Temporada'] == season) & (df_games_Eurocup['Fecha'] == date)][columns_to_show], hide_index=True)
@@ -133,34 +133,35 @@ elif marco == "Líderes históricos":
         # Calcular el mayor número de tiros de 1,2 y 3 puntos anotados (mínimo 100) y el mayor porcentaje de tiros de 1,2 y 3 puntos anotados (mínimo 100 intentos)
         # Mostrar los resultados en una tabla
         # Crea una tabla con el acumulado de tiros de 1,2 y 3 puntos anotados, intentados y el porcentaje de acierto de cada jugador
+        tmin = 30 # Mínimo de tiros para mostrar el porcentaje
         shots = df_players_Eurocup.groupby('Nombre')[['T1a', 'T1i', 'T2a', 'T2i', 'T3a', 'T3i']].sum()
         # Calula el porcentaje de acierto de cada jugador con 1 decimal
         shots['T1%'] = round(shots['T1a'] / shots['T1i'] * 100,1)
         shots['T2%'] = round(shots['T2a'] / shots['T2i'] * 100,1)
         shots['T3%'] = round(shots['T3a'] / shots['T3i'] * 100,1)
-        max_t1a = shots[shots['T1a'] >= 100]['T1a'].sort_values(ascending=False)
+        max_t1a = shots[shots['T1a'] >= tmin]['T1a'].sort_values(ascending=False)
         #Cambiar nombre de la columna
         max_t1a = max_t1a.rename("T.Libres")
-        max_t2a = shots[shots['T2a'] >= 100]['T2a'].sort_values(ascending=False)
+        max_t2a = shots[shots['T2a'] >= tmin]['T2a'].sort_values(ascending=False)
         #Cambiar nombre de la columna
         max_t2a = max_t2a.rename("T2")
-        max_t3a = shots[shots['T3a'] >= 100]['T3a'].sort_values(ascending=False)
+        max_t3a = shots[shots['T3a'] >= tmin]['T3a'].sort_values(ascending=False)
         #Cambiar nombre de la columna
         max_t3a = max_t3a.rename("T3")
-        max_t1p = (shots[shots['T1a'] >= 100]['T1%']).sort_values(ascending=False)
+        max_t1p = (shots[shots['T1a'] >= tmin]['T1%']).sort_values(ascending=False)
         #Cambiar nombre de la columna
         max_t1p = max_t1p.rename("T1%")
         # Añade una columna con el total de tiros libres anotados
         shots['T.Libres'] = shots['T1a']
         max_t1p = max_t1p.to_frame()
         max_t1p['T.Libres'] = shots.loc[max_t1p.index, 'T.Libres']
-        max_t2p = (shots[shots['T2a'] >= 100]['T2%']).sort_values(ascending=False)
+        max_t2p = (shots[shots['T2a'] >= tmin]['T2%']).sort_values(ascending=False)
         #Cambiar nombre de la columna
         max_t2p = max_t2p.rename("T2%")
         shots['T2'] = shots['T2a']
         max_t2p = max_t2p.to_frame()
         max_t2p['T2'] = shots.loc[max_t2p.index, 'T2']
-        max_t3p = (shots[shots['T3a'] >= 100]['T3%']).sort_values(ascending=False)
+        max_t3p = (shots[shots['T3a'] >= tmin]['T3%']).sort_values(ascending=False)
         #Cambiar nombre de la columna
         max_t3p = max_t3p.rename("T3%")
         shots['T3'] = shots['T3a']
@@ -277,7 +278,7 @@ elif marco == "Líderes históricos":
             column_config={"Nombre": st.column_config.TextColumn(width="medium"), "T3": st.column_config.TextColumn(width="small")}
         )
 
-        st.write("Mejores porcentajes con al menos 100 tiros anotados")
+        st.write(f"Mejores porcentajes con al menos {tmin} tiros anotados")
         mt1p, mt2p, mt3p = st.columns(3)
         mt1p.dataframe(max_t1p.head(lh), column_config={"Nombre": st.column_config.TextColumn(width="medium"),"T1%": st.column_config.TextColumn(width="small")})
         mt2p.dataframe(max_t2p.head(lh), column_config={"Nombre": st.column_config.TextColumn(width="medium"),"T2%": st.column_config.TextColumn(width="small")})
