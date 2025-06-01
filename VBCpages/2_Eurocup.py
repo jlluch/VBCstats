@@ -65,7 +65,7 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 #Crear un selectnox para cada marco
-marco = st.selectbox("Selecciona una opción", ["Acumulados de la temporada actual", "Estadísticas jugadores de la temporada", "Líderes de la temporada", "Comparativa temporada anterior", "Estadísticas contra un rival", "Estadísticas de un partido", "Líderes históricos", "Récords equipo", "Entrenadores"])
+marco = st.selectbox("Selecciona una opción", ["Acumulados de la temporada actual", "Estadísticas jugadores de la temporada", "Líderes de la temporada", "Comparativa temporada anterior", "Estadísticas contra un rival", "Estadísticas de un partido", "Líderes históricos", "Récords equipo"])
 if marco == "Estadísticas de un partido":
     #Crear un marco para mostrar las estadísticas de un partido en concreto
     st.subheader("Estadísticas de un partido")
@@ -83,9 +83,9 @@ if marco == "Estadísticas de un partido":
     #Mostrar las estadísticas del partido seleccionado
     st.subheader("Datos del partido")
     if game.split(" - ")[1] == "VBC":
-        columns_to_show = ['ID Temporada', 'Jornada', 'Fase', 'Fecha', 'Hora', 'Puntos VBC','Equipo Rival','Puntos Rival', 'Entrenador VBC', 'Entrenador Rival']
+        columns_to_show = ['ID Temporada', 'Jornada', 'Fase', 'Fecha', 'Hora', 'Puntos VBC','Equipo Rival','Puntos Rival']
     else:
-        columns_to_show = ['ID Temporada', 'Jornada', 'Fase', 'Fecha', 'Hora', 'Equipo Rival','Puntos Rival', 'Puntos VBC', 'Entrenador Rival', 'Entrenador VBC']
+        columns_to_show = ['ID Temporada', 'Jornada', 'Fase', 'Fecha', 'Hora', 'Equipo Rival','Puntos Rival', 'Puntos VBC']
     st.dataframe(df_games_Eurocup[(df_games_Eurocup['ID Temporada'] == season) & (df_games_Eurocup['Fecha'] == date)][columns_to_show], hide_index=True)
     
     st.subheader("Estadísticas Valencia Basket")
@@ -648,14 +648,14 @@ elif marco == "Récords equipo":
     #Puntos partido
     max10_points = df_games_Eurocup.sort_values(by='Puntos VBC',ascending=False).head(lh)
     #Seleccionar las columnas a mostrar
-    columns_to_show = ['ID Temporada', 'Jornada', 'Fecha', 'Partido', 'Puntos VBC', 'Puntos Rival', 'Entrenador VBC', 'Enlace']
+    columns_to_show = ['ID Temporada', 'Jornada', 'Fecha', 'Partido', 'Puntos VBC', 'Puntos Rival', 'Enlace']
     st.write("Récords en puntos")
     st.dataframe(max10_points[columns_to_show], hide_index=True)
     
     # Diferencia de puntos
     max10_diff = df_games_Eurocup.sort_values(by='Diferencia',ascending=False).head(lh)
     #Seleccionar las columnas a mostrar
-    columns_to_show = ['ID Temporada', 'Jornada', 'Fecha', 'Partido', 'Diferencia', 'Entrenador VBC', 'Enlace']
+    columns_to_show = ['ID Temporada', 'Jornada', 'Fecha', 'Partido', 'Diferencia','Enlace']
     st.write("Récords en diferencia de puntos")
     st.dataframe(max10_diff[columns_to_show], hide_index=True)
 
@@ -673,7 +673,7 @@ elif marco == "Récords equipo":
     max10_parts = max10_parts.rename(columns={'P1VBC': 'Primera', 'P2VBC': 'Segunda'})
        
     # Seleccionar las columnas a mostrar
-    columns_to_show = ['ID Temporada', 'Jornada', 'Fecha', 'Partido', 'Puntos', 'Entrenador VBC', 'Parte', 'Enlace']
+    columns_to_show = ['ID Temporada', 'Jornada', 'Fecha', 'Partido', 'Puntos', 'Parte', 'Enlace']
     st.write("Récords de puntos en una parte")
     st.dataframe(max10_parts[columns_to_show], hide_index=True)
     
@@ -695,42 +695,42 @@ elif marco == "Récords equipo":
     # Cambiar el nombre de las columnas
     max10_quarters = max10_quarters.rename(columns={'Q1VBC': 'Q1', 'Q2VBC': 'Q2', 'Q3VBC': 'Q3', 'Q4VBC': 'Q4'})
     # Seleccionar las columnas a mostrar
-    columns_to_show = ['ID Temporada', 'Jornada', 'Fecha', 'Partido', 'Puntos', 'Entrenador VBC', 'Cuarto', 'Enlace']
+    columns_to_show = ['ID Temporada', 'Jornada', 'Fecha', 'Partido', 'Puntos', 'Cuarto', 'Enlace']
     st.write("Récords de puntos en un cuarto")
     st.dataframe(max10_quarters[columns_to_show], hide_index=True)
         
     # Rebotes
     max10_rebounds = df_games_Eurocup.sort_values(by='Rebotes VBC',ascending=False).head(lh)
     #Seleccionar las columnas a mostrar
-    columns_to_show = ['ID Temporada', 'Jornada', 'Fecha', 'Partido', 'Rebotes VBC', 'Rebotes Rival', 'Entrenador VBC', 'Enlace']
+    columns_to_show = ['ID Temporada', 'Jornada', 'Fecha', 'Partido', 'Rebotes VBC', 'Rebotes Rival', 'Enlace']
     st.write("Récords en rebotes")
     st.dataframe(max10_rebounds[columns_to_show], hide_index=True)
     
     # Asistencias 
     max10_assists = df_games_Eurocup.sort_values(by='Asistencias VBC',ascending=False).head(lh)
     #Seleccionar las columnas a mostrar
-    columns_to_show = ['ID Temporada', 'Jornada', 'Fecha', 'Partido', 'Asistencias VBC', 'Asistencias Rival', 'Entrenador VBC', 'Enlace']
+    columns_to_show = ['ID Temporada', 'Jornada', 'Fecha', 'Partido', 'Asistencias VBC', 'Asistencias Rival', 'Enlace']
     st.write("Récords en asistencias")
     st.dataframe(max10_assists[columns_to_show], hide_index=True)
 
     # Robos
     max10_steals = df_games_Eurocup.sort_values(by='Robos VBC',ascending=False).head(lh)
     #Seleccionar las columnas a mostrar
-    columns_to_show = ['ID Temporada', 'Jornada', 'Fecha', 'Partido', 'Robos VBC', 'Robos Rival', 'Entrenador VBC', 'Enlace']
+    columns_to_show = ['ID Temporada', 'Jornada', 'Fecha', 'Partido', 'Robos VBC', 'Robos Rival', 'Enlace']
     st.write("Récords en robos")
     st.dataframe(max10_steals[columns_to_show], hide_index=True)
 
     # Tapones
     max10_blocks = df_games_Eurocup.sort_values(by='Tapones VBC',ascending=False).head(lh)
     #Seleccionar las columnas a mostrar
-    columns_to_show = ['ID Temporada', 'Jornada', 'Fecha', 'Partido', 'Tapones VBC', 'Tapones Rival', 'Entrenador VBC', 'Enlace']
+    columns_to_show = ['ID Temporada', 'Jornada', 'Fecha', 'Partido', 'Tapones VBC', 'Tapones Rival', 'Enlace']
     st.write("Récords en tapones")
     st.dataframe(max10_blocks[columns_to_show], hide_index=True)
 
     # Valoración
     max10_val = df_games_Eurocup.sort_values(by='Val VBC',ascending=False).head(lh)
     #Seleccionar las columnas a mostrar
-    columns_to_show = ['ID Temporada', 'Jornada', 'Fecha', 'Partido', 'Val VBC', 'Val Rival', 'Entrenador VBC', 'Enlace']
+    columns_to_show = ['ID Temporada', 'Jornada', 'Fecha', 'Partido', 'Val VBC', 'Val Rival', 'Enlace']
     st.write("Récords en valoración")
     st.dataframe(max10_val[columns_to_show], hide_index=True)
 
@@ -740,7 +740,7 @@ elif marco == "Récords equipo":
     # Multiplicar por 100 para mostrar el porcentaje
     max10_t1a['T1% VBC'] = max10_t1a['T1% VBC']*100
     #Seleccionar las columnas a mostrar
-    columns_to_show = ['ID Temporada', 'Jornada', 'Fecha', 'Partido', 'T1a VBC', 'T1% VBC', 'Entrenador VBC', 'Enlace']
+    columns_to_show = ['ID Temporada', 'Jornada', 'Fecha', 'Partido', 'T1a VBC', 'T1% VBC', 'Enlace']
     st.write("Récords en tiros libres")
     st.dataframe(max10_t1a[columns_to_show], hide_index=True)
 
@@ -749,7 +749,7 @@ elif marco == "Récords equipo":
     # Multiplicar por 100 para mostrar el porcentaje
     max10_t2a['T2% VBC'] = max10_t2a['T2% VBC']*100
     #Seleccionar las columnas a mostrar
-    columns_to_show = ['ID Temporada', 'Jornada', 'Fecha', 'Partido', 'T2a VBC', 'T2% VBC', 'Entrenador VBC', 'Enlace']
+    columns_to_show = ['ID Temporada', 'Jornada', 'Fecha', 'Partido', 'T2a VBC', 'T2% VBC', 'Enlace']
     st.write("Récords en tiros de 2 puntos")
     st.dataframe(max10_t2a[columns_to_show], hide_index=True)
 
@@ -758,7 +758,7 @@ elif marco == "Récords equipo":
     # Multiplicar por 100 para mostrar el porcentaje
     max10_t3a['T3% VBC'] = max10_t3a['T3% VBC']*100
     #Seleccionar las columnas a mostrar
-    columns_to_show = ['ID Temporada', 'Jornada', 'Fecha', 'Partido', 'T3a VBC', 'T3% VBC', 'Entrenador VBC', 'Enlace']
+    columns_to_show = ['ID Temporada', 'Jornada', 'Fecha', 'Partido', 'T3a VBC', 'T3% VBC', 'Enlace']
     st.write("Récords en tiros de 3 puntos")
     st.dataframe(max10_t3a[columns_to_show], hide_index=True)
 
@@ -768,7 +768,7 @@ elif marco == "Récords equipo":
     # Multiplicar por 100 para mostrar el porcentaje
     max10_t1p['T1% VBC'] = max10_t1p['T1% VBC']*100
     #Seleccionar las columnas a mostrar
-    columns_to_show = ['ID Temporada', 'Jornada', 'Fecha', 'Partido', 'T1% VBC', 'T1a VBC', 'Entrenador VBC', 'Enlace']
+    columns_to_show = ['ID Temporada', 'Jornada', 'Fecha', 'Partido', 'T1% VBC', 'T1a VBC', 'Enlace']
     st.write("Récords en porcentaje de tiros libres")
     st.dataframe(max10_t1p[columns_to_show], hide_index=True)
 
@@ -777,7 +777,7 @@ elif marco == "Récords equipo":
     # Multiplicar por 100 para mostrar el porcentaje
     max10_t2p['T2% VBC'] = max10_t2p['T2% VBC']*100
     #Seleccionar las columnas a mostrar
-    columns_to_show = ['ID Temporada', 'Jornada', 'Fecha', 'Partido', 'T2% VBC', 'T2a VBC', 'Entrenador VBC', 'Enlace']
+    columns_to_show = ['ID Temporada', 'Jornada', 'Fecha', 'Partido', 'T2% VBC', 'T2a VBC', 'Enlace']
     st.write("Récords en porcentaje de tiros de 2 puntos")
     st.dataframe(max10_t2p[columns_to_show], hide_index=True)
 
@@ -786,7 +786,7 @@ elif marco == "Récords equipo":
     # Multiplicar por 100 para mostrar el porcentaje
     max10_t3p['T3% VBC'] = max10_t3p['T3% VBC']*100
     #Seleccionar las columnas a mostrar
-    columns_to_show = ['ID Temporada', 'Jornada', 'Fecha', 'Partido', 'T3% VBC', 'T3a VBC', 'Entrenador VBC', 'Enlace']
+    columns_to_show = ['ID Temporada', 'Jornada', 'Fecha', 'Partido', 'T3% VBC', 'T3a VBC', 'Enlace']
     st.write("Récords en porcentaje de tiros de 3 puntos")
     st.dataframe(max10_t3p[columns_to_show], hide_index=True)
 
