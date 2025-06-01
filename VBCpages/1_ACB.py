@@ -92,9 +92,7 @@ if marco == "Estadísticas de un partido":
     columns_to_show = ['Minutos VBC', 'T2a VBC','T2i VBC', 'T2% VBC', 'T3a VBC', 'T3i VBC', 'T3% VBC', 'T1a VBC',
     'T1i VBC', 'T1% VBC', 'Rebotes VBC', 'R.Def VBC', 'R.Ofe VBC',
     'Asistencias VBC', 'Robos VBC', 'Perdidas VBC', 'CTP VBC',
-    'Tapones VBC', 'TR VBC', 'Mates VBC', 'FPF VBC', 'FPC VBC', '+/- VBC',
-    'Val VBC', 'eFG% VBC', 'TOV% VBC', 'OREB% VBC', 'DREB% VBC', 'Pace VBC',
-    'ORTG VBC', 'DRTG VBC', 'Net Rating VBC', 'AST/TO VBC', 'Posesiones VBC',
+    'Tapones VBC', 'TR VBC', 'Mates VBC', 'FPF VBC', 'FPC VBC', '+/- VBC', 'Val VBC', 
     'P1VBC','P2VBC', 'Q1VBC', 'Q2VBC', 'Q3VBC', 'Q4VBC', 'PR1VBC', 'PR2VBC']
     st.dataframe(df_games_ACB[(df_games_ACB['ID Temporada'] == season) & (df_games_ACB['Fecha'] == date)][columns_to_show], hide_index=True)
     
@@ -103,10 +101,7 @@ if marco == "Estadísticas de un partido":
     'T2% Rival', 'T3a Rival', 'T3i Rival', 'T3% Rival', 'T1a Rival',
     'T1i Rival', 'T1% Rival', 'Rebotes Rival', 'R.Def Rival', 'R.Ofe Rival',
     'Asistencias Rival', 'Robos Rival', 'Perdidas Rival', 'CTP Rival',
-    'Tapones Rival', 'TR Rival', 'Mates Rival', 'FPF Rival', 'FPC Rival',
-    '+/- Rival', 'Val Rival', 'eFG% Rival', 'TOV% Rival', 'OREB% Rival',
-    'DREB% Rival', 'Pace Rival', 'ORTG Rival', 'DRTG Rival',
-    'Net Rating Rival', 'AST/TO Rival', 'Posesiones Rival',
+    'Tapones Rival', 'TR Rival', 'Mates Rival', 'FPF Rival', 'FPC Rival','+/- Rival', 'Val Rival', 
     'P1Rival', 'P2Rival', 'Q1Rival', 'Q2Rival', 'Q3Rival', 'Q4Rival',
     'PR1Rival', 'PR2Rival']
     st.dataframe(df_games_ACB[(df_games_ACB['ID Temporada'] == season) & (df_games_ACB['Fecha'] == date)][columns_to_show], hide_index=True)
