@@ -749,120 +749,181 @@ elif marco == "Estadísticas jugadores de la temporada":
     # Crear un marco para mostrar las estadísticas de los jugadores de la temporada actual
     st.subheader("Estadísticas jugadores de la temporada")
     
-    # Añadir radio button para seleccionar total o por partido
-    tipo_estadistica = st.radio("Tipo de estadística", ["Total", "Por Partido"], horizontal=True)
-    
     # Seleccionar la temporada actual, cogiendo el id del último partido
     season = df_games_ACB['ID Temporada'].max()
+    
+    # Añadir radio button para seleccionar total o por partido
+    col1, col2 = st.columns([1, 2])
+    with col1:
+        tipo_estadistica = st.radio("Tipo de estadística", ["Total", "Por Partido"], horizontal=True)
+    
+    # Añadir filtros
+    st.write("Filtros")
+    col1, col2, col3 = st.columns(3)
+    
+    with col1:
+        # Radio button para filtrar por victorias/derrotas
+        resultado_filtro = st.radio("Resultado", ["Todos", "Victorias", "Derrotas"], horizontal=True)
+    
+    # Obtener el rango de jornadas de la temporada
+    jornadas_temporada = df_games_ACB[df_games_ACB['ID Temporada'] == season]['Jornada'].unique()
+    min_jornada = min(jornadas_temporada)
+    max_jornada = max(jornadas_temporada)
+    
+    with col2:
+        # Spinner para seleccionar jornada inicial
+        jornada_inicio = st.number_input("Jornada inicial", min_value=min_jornada, max_value=max_jornada, value=min_jornada)
+    
+    with col3:
+        # Spinner para seleccionar jornada final, debe ser mayor o igual que jornada_inicio
+        jornada_fin = st.number_input("Jornada final", min_value=jornada_inicio, max_value=max_jornada, value=max_jornada)
+    
     # Filtrar los datos de los jugadores para la temporada actual
     season_players = df_players_ACB[df_players_ACB['ID Temporada'] == season]
     
-    # Crear un dataframe para almacenar las estadísticas de todos los jugadores
-    todos_jugadores_stats = []
+    # Filtrar por jornadas
+    season_players = season_players[(season_players['Jornada'] >= jornada_inicio) & 
+                                    (season_players['Jornada'] <= jornada_fin)]
     
-    # Contar partidos por jugador y puntos totales para ordenar
-    partidos_por_jugador = season_players.groupby('ID Jugador')['ID Partido'].count()
-    puntos_por_jugador = season_players.groupby('ID Jugador')['Puntos'].sum()
+    # Filtrar por resultado (victorias/derrotas)
+    if resultado_filtro != "Todos":
+        # Obtener los IDs de partidos que son victorias o derrotas
+        victoria_valor = 1 if resultado_filtro == "Victorias" else 0
+        partidos_filtrados = df_games_ACB[(df_games_ACB['ID Temporada'] == season) & 
+                                          (df_games_ACB['VBC Victoria'] == victoria_valor)]['ID Partido'].unique()
+        
+        # Filtrar los datos de jugadores por estos partidos
+        season_players = season_players[season_players['ID Partido'].isin(partidos_filtrados)]
+    
+    # Si no quedan partidos después del filtrado, mostrar mensaje y salir
+    if len(season_players) == 0:
+        st.warning("No hay datos disponibles para los filtros seleccionados.")
+    else:
+        # Crear un dataframe para almacenar las estadísticas de todos los jugadores
+        todos_jugadores_stats = []
+        
+        # Contar partidos por jugador y puntos totales para ordenar
+        partidos_por_jugador = season_players.groupby('ID Jugador')['ID Partido'].nunique()
+        puntos_por_jugador = season_players.groupby('ID Jugador')['Puntos'].sum()
 
-    # Crear un dataframe combinado para ordenamiento
-    jugadores_stats = pd.DataFrame({
-        'Partidos': partidos_por_jugador,
-        'Puntos': puntos_por_jugador
-    })
+        # Crear un dataframe combinado para ordenamiento
+        jugadores_stats = pd.DataFrame({
+            'Partidos': partidos_por_jugador,
+            'Puntos': puntos_por_jugador
+        })
 
-    # Ordenar primero por partidos (descendente) y luego por puntos (descendente)
-    jugadores_stats = jugadores_stats.sort_values(by=['Partidos', 'Puntos'], ascending=[False, False])
-
-    # Obtener la lista de jugadores ya ordenada
-    jugadores = jugadores_stats.index.tolist()
-    
-    # Procesar cada jugador
-    for jugador_id in jugadores:
-        # Obtener el nombre del jugador usando el ID
-        nombre_jugador = df_players_ACB[df_players_ACB['ID Jugador'] == jugador_id]['Nombre'].unique()[0]
+        # Ordenar primero por partidos (descendente) y luego por puntos (descendente)
+        jugadores_stats = jugadores_stats.sort_values(by=['Partidos', 'Puntos'], ascending=[False, False])
         
-        # Filtrar los datos del jugador
-        jugador_stats = season_players[season_players['ID Jugador'] == jugador_id]
+        # Obtener la lista de jugadores ya ordenada
+        jugadores = jugadores_stats.index.tolist()
         
-        # Calcular acumulados y medias por partido
-        partidos_jugados = len(jugador_stats)
+        # Procesar cada jugador
+        for jugador_id in jugadores:
+            # Filtrar los datos del jugador
+            jugador_stats = season_players[season_players['ID Jugador'] == jugador_id]
+            
+            # Si no hay estadísticas para este jugador (después del filtrado), continuar con el siguiente
+            if len(jugador_stats) == 0:
+                continue
+                
+            # Obtener el nombre del jugador usando el ID
+            nombre_jugador = df_players_ACB[df_players_ACB['ID Jugador'] == jugador_id]['Nombre'].unique()[0]
+            
+            # Calcular acumulados y medias por partido
+            partidos_jugados = jugador_stats['ID Partido'].nunique()
+            
+            # Calcular % de victorias de los partidos filtrados
+            id_partidos_jugados = jugador_stats['ID Partido'].unique()
+            victorias = len(df_games_ACB[df_games_ACB['ID Partido'].isin(id_partidos_jugados) & 
+                                         (df_games_ACB['VBC Victoria'] == 1)])
+            porcentaje_victorias = round(victorias * 100 / partidos_jugados, 1) if partidos_jugados > 0 else 0.0
+            
+            # Calcular porcentajes de tiro
+            t1_porcentaje = round(jugador_stats['T1a'].sum() / jugador_stats['T1i'].sum() * 100, 1) if jugador_stats['T1i'].sum() > 0 else 0.0
+            t2_porcentaje = round(jugador_stats['T2a'].sum() / jugador_stats['T2i'].sum() * 100, 1) if jugador_stats['T2i'].sum() > 0 else 0.0
+            t3_porcentaje = round(jugador_stats['T3a'].sum() / jugador_stats['T3i'].sum() * 100, 1) if jugador_stats['T3i'].sum() > 0 else 0.0
+            
+            # Crear diccionario con las estadísticas del jugador
+            jugador_row = {
+                'Nombre': nombre_jugador,
+                'Partidos': partidos_jugados,
+                '% Victorias': porcentaje_victorias
+            }
+            
+            # Añadir estadísticas totales o por partido según la selección
+            if tipo_estadistica == "Total":
+                jugador_row.update({
+                    'Puntos': jugador_stats['Puntos'].sum(),
+                    'Rebotes': jugador_stats['Rebotes'].sum(),
+                    'Asistencias': jugador_stats['Asistencias'].sum(),
+                    'Robos': jugador_stats['Robos'].sum(),
+                    'Tapones': jugador_stats['Tapones'].sum(),
+                    'Valoración': jugador_stats['Val'].sum(),
+                    'T. Libres': jugador_stats['T1a'].sum(),
+                    'T1%': t1_porcentaje,
+                    'T2 puntos': jugador_stats['T2a'].sum(),
+                    'T2%': t2_porcentaje,
+                    'T3 puntos': jugador_stats['T3a'].sum(),
+                    'T3%': t3_porcentaje
+                })
+            else:  # "Por Partido"
+                jugador_row.update({
+                    'Puntos': round(jugador_stats['Puntos'].sum() / partidos_jugados, 1),
+                    'Rebotes': round(jugador_stats['Rebotes'].sum() / partidos_jugados, 1),
+                    'Asistencias': round(jugador_stats['Asistencias'].sum() / partidos_jugados, 1),
+                    'Robos': round(jugador_stats['Robos'].sum() / partidos_jugados, 1),
+                    'Tapones': round(jugador_stats['Tapones'].sum() / partidos_jugados, 1),
+                    'Valoración': round(jugador_stats['Val'].sum() / partidos_jugados, 1),
+                    'T. Libres': round(jugador_stats['T1a'].sum() / partidos_jugados, 1),
+                    'T1%': t1_porcentaje,
+                    'T2 puntos': round(jugador_stats['T2a'].sum() / partidos_jugados, 1),
+                    'T2%': t2_porcentaje,
+                    'T3 puntos': round(jugador_stats['T3a'].sum() / partidos_jugados, 1),
+                    'T3%': t3_porcentaje
+                })
+            
+            todos_jugadores_stats.append(jugador_row)
         
-        # Calcular % de victorias
-        id_partidos_jugados = jugador_stats['ID Partido'].unique()
-        victorias = len(df_games_ACB[df_games_ACB['ID Partido'].isin(id_partidos_jugados) & (df_games_ACB['VBC Victoria'] == 1)])
-        porcentaje_victorias = round(victorias * 100 / partidos_jugados, 1) if partidos_jugados > 0 else 0.0
-        
-        # Calcular porcentajes de tiro
-        t1_porcentaje = round(jugador_stats['T1a'].sum() / jugador_stats['T1i'].sum() * 100, 1) if jugador_stats['T1i'].sum() > 0 else 0.0
-        t2_porcentaje = round(jugador_stats['T2a'].sum() / jugador_stats['T2i'].sum() * 100, 1) if jugador_stats['T2i'].sum() > 0 else 0.0
-        t3_porcentaje = round(jugador_stats['T3a'].sum() / jugador_stats['T3i'].sum() * 100, 1) if jugador_stats['T3i'].sum() > 0 else 0.0
-        
-        # Crear diccionario con las estadísticas del jugador
-        jugador_row = {
-            'Nombre': nombre_jugador,
-            'Partidos': partidos_jugados,
-            '% Victorias': porcentaje_victorias
-        }
-        
-        # Añadir estadísticas totales o por partido según la selección
-        if tipo_estadistica == "Total":
-            jugador_row.update({
-                'Puntos': jugador_stats['Puntos'].sum(),
-                'Rebotes': jugador_stats['Rebotes'].sum(),
-                'Asistencias': jugador_stats['Asistencias'].sum(),
-                'Robos': jugador_stats['Robos'].sum(),
-                'Tapones': jugador_stats['Tapones'].sum(),
-                'Valoración': jugador_stats['Val'].sum(),
-                'T. Libres': jugador_stats['T1a'].sum(),
-                'T1%': t1_porcentaje,
-                'T2 puntos': jugador_stats['T2a'].sum(),
-                'T2%': t2_porcentaje,
-                'T3 puntos': jugador_stats['T3a'].sum(),
-                'T3%': t3_porcentaje
-            })
-        else:  # "Por Partido"
-            jugador_row.update({
-                'Puntos': round(jugador_stats['Puntos'].mean(), 1),
-                'Rebotes': round(jugador_stats['Rebotes'].mean(), 1),
-                'Asistencias': round(jugador_stats['Asistencias'].mean(), 1),
-                'Robos': round(jugador_stats['Robos'].mean(), 1),
-                'Tapones': round(jugador_stats['Tapones'].mean(), 1),
-                'Valoración': round(jugador_stats['Val'].mean(), 1),
-                'T. Libres': round(jugador_stats['T1a'].mean(), 1),
-                'T1%': t1_porcentaje,
-                'T2 puntos': round(jugador_stats['T2a'].mean(), 1),
-                'T2%': t2_porcentaje,
-                'T3 puntos': round(jugador_stats['T3a'].mean(), 1),
-                'T3%': t3_porcentaje
-            })
-        
-        todos_jugadores_stats.append(jugador_row)
-    
-    # Crear dataframe con las estadísticas de todos los jugadores
-    df_todos_jugadores = pd.DataFrame(todos_jugadores_stats)
-    
-    # Mostrar la tabla con todas las estadísticas directamente (sin dividir en columnas)
-    st.dataframe(
-        df_todos_jugadores,
-        hide_index=True,
-        column_config={
-            "Nombre": st.column_config.TextColumn(width="medium"),
-            "Partidos": st.column_config.NumberColumn(width="small"),
-            "% Victorias": st.column_config.NumberColumn(format="%.1f%%", width="small"),
-            "Puntos": st.column_config.NumberColumn(width="small"),
-            "Rebotes": st.column_config.NumberColumn(width="small"),
-            "Asistencias": st.column_config.NumberColumn(width="small"),
-            "Robos": st.column_config.NumberColumn(width="small"),
-            "Tapones": st.column_config.NumberColumn(width="small"),
-            "Valoración": st.column_config.NumberColumn(width="small"),
-            "T. Libres": st.column_config.NumberColumn(width="small"),
-            "T1%": st.column_config.NumberColumn(format="%.1f%%", width="small"),
-            "T2 puntos": st.column_config.NumberColumn(width="small"),
-            "T2%": st.column_config.NumberColumn(format="%.1f%%", width="small"),
-            "T3 puntos": st.column_config.NumberColumn(width="small"),
-            "T3%": st.column_config.NumberColumn(format="%.1f%%", width="small")
-        }
-    )
+        # Si después de procesar a todos los jugadores no hay estadísticas, mostrar mensaje
+        if len(todos_jugadores_stats) == 0:
+            st.warning("No hay datos disponibles para los filtros seleccionados.")
+        else:
+            # Crear dataframe con las estadísticas de todos los jugadores
+            df_todos_jugadores = pd.DataFrame(todos_jugadores_stats)
+            
+            # Mostrar información sobre los filtros aplicados
+            filtros_aplicados = []
+            if resultado_filtro != "Todos":
+                filtros_aplicados.append(f"Resultado: {resultado_filtro}")
+            if jornada_inicio > min_jornada or jornada_fin < max_jornada:
+                filtros_aplicados.append(f"Jornadas: {jornada_inicio} a {jornada_fin}")
+            
+            if filtros_aplicados:
+                st.write(f"**Filtros aplicados:** {', '.join(filtros_aplicados)}")
+            
+            # Mostrar la tabla con todas las estadísticas directamente (sin dividir en columnas)
+            st.dataframe(
+                df_todos_jugadores,
+                hide_index=True,
+                column_config={
+                    "Nombre": st.column_config.TextColumn(width="medium"),
+                    "Partidos": st.column_config.NumberColumn(width="small"),
+                    "% Victorias": st.column_config.NumberColumn(format="%.1f%%", width="small"),
+                    "Puntos": st.column_config.NumberColumn(width="small"),
+                    "Rebotes": st.column_config.NumberColumn(width="small"),
+                    "Asistencias": st.column_config.NumberColumn(width="small"),
+                    "Robos": st.column_config.NumberColumn(width="small"),
+                    "Tapones": st.column_config.NumberColumn(width="small"),
+                    "Valoración": st.column_config.NumberColumn(width="small"),
+                    "T. Libres": st.column_config.NumberColumn(width="small"),
+                    "T1%": st.column_config.NumberColumn(format="%.1f%%", width="small"),
+                    "T2 puntos": st.column_config.NumberColumn(width="small"),
+                    "T2%": st.column_config.NumberColumn(format="%.1f%%", width="small"),
+                    "T3 puntos": st.column_config.NumberColumn(width="small"),
+                    "T3%": st.column_config.NumberColumn(format="%.1f%%", width="small")
+                }
+            )
 elif marco == "Estadísticas contra un rival":
     
     st.subheader("Estadísticas contra un rival")
