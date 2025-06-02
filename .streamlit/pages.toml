@@ -4,3 +4,6 @@ name = "Liga ACB"
 [[pages]]
 path = "VBCpages/2_Eurocup.py"
 name = "Eurocup"
+[[pages]]
+path = "VBCpages/3_Euroleague.py"
+name = "Euroleague"
