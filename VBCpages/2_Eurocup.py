@@ -982,7 +982,8 @@ elif marco == "Estadísticas contra un rival":
     # Filtra los equipos
     # Selecciona los equipos únicos de la columna 'ID Rival' del DataFrame df_games_Eurocup
     # Lee dataframe de equipos de Eurocup primera columna IDs del equipo, segunda columna nombre del equipo
-    df_teams_Eurocup = pd.read_csv('data/teams_Eurocup.csv')
+    path = r"Data/"
+    df_teams_Eurocup = pd.read_csv(path+'teams_Eurocup.csv')
     nombres_rivales = df_teams_Eurocup['Nombre'].unique().tolist()
 
     # Crea un selectbox para seleccionar el rival
