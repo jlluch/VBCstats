@@ -171,7 +171,7 @@ elif marco == "Líderes históricos":
         mg, mp, mr, ma = st.columns(4)
         mg.dataframe(
             max_games,
-            hide_index=True,
+            hide_index=False,
             height=12*35,
             column_config={"Nombre": st.column_config.TextColumn(width="medium")}
         )
