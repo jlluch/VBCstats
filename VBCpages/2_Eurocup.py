@@ -5,6 +5,7 @@
 # """
 import streamlit as st
 import pandas as pd
+import ast
 from VBCpages.encrypt_utils import decrypt_csv_file
 
 def load_encrypted_data(file_path):
@@ -984,12 +985,12 @@ elif marco == "Estadísticas contra un rival":
     # Lee dataframe de equipos de Eurocup primera columna IDs del equipo, segunda columna nombre del equipo
     path = r"Data/"
     df_teams_Eurocup = pd.read_csv(path+'teams_Eurocup.csv')
-    nombres_rivales = df_teams_Eurocup['Nombre'].unique().tolist()
+    nombres_rivales = df_teams_Eurocup['Team'].unique().tolist()
 
     # Crea un selectbox para seleccionar el rival
     rival = st.selectbox("Selecciona un rival", nombres_rivales, index=0)     # Esto asume que 'Equipo Rival' es el nombre del equipo y 'ID Rival' es su identificador único   
     # Filtra los partidos contra el rival seleccionado, utiliza el id del equipo
-    ids_rival = df_teams_Eurocup[df_teams_Eurocup['Nombre'] == rival]['ID Rival']
+    ids_rival = ast.literal_eval(df_teams_Eurocup[df_teams_Eurocup['Team'] == rival]['ID'])
 
     # Selecciona todos los partidos contra el rival    
     partidos_rival = df_games_Eurocup[df_games_Eurocup['ID Rival'].isin(ids_rival)]
@@ -1171,11 +1172,3 @@ elif marco == "Entrenadores":
             'Derrotas': st.column_config.NumberColumn(width="small"),
             'Porcentaje': st.column_config.NumberColumn(width="small", format="%.1f%%")
         })
-
-
-
-
-
-
-
-
