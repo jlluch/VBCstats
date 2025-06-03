@@ -990,7 +990,7 @@ elif marco == "Estadísticas contra un rival":
     # Crea un selectbox para seleccionar el rival
     rival = st.selectbox("Selecciona un rival", nombres_rivales, index=0)     # Esto asume que 'Equipo Rival' es el nombre del equipo y 'ID Rival' es su identificador único   
     # Filtra los partidos contra el rival seleccionado, utiliza el id del equipo
-    ids_rival = ast.literal_eval(df_teams_Eurocup[df_teams_Eurocup['Team'] == rival]['ID'])
+    ids_rival = ast.literal_eval(df_teams_Eurocup[df_teams_Eurocup['Team'] == rival]['ID'].values[0])
 
     # Selecciona todos los partidos contra el rival    
     partidos_rival = df_games_Eurocup[df_games_Eurocup['ID Rival'].isin(ids_rival)]
