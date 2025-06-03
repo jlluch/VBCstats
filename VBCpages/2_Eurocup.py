@@ -799,13 +799,10 @@ elif marco == "Récords equipo":
 elif marco == "Estadísticas jugadores de una temporada":
     
     #Seleccionar una temporada, ordenar las temporadas de mayor a menor
-    season = st.selectbox("Selecciona una temporada", df_games_Eurocup['ID Temporada'].sort_values(ascending=False).unique())
+    season = st.selectbox("Selecciona una temporada", df_games_Eurocup['ID Temporada'].sort_values(ascending=False).unique(), index=0)
     
     # Crear un marco para mostrar las estadísticas de los jugadores de la temporada actual
     st.subheader("Estadísticas jugadores de la temporada "+str(season))
-    
-    # Seleccionar la temporada actual, cogiendo el id del último partido
-    season = df_games_Eurocup['ID Temporada'].max()
     
     # Añadir radio button para seleccionar total o por partido
     col1, col2 = st.columns([1, 2])
