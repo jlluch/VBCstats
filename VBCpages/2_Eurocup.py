@@ -640,12 +640,12 @@ elif marco == "Líderes de una temporada":
     
     # Muestra los resultados en tablas y en columnas de streamlit separadas
     mt1a, mt1p, mt2a, mt2p, mt3a, mt3p = st.columns(6)
-    mt1a.dataframe(max_t1a, width=180, column_config={"T.Libres": st.column_config.TextColumn(width="medium")})
-    mt1p.dataframe(max_t1p, width=180, column_config={"T1%": st.column_config.TextColumn(width="medium")})
-    mt2a.dataframe(max_t2a, width=180, column_config={"T2": st.column_config.TextColumn(width="medium")})
-    mt2p.dataframe(max_t2p, width=180, column_config={"T2%": st.column_config.TextColumn(width="medium")})
-    mt3a.dataframe(max_t3a, width=180, column_config={"T3": st.column_config.TextColumn(width="medium")})
-    mt3p.dataframe(max_t3p, width=180, column_config={"T3%": st.column_config.TextColumn(width="medium")})
+    mt1a.dataframe(max_t1a, column_config={"T.Libres": st.column_config.TextColumn(width="medium")})
+    mt1p.dataframe(max_t1p, column_config={"T1%": st.column_config.TextColumn(width="medium")})
+    mt2a.dataframe(max_t2a, column_config={"T2": st.column_config.TextColumn(width="medium")})
+    mt2p.dataframe(max_t2p, column_config={"T2%": st.column_config.TextColumn(width="medium")})
+    mt3a.dataframe(max_t3a, column_config={"T3": st.column_config.TextColumn(width="medium")})
+    mt3p.dataframe(max_t3p, column_config={"T3%": st.column_config.TextColumn(width="medium")})
     
 elif marco == "Récords equipo":
     lh = 10
