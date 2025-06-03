@@ -984,7 +984,13 @@ elif marco == "Estadísticas contra un rival":
     id_rivales = df_games_Eurocup['ID Rival'].unique()
     # Paera cada id de rival, obtiene un nombre del equipo, ya que pueden haber varios equipos con el mismo id
     # Obtiene los nombres de los rivales únicos
-    nombres_rivales = df_games_Eurocup.groupby('ID Rival')['Equipo Rival'].first().tolist()
+    id_names_rivales = df_games_Eurocup[['ID Equipo', 'Equipo Rival']].drop_duplicates()
+    # Para cada id de rival, seleccioa el primer nombre de equipo
+    id_names_rivales = id_names_rivales.set_index('ID Equipo')['Equipo Rival'].to_dict()
+    # Crea una lista de nombres de rivales a partir del diccionario
+    nombres_rivales = id_names_rivales['Equipo Rival'].values()
+
+    
     # Ordena los nombres de los rivales alfabéticamente
     nombres_rivales = sorted(nombres_rivales)
     # Crea un selectbox para seleccionar el rival
