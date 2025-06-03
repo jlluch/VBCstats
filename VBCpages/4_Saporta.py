@@ -115,7 +115,7 @@ elif marco == "Líderes históricos":
     if tipo == "Total":
         # Calcular los "lh" jugadores con el mayor número de partidos jugados, puntos, rebotes, asistencias, robos, tapones y valoración
         # Añadir una fila en cada tabla con el judador de la temporada actual 
-        # Mostrar los resultados en una tabla
+        # Mostrar los resultados en una tabla        
 
         max_games = df_players_Saporta.groupby('Nombre')['ID Partido'].count().sort_values(ascending=False)
         #Cambiar nombre de la columna
@@ -165,11 +165,8 @@ elif marco == "Líderes históricos":
         max_t3p = max_t3p.rename("T3%")
         shots['T3'] = shots['T3a']
         max_t3p = max_t3p.to_frame()
-        max_t3p['T3'] = shots.loc[max_t3p.index, 'T3']        
-       
-        # Muestra los resultados en tablas y en columnas de streamlit separadas
-
-
+        max_t3p['T3'] = shots.loc[max_t3p.index, 'T3']
+        # Añadir los jugadores de la temporada actual a las tablas
 
         mg, mp, mr, ma = st.columns(4)
         mg.dataframe(
