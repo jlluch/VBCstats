@@ -982,7 +982,7 @@ elif marco == "Estadísticas contra un rival":
     # Filtra los equipos
     # Selecciona los equipos únicos de la columna 'ID Rival' del DataFrame df_games_Eurocup
     id_rivales = df_games_Eurocup['ID Rival'].unique()
-    nombres_rivales = df_games_Eurocup[df_games_Eurocup['ID Rival'].isin(id_rivales)]['Equipo Rival'].unique()
+    nombres_rivales = (df_games_Eurocup[df_games_Eurocup['ID Rival'].isin(id_rivales)]['Equipo Rival'].unique()).sort()
     # Crea un selectbox para seleccionar el rival
     rival = st.selectbox("Selecciona un rival", nombres_rivales, index=0)     # Esto asume que 'Equipo Rival' es el nombre del equipo y 'ID Rival' es su identificador único   
     # Filtra los partidos contra el rival seleccionado, utiliza el id del equipo
