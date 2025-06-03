@@ -93,7 +93,7 @@ if marco == "Estadísticas de un partido":
     columns_to_show = ['Minutos VBC', 'T2a VBC','T2i VBC', 'T2% VBC', 'T3a VBC', 'T3i VBC', 'T3% VBC', 'T1a VBC',
     'T1i VBC', 'T1% VBC', 'Rebotes VBC', 'R.Def VBC', 'R.Ofe VBC',
     'Asistencias VBC', 'Robos VBC', 'Perdidas VBC', 
-    'Tapones VBC', 'TR VBC',  'FPF VBC', 'FPC VBC', '+/- VBC', 'Val VBC', 
+    'Tapones VBC',  'FPF VBC', 'FPC VBC', '+/- VBC', 'Val VBC', 
     'P1VBC','P2VBC', 'Q1VBC', 'Q2VBC', 'Q3VBC', 'Q4VBC', 'PR1VBC', 'PR2VBC']
     st.dataframe(df_games_Saporta[(df_games_Saporta['ID Temporada'] == season) & (df_games_Saporta['Fecha'] == date)][columns_to_show], hide_index=True)
     
