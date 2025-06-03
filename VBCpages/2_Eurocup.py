@@ -366,7 +366,7 @@ elif marco == "Líderes históricos":
 elif marco == "Estadísticas de una temporada":
     
     #Seleccionar una temporada, ordenar las temporadas de mayor a menor
-    season = st.selectbox("Selecciona una temporada", df_games_Euroleague['ID Temporada'].sort_values(ascending=False).unique())
+    season = st.selectbox("Selecciona una temporada", df_games_Eurocup['ID Temporada'].sort_values(ascending=False).unique())
 
     #Crear un marco para mostrar los acumulados de la temporada
     st.subheader("Acumulados de la temporada "+str(season))
