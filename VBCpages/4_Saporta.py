@@ -102,7 +102,7 @@ if marco == "Estadísticas de un partido":
     'T2% Rival', 'T3a Rival', 'T3i Rival', 'T3% Rival', 'T1a Rival',
     'T1i Rival', 'T1% Rival', 'Rebotes Rival', 'R.Def Rival', 'R.Ofe Rival',
     'Asistencias Rival', 'Robos Rival', 'Perdidas Rival', 
-    'Tapones Rival', 'TR Rival', 'FPF Rival', 'FPC Rival','+/- Rival', 'Val Rival', 
+    'Tapones Rival', 'FPF Rival', 'FPC Rival','+/- Rival', 'Val Rival', 
     'P1Rival', 'P2Rival', 'Q1Rival', 'Q2Rival', 'Q3Rival', 'Q4Rival',
     'PR1Rival', 'PR2Rival']
     st.dataframe(df_games_Saporta[(df_games_Saporta['ID Temporada'] == season) & (df_games_Saporta['Fecha'] == date)][columns_to_show], hide_index=True)
