@@ -39,6 +39,7 @@ st.markdown("""
 """, unsafe_allow_html=True)
     
 st.sidebar.header("Selecciona una competición")
+st.sidebar.markdown('Autor: Xavi Lluch\n https://x.com/xavi_runner\n\n Github: [JLLUCH](https://github.com/jlluch/VBCstats)')
 #Configurar páginas
 nav = get_nav_from_toml(path=".streamlit/pages.toml")
 
