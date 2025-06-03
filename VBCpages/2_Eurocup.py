@@ -981,24 +981,17 @@ elif marco == "Estadísticas contra un rival":
     st.subheader("Estadísticas contra un rival")
     # Filtra los equipos
     # Selecciona los equipos únicos de la columna 'ID Rival' del DataFrame df_games_Eurocup
-    id_rivales = df_games_Eurocup['ID Rival'].unique()
-    # Paera cada id de rival, obtiene un nombre del equipo, ya que pueden haber varios equipos con el mismo id
-    # Obtiene los nombres de los rivales únicos
-    id_names_rivales = df_games_Eurocup[['ID Equipo', 'Equipo Rival']].drop_duplicates()
-    # Para cada id de rival, seleccioa el primer nombre de equipo
-    id_names_rivales = id_names_rivales.set_index('ID Equipo')['Equipo Rival'].to_dict()
-    # Crea una lista de nombres de rivales a partir del diccionario
-    nombres_rivales = id_names_rivales['Equipo Rival'].values()
+    # Lee dataframe de equipos de Eurocup primera columna IDs del equipo, segunda columna nombre del equipo
+    df_teams_Eurocup = pd.read_csv('data/teams_Eurocup.csv')
+    nombres_rivales = df_teams_Eurocup['Nombre'].unique().tolist()
 
-    
-    # Ordena los nombres de los rivales alfabéticamente
-    nombres_rivales = sorted(nombres_rivales)
     # Crea un selectbox para seleccionar el rival
     rival = st.selectbox("Selecciona un rival", nombres_rivales, index=0)     # Esto asume que 'Equipo Rival' es el nombre del equipo y 'ID Rival' es su identificador único   
     # Filtra los partidos contra el rival seleccionado, utiliza el id del equipo
-    id_rival = df_games_Eurocup[df_games_Eurocup['Equipo Rival'] == rival]['ID Rival'].unique()[0]
+    ids_rival = df_teams_Eurocup[df_teams_Eurocup['Nombre'] == rival]['ID Rival']
+
     # Selecciona todos los partidos contra el rival    
-    partidos_rival = df_games_Eurocup[df_games_Eurocup['ID Rival'] == id_rival]
+    partidos_rival = df_games_Eurocup[df_games_Eurocup['ID Rival'].isin(ids_rival)]
     # Calcula estadísticas medias por partido, separando por VBC y Rival y local y visitante
     partidos_local = partidos_rival[partidos_rival['VBC Local'] == 1]
     partidos_visitante = partidos_rival[partidos_rival['VBC Local'] == 0]
