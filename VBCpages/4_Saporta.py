@@ -171,25 +171,21 @@ elif marco == "Líderes históricos":
         mg, mp, mr, ma = st.columns(4)
         mg.dataframe(
             max_games,
-            hide_index=False,
             height=12*35,
             column_config={"Nombre": st.column_config.TextColumn(width="medium")}
         )
         mp.dataframe(
             max_points,
-            hide_index=True,
             height=12*35,
             column_config={"Nombre": st.column_config.TextColumn(width="medium")}
         )
         mr.dataframe(
             max_rebounds,
-            hide_index=True,
             height=12*35,
             column_config={"Nombre": st.column_config.TextColumn(width="medium")}
         )
         ma.dataframe(
             max_assists,
-            hide_index=True,
             height=12*35,
             column_config={"Nombre": st.column_config.TextColumn(width="medium")}
         )
@@ -197,19 +193,16 @@ elif marco == "Líderes históricos":
         ms, mb, mv, mn = st.columns(4)
         ms.dataframe(
             max_steals,
-            hide_index=True,
             height=12*35,
             column_config={"Nombre": st.column_config.TextColumn(width="medium")}
         )
         mb.dataframe(
             max_blocks,
-            hide_index=True,
             height=12*35,
             column_config={"Nombre": st.column_config.TextColumn(width="medium")}
         )
         mv.dataframe(
             max_val,
-            hide_index=True,
             height=12*35,
             column_config={"Nombre": st.column_config.TextColumn(width="medium")}
         )
@@ -218,19 +211,16 @@ elif marco == "Líderes históricos":
         mt1a, mt2a, mt3a, mn = st.columns(4)
         mt1a.dataframe(
             max_t1a,
-            hide_index=True,
             height=12*35,
             column_config={"Nombre": st.column_config.TextColumn(width="medium"), "T.Libres": st.column_config.TextColumn(width="small")}
         )
         mt2a.dataframe(
             max_t2a,
-            hide_index=True,
             height=12*35,
             column_config={"Nombre": st.column_config.TextColumn(width="medium"), "T2": st.column_config.TextColumn(width="small")}
         )
         mt3a.dataframe(
             max_t3a,
-            hide_index=True,
             height=12*35,
             column_config={"Nombre": st.column_config.TextColumn(width="medium"), "T3": st.column_config.TextColumn(width="small")}
         )
