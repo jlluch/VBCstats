@@ -555,14 +555,13 @@ elif marco == "Estadísticas de una temporada":
 elif marco == "Líderes de una temporada":
     
     #Seleccionar una temporada, ordenar las temporadas de mayor a menor
-    season = st.selectbox("Selecciona una temporada", df_games_Eurocup['ID Temporada'].sort_values(ascending=False).unique())
+    season = st.selectbox("Selecciona una temporada", df_games_Eurocup['ID Temporada'].sort_values(ascending=False).unique(), index=0)
     #Crear un marco para mostrar los acumulados de la temporada
     st.subheader("Líderes de la temporada "+str(season))
     #Crear un marco para mostrar los líderes de la temporada, lo mismo que en el marco de líderes históricos pero solo para la temporada actual
     lh = 5
     # Calcular los "lh" jugadores con el mayor número de partidos jugados, puntos, rebotes, asistencias, robos, tapones y valoración
     # Mostrar los resultados en una tabla   
-    season = df_games_Eurocup['ID Temporada'].max()
     season_games = df_players_Eurocup[df_players_Eurocup['ID Temporada'] == season]
     max_games = season_games.groupby('Nombre')['ID Partido'].count()
     max_points = pd.DataFrame(season_games.groupby('Nombre')['Puntos'].sum())
