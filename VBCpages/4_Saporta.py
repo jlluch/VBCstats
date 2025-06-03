@@ -117,8 +117,6 @@ elif marco == "Líderes históricos":
         # Añadir una fila en cada tabla con el judador de la temporada actual 
         # Mostrar los resultados en una tabla
 
-        st.markdown('<span style="color: #FF2222;">En rojo los jugadores de la temporada actual</span>', unsafe_allow_html=True)
-
         max_games = df_players_Saporta.groupby('Nombre')['ID Partido'].count().sort_values(ascending=False)
         #Cambiar nombre de la columna
         max_games = max_games.rename("Partidos")
@@ -167,72 +165,33 @@ elif marco == "Líderes históricos":
         max_t3p = max_t3p.rename("T3%")
         shots['T3'] = shots['T3a']
         max_t3p = max_t3p.to_frame()
-        max_t3p['T3'] = shots.loc[max_t3p.index, 'T3']
-        # En cada tabla busca el jugador de la temporada actual con mayor estadística, selecciona los 10 primeros y añade una fila con sus estadísticas
-        current_season = df_players_Saporta['ID Temporada'].max()
-        # Selecciona el ID de los jugadores de la temporada actual
-        current_players = df_players_Saporta[df_players_Saporta['ID Temporada'] == current_season]['ID Jugador'].unique()
-        # Filtra los jugadores de la temporada actual
-        current_players_df = df_players_Saporta[df_players_Saporta['ID Jugador'].isin(current_players)]
-        # Encuentra el jugador con la mayor estadística en cada tabla
-        max_games_current = current_players_df.groupby('Nombre')['ID Partido'].count().sort_values(ascending=False).head(1)
-        max_points_current = current_players_df.groupby('Nombre')['Puntos'].sum().sort_values(ascending=False).head(1)
-        max_rebounds_current = current_players_df.groupby('Nombre')['Rebotes'].sum().sort_values(ascending=False).head(1)
-        max_assists_current = current_players_df.groupby('Nombre')['Asistencias'].sum().sort_values(ascending=False).head(1)
-        max_steals_current = current_players_df.groupby('Nombre')['Robos'].sum().sort_values(ascending=False).head(1)
-        max_blocks_current = current_players_df.groupby('Nombre')['Tapones'].sum().sort_values(ascending=False).head(1)
-        max_val_current = current_players_df.groupby('Nombre')['Val'].sum().sort_values(ascending=False).head(1)
-        max_t1a_current = current_players_df.groupby('Nombre')['T1a'].sum().sort_values(ascending=False).head(1)
-        max_t2a_current = current_players_df.groupby('Nombre')['T2a'].sum().sort_values(ascending=False).head(1)
-        max_t3a_current = current_players_df.groupby('Nombre')['T3a'].sum().sort_values(ascending=False).head(1)
-        # Añadir los jugadores de la temporada actual a las tablas
-        max_games = pd.concat([max_games.head(lh), max_games_current]).reset_index()
-        max_games = max_games.rename(columns={0: 'Partidos'})
-        max_points = pd.concat([max_points.head(lh), max_points_current]).reset_index()
-        max_rebounds = pd.concat([max_rebounds.head(lh), max_rebounds_current]).reset_index()
-        max_assists = pd.concat([max_assists.head(lh), max_assists_current]).reset_index()
-        max_steals = pd.concat([max_steals.head(lh), max_steals_current]).reset_index()
-        max_blocks = pd.concat([max_blocks.head(lh), max_blocks_current]).reset_index()
-        max_val = pd.concat([max_val.head(lh), max_val_current]).reset_index()
-        max_val = max_val.rename(columns={0: 'Valoración'})
-        max_t1a = pd.concat([max_t1a.head(lh), max_t1a_current]).reset_index()
-        max_t1a = max_t1a.rename(columns={0: 'T.Libres'})
-        max_t2a = pd.concat([max_t2a.head(lh), max_t2a_current]).reset_index()
-        max_t2a = max_t2a.rename(columns={0: 'T2'})
-        max_t3a = pd.concat([max_t3a.head(lh), max_t3a_current]).reset_index()
-        max_t3a = max_t3a.rename(columns={0: 'T3'})
-        
+        max_t3p['T3'] = shots.loc[max_t3p.index, 'T3']        
        
         # Muestra los resultados en tablas y en columnas de streamlit separadas
 
-        def highlight_last_row(df):
-            # Devuelve estilos para poner la última fila en negrita
-            styles = pd.DataFrame('', index=df.index, columns=df.columns)
-            if len(df) > 0:
-                styles.iloc[-1, :] = 'font-weight: bold; color: #FF2222;'  # Cambia el color y el estilo según tus preferencias
-            return styles
+
 
         mg, mp, mr, ma = st.columns(4)
         mg.dataframe(
-            max_games.style.apply(highlight_last_row, axis=None),
+            max_games,
             hide_index=True,
             height=12*35,
             column_config={"Nombre": st.column_config.TextColumn(width="medium")}
         )
         mp.dataframe(
-            max_points.style.apply(highlight_last_row, axis=None),
+            max_points,
             hide_index=True,
             height=12*35,
             column_config={"Nombre": st.column_config.TextColumn(width="medium")}
         )
         mr.dataframe(
-            max_rebounds.style.apply(highlight_last_row, axis=None),
+            max_rebounds,
             hide_index=True,
             height=12*35,
             column_config={"Nombre": st.column_config.TextColumn(width="medium")}
         )
         ma.dataframe(
-            max_assists.style.apply(highlight_last_row, axis=None),
+            max_assists,
             hide_index=True,
             height=12*35,
             column_config={"Nombre": st.column_config.TextColumn(width="medium")}
@@ -240,19 +199,19 @@ elif marco == "Líderes históricos":
 
         ms, mb, mv, mn = st.columns(4)
         ms.dataframe(
-            max_steals.style.apply(highlight_last_row, axis=None),
+            max_steals,
             hide_index=True,
             height=12*35,
             column_config={"Nombre": st.column_config.TextColumn(width="medium")}
         )
         mb.dataframe(
-            max_blocks.style.apply(highlight_last_row, axis=None),
+            max_blocks,
             hide_index=True,
             height=12*35,
             column_config={"Nombre": st.column_config.TextColumn(width="medium")}
         )
         mv.dataframe(
-            max_val.style.apply(highlight_last_row, axis=None),
+            max_val,
             hide_index=True,
             height=12*35,
             column_config={"Nombre": st.column_config.TextColumn(width="medium")}
@@ -261,19 +220,19 @@ elif marco == "Líderes históricos":
         st.write("Máximos tiros anotados de 1,2 y 3 puntos")
         mt1a, mt2a, mt3a, mn = st.columns(4)
         mt1a.dataframe(
-            max_t1a.style.apply(highlight_last_row, axis=None),
+            max_t1a,
             hide_index=True,
             height=12*35,
             column_config={"Nombre": st.column_config.TextColumn(width="medium"), "T.Libres": st.column_config.TextColumn(width="small")}
         )
         mt2a.dataframe(
-            max_t2a.style.apply(highlight_last_row, axis=None),
+            max_t2a,
             hide_index=True,
             height=12*35,
             column_config={"Nombre": st.column_config.TextColumn(width="medium"), "T2": st.column_config.TextColumn(width="small")}
         )
         mt3a.dataframe(
-            max_t3a.style.apply(highlight_last_row, axis=None),
+            max_t3a,
             hide_index=True,
             height=12*35,
             column_config={"Nombre": st.column_config.TextColumn(width="medium"), "T3": st.column_config.TextColumn(width="small")}
