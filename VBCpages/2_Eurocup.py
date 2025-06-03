@@ -65,7 +65,7 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 #Crear un selectnox para cada marco
-marco = st.selectbox("Selecciona una opción", ["Acumulados de la temporada actual", "Estadísticas jugadores de la temporada", "Líderes de la temporada", "Estadísticas contra un rival", "Estadísticas de un partido", "Líderes históricos", "Récords equipo", "Entrenadores"],)
+marco = st.selectbox("Selecciona una opción", ["Estadísticas de una temporada", "Estadísticas jugadores de la temporada", "Líderes de la temporada", "Estadísticas contra un rival", "Estadísticas de un partido", "Líderes históricos", "Récords equipo", "Entrenadores"],)
 if marco == "Estadísticas de un partido":
     #Crear un marco para mostrar las estadísticas de un partido en concreto
     st.subheader("Estadísticas de un partido")
@@ -363,11 +363,13 @@ elif marco == "Líderes históricos":
         mt2a.dataframe(max_T2a,column_config={"Nombre": st.column_config.TextColumn(width="medium"),"T2": st.column_config.TextColumn(width="small")})
         mt3a.dataframe(max_T3a,column_config={"Nombre": st.column_config.TextColumn(width="medium"),"T3": st.column_config.TextColumn(width="small")})      
 
-elif marco == "Acumulados de la temporada actual":
+elif marco == "Estadísticas de una temporada":
+    
+    #Seleccionar una temporada, ordenar las temporadas de mayor a menor
+    season = st.selectbox("Selecciona una temporada", df_games_Euroleague['ID Temporada'].sort_values(ascending=False).unique())
+
     #Crear un marco para mostrar los acumulados de la temporada
-    st.subheader("Acumulados de la temporada")
-    #Seleccionar la temporada actual, cogiendo el id del último partido
-    season = df_games_Eurocup['ID Temporada'].max()
+    st.subheader("Acumulados de la temporada "+str(season))
     
     # Añadir filtros
     st.write("Filtros")
