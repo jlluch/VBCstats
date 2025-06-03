@@ -114,11 +114,7 @@ elif marco == "Líderes históricos":
     tipo = st.radio("Selecciona el tipo de estadística", ["Total", "Por partido"])
     if tipo == "Total":
         # Calcular los "lh" jugadores con el mayor número de partidos jugados, puntos, rebotes, asistencias, robos, tapones y valoración
-        # Añadir una fila en cada tabla con el judador de la temporada actual 
         # Mostrar los resultados en una tabla
-
-        st.markdown('<span style="color: #FF2222;">En rojo los jugadores de la temporada actual</span>', unsafe_allow_html=True)
-
         max_games = df_players_Euroleague.groupby('Nombre')['ID Partido'].count().sort_values(ascending=False)
         #Cambiar nombre de la columna
         max_games = max_games.rename("Partidos")
@@ -172,39 +168,39 @@ elif marco == "Líderes históricos":
         # Muestra los resultados en tablas y en columnas de streamlit separadas
         mg, mp, mr, ma = st.columns(4)
         mg.dataframe(
-            max_games.style,
+            max_games,
             height=12*35,
             column_config={"Nombre": st.column_config.TextColumn(width="medium")}
         )
         mp.dataframe(
-            max_points.style,
+            max_points,
             height=12*35,
             column_config={"Nombre": st.column_config.TextColumn(width="medium")}
         )
         mr.dataframe(
-            max_rebounds.style,
+            max_rebounds,
             height=12*35,
             column_config={"Nombre": st.column_config.TextColumn(width="medium")}
         )
         ma.dataframe(
-            max_assists.style,
+            max_assists,
             height=12*35,
             column_config={"Nombre": st.column_config.TextColumn(width="medium")}
         )
 
         ms, mb, mv, mn = st.columns(4)
         ms.dataframe(
-            max_steals.style,
+            max_steals,
             height=12*35,
             column_config={"Nombre": st.column_config.TextColumn(width="medium")}
         )
         mb.dataframe(
-            max_blocks.style,
+            max_blocks,
             height=12*35,
             column_config={"Nombre": st.column_config.TextColumn(width="medium")}
         )
         mv.dataframe(
-            max_val.style,
+            max_val,
             height=12*35,
             column_config={"Nombre": st.column_config.TextColumn(width="medium")}
         )
@@ -212,17 +208,17 @@ elif marco == "Líderes históricos":
         st.write("Máximos tiros anotados de 1,2 y 3 puntos")
         mt1a, mt2a, mt3a, mn = st.columns(4)
         mt1a.dataframe(
-            max_t1a.style,
+            max_t1a,
             height=12*35,
             column_config={"Nombre": st.column_config.TextColumn(width="medium"), "T.Libres": st.column_config.TextColumn(width="small")}
         )
         mt2a.dataframe(
-            max_t2a.style,
+            max_t2a,
             height=12*35,
             column_config={"Nombre": st.column_config.TextColumn(width="medium"), "T2": st.column_config.TextColumn(width="small")}
         )
         mt3a.dataframe(
-            max_t3a.style,
+            max_t3a,
             height=12*35,
             column_config={"Nombre": st.column_config.TextColumn(width="medium"), "T3": st.column_config.TextColumn(width="small")}
         )
