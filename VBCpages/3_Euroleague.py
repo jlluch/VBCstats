@@ -5,6 +5,7 @@
 # """
 import streamlit as st
 import pandas as pd
+import ast
 from VBCpages.encrypt_utils import decrypt_csv_file
 
 def load_encrypted_data(file_path):
@@ -55,7 +56,7 @@ df_games_Euroleague['Enlace'] = df_games_Euroleague['ID Partido']
 # Crear una columna con la diferencia de puntos
 df_games_Euroleague['Diferencia'] = df_games_Euroleague['Puntos VBC'] - df_games_Euroleague['Puntos Rival']
 
-st.title("Estadísticas de la Euroleague")
+st.title("Estadísticas de la Euroliga")
 # Inyecta CSS para cambiar el ancho del selectbox
 st.markdown("""
 <style>
@@ -65,7 +66,7 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 #Crear un selectnox para cada marco
-marco = st.selectbox("Selecciona una opción", ["Estadísticas de una temporada", "Estadísticas jugadores de la temporada", "Líderes de la temporada", "Estadísticas contra un rival", "Estadísticas de un partido", "Líderes históricos", "Récords equipo", "Entrenadores"])
+marco = st.selectbox("Selecciona una opción", ["Estadísticas de una temporada", "Estadísticas jugadores de una temporada", "Líderes de una temporada", "Estadísticas contra un rival", "Estadísticas de un partido", "Líderes históricos", "Récords equipo", "Entrenadores"])
 if marco == "Estadísticas de un partido":
     #Crear un marco para mostrar las estadísticas de un partido en concreto
     st.subheader("Estadísticas de un partido")
@@ -370,6 +371,7 @@ elif marco == "Estadísticas de una temporada":
 
     #Crear un marco para mostrar los acumulados de la temporada
     st.subheader("Acumulados de la temporada "+str(season))
+    
     # Añadir filtros
     st.write("Filtros")
     col1, col2, col3 = st.columns(3)
@@ -551,13 +553,16 @@ elif marco == "Estadísticas de una temporada":
                 }
             )
 
-elif marco == "Líderes de la temporada":
+elif marco == "Líderes de una temporada":
+    
+    #Seleccionar una temporada, ordenar las temporadas de mayor a menor
+    season = st.selectbox("Selecciona una temporada", df_games_Euroleague['ID Temporada'].sort_values(ascending=False).unique(), index=0)
+    #Crear un marco para mostrar los acumulados de la temporada
+    st.subheader("Líderes de la temporada "+str(season))
     #Crear un marco para mostrar los líderes de la temporada, lo mismo que en el marco de líderes históricos pero solo para la temporada actual
-    st.subheader("Líderes de la temporada")
     lh = 5
     # Calcular los "lh" jugadores con el mayor número de partidos jugados, puntos, rebotes, asistencias, robos, tapones y valoración
     # Mostrar los resultados en una tabla   
-    season = df_games_Euroleague['ID Temporada'].max()
     season_games = df_players_Euroleague[df_players_Euroleague['ID Temporada'] == season]
     max_games = season_games.groupby('Nombre')['ID Partido'].count()
     max_points = pd.DataFrame(season_games.groupby('Nombre')['Puntos'].sum())
@@ -635,12 +640,12 @@ elif marco == "Líderes de la temporada":
     
     # Muestra los resultados en tablas y en columnas de streamlit separadas
     mt1a, mt1p, mt2a, mt2p, mt3a, mt3p = st.columns(6)
-    mt1a.dataframe(max_t1a, width=180, column_config={"T.Libres": st.column_config.TextColumn(width="small")})
-    mt1p.dataframe(max_t1p, width=180, column_config={"T1%": st.column_config.TextColumn(width="small")})
-    mt2a.dataframe(max_t2a, width=180, column_config={"T2": st.column_config.TextColumn(width="small")})
-    mt2p.dataframe(max_t2p, width=180, column_config={"T2%": st.column_config.TextColumn(width="small")})
-    mt3a.dataframe(max_t3a, width=180, column_config={"T3": st.column_config.TextColumn(width="small")})
-    mt3p.dataframe(max_t3p, width=180, column_config={"T3%": st.column_config.TextColumn(width="small")})
+    mt1a.dataframe(max_t1a, column_config={"T.Libres": st.column_config.TextColumn(width="medium")})
+    mt1p.dataframe(max_t1p, column_config={"T1%": st.column_config.TextColumn(width="medium")})
+    mt2a.dataframe(max_t2a, column_config={"T2": st.column_config.TextColumn(width="medium")})
+    mt2p.dataframe(max_t2p, column_config={"T2%": st.column_config.TextColumn(width="medium")})
+    mt3a.dataframe(max_t3a, column_config={"T3": st.column_config.TextColumn(width="medium")})
+    mt3p.dataframe(max_t3p, column_config={"T3%": st.column_config.TextColumn(width="medium")})
     
 elif marco == "Récords equipo":
     lh = 10
@@ -740,7 +745,7 @@ elif marco == "Récords equipo":
     # Tiros de 1 punto
     max10_t1a = df_games_Euroleague.sort_values(by='T1a VBC',ascending=False).head(lh)
     # Multiplicar por 100 para mostrar el porcentaje
-    max10_t1a['T1% VBC'] = max10_t1a['T1% VBC']*100
+    max10_t1a['T1% VBC'] = max10_t1a['T1% VBC']
     #Seleccionar las columnas a mostrar
     columns_to_show = ['ID Temporada', 'Jornada', 'Fecha', 'Partido', 'T1a VBC', 'T1% VBC', 'Enlace']
     st.write("Récords en tiros libres")
@@ -749,7 +754,7 @@ elif marco == "Récords equipo":
     # Tiros de 2 puntos
     max10_t2a = df_games_Euroleague.sort_values(by='T2a VBC',ascending=False).head(lh)
     # Multiplicar por 100 para mostrar el porcentaje
-    max10_t2a['T2% VBC'] = max10_t2a['T2% VBC']*100
+    max10_t2a['T2% VBC'] = max10_t2a['T2% VBC']
     #Seleccionar las columnas a mostrar
     columns_to_show = ['ID Temporada', 'Jornada', 'Fecha', 'Partido', 'T2a VBC', 'T2% VBC', 'Enlace']
     st.write("Récords en tiros de 2 puntos")
@@ -758,7 +763,7 @@ elif marco == "Récords equipo":
     # Tiros de 3 puntos
     max10_t3a = df_games_Euroleague.sort_values(by='T3a VBC',ascending=False).head(lh)
     # Multiplicar por 100 para mostrar el porcentaje
-    max10_t3a['T3% VBC'] = max10_t3a['T3% VBC']*100
+    max10_t3a['T3% VBC'] = max10_t3a['T3% VBC']
     #Seleccionar las columnas a mostrar
     columns_to_show = ['ID Temporada', 'Jornada', 'Fecha', 'Partido', 'T3a VBC', 'T3% VBC', 'Enlace']
     st.write("Récords en tiros de 3 puntos")
@@ -768,7 +773,7 @@ elif marco == "Récords equipo":
     # Tiros de 1 punto
     max10_t1p = df_games_Euroleague.sort_values(by=['T1% VBC','T1a VBC'],ascending=False).head(lh)
     # Multiplicar por 100 para mostrar el porcentaje
-    max10_t1p['T1% VBC'] = max10_t1p['T1% VBC']*100
+    max10_t1p['T1% VBC'] = max10_t1p['T1% VBC']
     #Seleccionar las columnas a mostrar
     columns_to_show = ['ID Temporada', 'Jornada', 'Fecha', 'Partido', 'T1% VBC', 'T1a VBC', 'Enlace']
     st.write("Récords en porcentaje de tiros libres")
@@ -777,7 +782,7 @@ elif marco == "Récords equipo":
     # Tiros de 2 puntos
     max10_t2p = df_games_Euroleague.sort_values(by=['T2% VBC','T2a VBC'],ascending=False).head(lh)
     # Multiplicar por 100 para mostrar el porcentaje
-    max10_t2p['T2% VBC'] = max10_t2p['T2% VBC']*100
+    max10_t2p['T2% VBC'] = max10_t2p['T2% VBC']
     #Seleccionar las columnas a mostrar
     columns_to_show = ['ID Temporada', 'Jornada', 'Fecha', 'Partido', 'T2% VBC', 'T2a VBC', 'Enlace']
     st.write("Récords en porcentaje de tiros de 2 puntos")
@@ -786,18 +791,19 @@ elif marco == "Récords equipo":
     # Tiros de 3 puntos
     max10_t3p = df_games_Euroleague.sort_values(by=['T3% VBC','T3a VBC'],ascending=False).head(lh)
     # Multiplicar por 100 para mostrar el porcentaje
-    max10_t3p['T3% VBC'] = max10_t3p['T3% VBC']*100
+    max10_t3p['T3% VBC'] = max10_t3p['T3% VBC']
     #Seleccionar las columnas a mostrar
     columns_to_show = ['ID Temporada', 'Jornada', 'Fecha', 'Partido', 'T3% VBC', 'T3a VBC', 'Enlace']
     st.write("Récords en porcentaje de tiros de 3 puntos")
     st.dataframe(max10_t3p[columns_to_show], hide_index=True)
 
-elif marco == "Estadísticas jugadores de la temporada":
-    # Crear un marco para mostrar las estadísticas de los jugadores de la temporada actual
-    st.subheader("Estadísticas jugadores de la temporada")
+elif marco == "Estadísticas jugadores de una temporada":
     
-    # Seleccionar la temporada actual, cogiendo el id del último partido
-    season = df_games_Euroleague['ID Temporada'].max()
+    #Seleccionar una temporada, ordenar las temporadas de mayor a menor
+    season = st.selectbox("Selecciona una temporada", df_games_Euroleague['ID Temporada'].sort_values(ascending=False).unique(), index=0)
+    
+    # Crear un marco para mostrar las estadísticas de los jugadores de la temporada actual
+    st.subheader("Estadísticas jugadores de la temporada "+str(season))
     
     # Añadir radio button para seleccionar total o por partido
     col1, col2 = st.columns([1, 2])
@@ -974,16 +980,20 @@ elif marco == "Estadísticas jugadores de la temporada":
 elif marco == "Estadísticas contra un rival":
     
     st.subheader("Estadísticas contra un rival")
-    # Selecciona equipos de la temporada actual
-    season = df_games_Euroleague['ID Temporada'].max()
-    # Filtra los equipos de la temporada actual
-    equipos = df_games_Euroleague[df_games_Euroleague['ID Temporada'] == season]['Equipo Rival'].unique()  
-    # Selecciona el rival
-    rival = st.selectbox("Selecciona un rival", equipos)
+    # Filtra los equipos
+    # Selecciona los equipos únicos de la columna 'ID Rival' del DataFrame df_games_Euroleague
+    # Lee dataframe de equipos de Euroliga primera columna IDs del equipo, segunda columna nombre del equipo
+    path = r"Data/"
+    df_teams_Euroleague = pd.read_csv(path+'teams_Euroleague.csv')
+    nombres_rivales = df_teams_Euroleague['Team'].unique().tolist()
+
+    # Crea un selectbox para seleccionar el rival
+    rival = st.selectbox("Selecciona un rival", nombres_rivales, index=0)     # Esto asume que 'Equipo Rival' es el nombre del equipo y 'ID Rival' es su identificador único   
     # Filtra los partidos contra el rival seleccionado, utiliza el id del equipo
-    id_rival = df_games_Euroleague[df_games_Euroleague['Equipo Rival'] == rival]['ID Rival'].unique()[0]
+    ids_rival = ast.literal_eval(df_teams_Euroleague[df_teams_Euroleague['Team'] == rival]['ID'].values[0])
+
     # Selecciona todos los partidos contra el rival    
-    partidos_rival = df_games_Euroleague[df_games_Euroleague['ID Rival'] == id_rival]
+    partidos_rival = df_games_Euroleague[df_games_Euroleague['ID Rival'].isin(ids_rival)]
     # Calcula estadísticas medias por partido, separando por VBC y Rival y local y visitante
     partidos_local = partidos_rival[partidos_rival['VBC Local'] == 1]
     partidos_visitante = partidos_rival[partidos_rival['VBC Local'] == 0]
@@ -1162,123 +1172,3 @@ elif marco == "Entrenadores":
             'Derrotas': st.column_config.NumberColumn(width="small"),
             'Porcentaje': st.column_config.NumberColumn(width="small", format="%.1f%%")
         })
-elif marco == "Comparativa temporada anterior":
-    # Seleccionar jugadores de la temporada actual
-    st.subheader("Comparativa temporada anterior")
-    # Filtrar los jugadores de la temporada actual
-    season = df_games_Euroleague['ID Temporada'].max()
-    season_players = df_players_Euroleague[df_players_Euroleague['ID Temporada'] == season]
-    # Obtener los IDs de los jugadores de la temporada actual
-    current_player_ids = season_players['ID Jugador'].unique()
-    # Filtrar los jugadores de la temporada anterior
-    previous_season = season - 1
-    previous_season_players = df_players_Euroleague[df_players_Euroleague['ID Temporada'] == previous_season]
-    # Filtrar los jugadores que están en la temporada actual y en la anterior
-    previous_season_players = previous_season_players[previous_season_players['ID Jugador'].isin(current_player_ids)]
-    # Agrupar por ID Jugador y calcular las estadísticas medias por partido
-    previous_season_stats = previous_season_players.groupby('ID Jugador').agg(
-        Partidos=('ID Partido', 'count'),
-        Puntos=('Puntos', lambda x: round(x.mean(), 1)),
-        Rebotes=('Rebotes', lambda x: round(x.mean(), 1)),
-        Asistencias=('Asistencias', lambda x: round(x.mean(), 1)),
-        Robos=('Robos', lambda x: round(x.mean(), 1)),
-        Tapones=('Tapones', lambda x: round(x.mean(), 1)),
-        Val=('Val', lambda x: round(x.mean(), 1)),
-        T1a=('T1a', lambda x: round(x.mean(), 1)),
-        T1i=('T1i', lambda x: round(x.mean(), 1)),
-        T2a=('T2a', lambda x: round(x.mean(), 1)),
-        T2i=('T2i', lambda x: round(x.mean(), 1)),
-        T3a=('T3a', lambda x: round(x.mean(), 1)),
-        T3i=('T3i', lambda x: round(x.mean(), 1))
-    ).reset_index()
-    # Calcular los porcentajes de tiro
-    previous_season_stats['T1%'] = round(previous_season_stats['T1a'] / previous_season_stats['T1i'] * 100, 1).fillna(0)
-    previous_season_stats['T2%'] = round(previous_season_stats['T2a'] / previous_season_stats['T2i'] * 100, 1).fillna(0)
-    previous_season_stats['T3%'] = round(previous_season_stats['T3a'] / previous_season_stats['T3i'] * 100, 1).fillna(0)
-    # Calcular datos de la temporada actual
-    current_season_stats = season_players.groupby('ID Jugador').agg(
-        Partidos=('ID Partido', 'count'),
-        Puntos=('Puntos', lambda x: round(x.mean(), 1)),
-        Rebotes=('Rebotes', lambda x: round(x.mean(), 1)),
-        Asistencias=('Asistencias', lambda x: round(x.mean(), 1)),
-        Robos=('Robos', lambda x: round(x.mean(), 1)),
-        Tapones=('Tapones', lambda x: round(x.mean(), 1)),
-        Val=('Val', lambda x: round(x.mean(), 1)),
-        T1a=('T1a', lambda x: round(x.mean(), 1)),
-        T1i=('T1i', lambda x: round(x.mean(), 1)),
-        T2a=('T2a', lambda x: round(x.mean(), 1)),
-        T2i=('T2i', lambda x: round(x.mean(), 1)),
-        T3a=('T3a', lambda x: round(x.mean(), 1)),
-        T3i=('T3i', lambda x: round(x.mean(), 1))
-    ).reset_index()
-    # Calcular los porcentajes de tiro
-    current_season_stats['T1%'] = round(current_season_stats['T1a'] / current_season_stats['T1i'] * 100, 1).fillna(0)
-    current_season_stats['T2%'] = round(current_season_stats['T2a'] / current_season_stats['T2i'] * 100, 1).fillna(0)
-    current_season_stats['T3%'] = round(current_season_stats['T3a'] / current_season_stats['T3i'] * 100, 1).fillna(0)
-
-    # Crea un DataFrame por cada jugador con las estadísticas de la temporada actual y la anterior y muestra a 3 columnas
-    current_player_ids = current_season_stats['ID Jugador'].unique()
-    previous_player_ids = previous_season_stats['ID Jugador'].unique()
-    # Filtrar los jugadores que están en ambas temporadas
-    common_player_ids = set(current_player_ids) & set(previous_player_ids)   
-
-    # Para cada jugador común, crea un DataFrame con las estadísticas de ambas temporadas y la diferencia
-    # Visualiza los datos en 3 columnas
-    cols = st.columns(3)
-
-    for i, player_id in enumerate(common_player_ids):
-        # Filtrar las estadísticas del jugador actual
-        current_stats = current_season_stats[current_season_stats['ID Jugador'] == player_id].iloc[0]
-        previous_stats = previous_season_stats[previous_season_stats['ID Jugador'] == player_id].iloc[0]
-        
-        # Calcular la diferencia entre las temporadas
-        difference = current_stats - previous_stats
-        
-        # Crear un DataFrame para el jugador
-        player_df = pd.DataFrame({
-            'Estadística': ['Partidos', 'Puntos', 'Rebotes', 'Asistencias', 'Robos', 'Tapones', 'Valoración',
-                            'T1a', 'T1i', 'T1%', 'T2a', 'T2i', 'T2%', 'T3a', 'T3i', 'T3%'],
-            f'Actual': [
-                current_stats['Partidos'], current_stats['Puntos'], current_stats['Rebotes'],
-                current_stats['Asistencias'], current_stats['Robos'], current_stats['Tapones'],
-                current_stats['Val'], current_stats['T1a'], current_stats['T1i'], current_stats['T1%'],
-                current_stats['T2a'], current_stats['T2i'], current_stats['T2%'],
-                current_stats['T3a'], current_stats['T3i'], current_stats['T3%']
-            ],
-            f'Anterior': [
-                previous_stats['Partidos'], previous_stats['Puntos'], previous_stats['Rebotes'],
-                previous_stats['Asistencias'], previous_stats['Robos'], previous_stats['Tapones'],
-                previous_stats['Val'], previous_stats['T1a'], previous_stats['T1i'], previous_stats['T1%'],
-                previous_stats['T2a'], previous_stats['T2i'], previous_stats['T2%'],
-                previous_stats['T3a'], previous_stats['T3i'], previous_stats['T3%']
-            ],
-            'Diferencia': [
-                difference['Partidos'], difference['Puntos'], difference['Rebotes'],
-                difference['Asistencias'], difference['Robos'], difference['Tapones'],
-                difference['Val'], difference['T1a'], difference['T1i'],
-                round(difference.get('T1%', 0), 1), difference['T2a'], difference['T2i'],
-                round(difference.get('T2%', 0), 1), difference['T3a'], difference['T3i'],
-                round(difference.get('T3%', 0), 1)
-            ]
-        })
-        # Mostrar el nombre del jugador
-        player_name = df_players_Euroleague[df_players_Euroleague['ID Jugador'] == player_id]['Nombre'].unique()[0]
-        # Mostrar el nombre del jugador en la columna correspondiente
-        with cols[i % 3]:
-            st.write(f"**{player_name}**")
-            # Mostrar el DataFrame del jugador
-            st.dataframe(player_df, hide_index=True, height=17*35, column_config={
-                
-                'Estadística': st.column_config.TextColumn(width="medium"),
-                f'Temporada {season}': st.column_config.NumberColumn(width="small"),
-                f'Temporada {previous_season}': st.column_config.NumberColumn(width="small"),
-                'Diferencia': st.column_config.NumberColumn(width="small")
-            })
-
-
-
-
-
-
-
-
