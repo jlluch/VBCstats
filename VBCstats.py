@@ -8,24 +8,16 @@ import pandas as pd
 from st_pages import get_nav_from_toml
 import streamlit.components.v1 as components
 
-sc_code = """
-<!-- Default Statcounter code for VBC Stats
-https://vbcstats.streamlit.app/ -->
-<script type="text/javascript">
-var sc_project=13141410; 
-var sc_invisible=1; 
-var sc_security="8c3d850a"; 
+ga_code = """
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-HTHR3HRXS1"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-HTHR3HRXS1');
 </script>
-<script type="text/javascript"
-src="https://www.statcounter.com/counter/counter.js"
-async></script>
-<noscript><div class="statcounter"><a title="Web Analytics
-Made Easy - Statcounter" href="https://statcounter.com/"
-target="_blank"><img class="statcounter"
-src="https://c.statcounter.com/13141410/0/8c3d850a/1/"
-alt="Web Analytics Made Easy - Statcounter"
-referrerPolicy="no-referrer-when-downgrade"></a></div></noscript>
-<!-- End of Statcounter Code -->
 """
 
 # Configuración de la página
@@ -36,7 +28,8 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-components.html(sc_code, height=0)
+#components.html(ga_code, height=0)
+st.components.v1.iframe('https://covid19.aipert.org/google_analytics.html', height=1, scrolling=False)
 
 st.markdown("""
 <style>
@@ -56,3 +49,20 @@ pg = st.navigation(nav)
 
 # Ejecuta la página seleccionada
 pg.run()
+
+# Syntax:
+# st.components.v1.iframe(src, width=None, height=None, scrolling=False)
+# 
+# Parameters:
+# - src (str): The URL of the page to embed
+# - width (int or str, optional): The width of the iframe in CSS units (e.g., 100%, 700px)
+# - height (int or str, optional): The height of the iframe in CSS units
+# - scrolling (bool, optional): Whether to allow scrolling within the iframe
+
+# Example with all parameters:
+st.components.v1.iframe(
+    src=ga_code,
+    width=None,  # Will use default or container width
+    height=1,    # 1 pixel height (effectively invisible)
+    scrolling=False  # Disable scrolling
+)
