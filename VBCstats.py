@@ -17,8 +17,6 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# Contador de visitas
-st.sidebar.markdown('![Contador de Visitas](https://shields-io-visitor-counter.herokuapp.com/badge?page=https://share.streamlit.io/https://vbcstats.streamlit.app&label=VisitorsCount&labelColor=000000&logo=GitHub&logoColor=FFFFFF&color=1D70B8&style=for-the-badge)')
 
 st.markdown("""
 <style>
