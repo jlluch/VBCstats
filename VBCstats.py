@@ -8,17 +8,6 @@ import pandas as pd
 from st_pages import get_nav_from_toml
 import streamlit.components.v1 as components
 
-ga_code = """
-<!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-HTHR3HRXS1"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-
-  gtag('config', 'G-HTHR3HRXS1');
-</script>
-"""
 
 # Configuración de la página
 st.set_page_config(
@@ -28,14 +17,8 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-#components.html(ga_code, height=0)
-# Example with all parameters:
-st.components.v1.iframe(
-    src=ga_code,
-    width=None,  # Will use default or container width
-    height=1,    # 1 pixel height (effectively invisible)
-    scrolling=False  # Disable scrolling
-)
+# Contador de visitas
+st.sidebar.markdown('![Contador de Visitas](https://shields-io-visitor-counter.herokuapp.com/badge?page=https://share.streamlit.io/https://vbcstats.streamlit.app&label=VisitorsCount&labelColor=000000&logo=GitHub&logoColor=FFFFFF&color=1D70B8&style=for-the-badge)')
 
 st.markdown("""
 <style>
