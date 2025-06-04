@@ -29,7 +29,13 @@ st.set_page_config(
 )
 
 #components.html(ga_code, height=0)
-st.components.v1.iframe('https://covid19.aipert.org/google_analytics.html', height=1, scrolling=False)
+# Example with all parameters:
+st.components.v1.iframe(
+    src=ga_code,
+    width=None,  # Will use default or container width
+    height=1,    # 1 pixel height (effectively invisible)
+    scrolling=False  # Disable scrolling
+)
 
 st.markdown("""
 <style>
@@ -50,19 +56,4 @@ pg = st.navigation(nav)
 # Ejecuta la página seleccionada
 pg.run()
 
-# Syntax:
-# st.components.v1.iframe(src, width=None, height=None, scrolling=False)
-# 
-# Parameters:
-# - src (str): The URL of the page to embed
-# - width (int or str, optional): The width of the iframe in CSS units (e.g., 100%, 700px)
-# - height (int or str, optional): The height of the iframe in CSS units
-# - scrolling (bool, optional): Whether to allow scrolling within the iframe
 
-# Example with all parameters:
-st.components.v1.iframe(
-    src=ga_code,
-    width=None,  # Will use default or container width
-    height=1,    # 1 pixel height (effectively invisible)
-    scrolling=False  # Disable scrolling
-)
