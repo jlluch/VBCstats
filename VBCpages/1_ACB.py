@@ -43,6 +43,10 @@ def load_data():
 # P1Rival	P2Rival	Q1Rival	Q2Rival	Q3Rival	Q4Rival	PR1Rival	PR2Rival
     return df_players_ACB, df_games_ACB
 
+# Contador de visitas
+st.sidebar.markdown('![Contador de Visitas](https://shields-io-visitor-counter.herokuapp.com/badge?page=https://share.streamlit.io/https://vbcstats.streamlit.app&label=VisitorsCount&labelColor=000000&logo=GitHub&logoColor=FFFFFF&color=1D70B8&style=for-the-badge)')
+
+
 #Cargar los datos
 df_players_ACB, df_games_ACB = load_data()
 
