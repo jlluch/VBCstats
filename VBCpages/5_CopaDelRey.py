@@ -1025,7 +1025,19 @@ elif marco == "Estadísticas contra un rival":
         'Partidos': st.column_config.NumberColumn(width="small"),
         'Victorias': st.column_config.NumberColumn(width="small"),
         'Derrotas': st.column_config.NumberColumn(width="small"),
-        'Puntos': st.column_config.NumberColumn(width="small")})
+        'Puntos': st.column_config.NumberColumn(width="small"),
+        'Rebotes': st.column_config.NumberColumn(width="small"),
+        'Asistencias': st.column_config.NumberColumn(width="small"),
+        'Robos': st.column_config.NumberColumn(width="small"),
+        'Tapones': st.column_config.NumberColumn(width="small"),
+        'Valoración': st.column_config.NumberColumn(width="small"),
+        'Puntos Rival': st.column_config.NumberColumn(width="small"),
+        'Rebotes Rival': st.column_config.NumberColumn(width="small"),
+        'Asistencias Rival': st.column_config.NumberColumn(width="small"),
+        'Robos Rival': st.column_config.NumberColumn(width="small"),
+        'Tapones Rival': st.column_config.NumberColumn(width="small"),
+        'Valoración Rival': st.column_config.NumberColumn(width="small")        
+        })
     
 
 elif marco == "Entrenadores":
