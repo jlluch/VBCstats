@@ -983,14 +983,12 @@ elif marco == "Estadísticas contra un rival":
     # Filtra los equipos
     # Selecciona los equipos únicos de la columna 'ID Rival' del DataFrame df_games_CopaRey
     # Lee dataframe de equipos de Copa del Rey primera columna IDs del equipo, segunda columna nombre del equipo
-    path = r"Data/"
-    df_teams_CopaRey = pd.read_csv(path+'teams_CopaRey.csv')
-    nombres_rivales = df_teams_CopaRey['Team'].unique().tolist()
 
+    equipos = df_games_CopaRey['Equipo Rival'].unique()
     # Crea un selectbox para seleccionar el rival
-    rival = st.selectbox("Selecciona un rival", nombres_rivales, index=0)     # Esto asume que 'Equipo Rival' es el nombre del equipo y 'ID Rival' es su identificador único   
+    rival = st.selectbox("Selecciona un rival", equipos, index=0)     # Esto asume que 'Equipo Rival' es el nombre del equipo y 'ID Rival' es su identificador único   
     # Filtra los partidos contra el rival seleccionado, utiliza el id del equipo
-    ids_rival = ast.literal_eval(df_teams_CopaRey[df_teams_CopaRey['Team'] == rival]['ID'].values[0])
+    id_rival = df_games_CopaRey[df_games_CopaRey['Equipo Rival'] == rival]['ID Rival'].unique()[0]
 
     # Selecciona todos los partidos contra el rival    
     partidos_rival = df_games_CopaRey[df_games_CopaRey['ID Rival'].isin(ids_rival)]
