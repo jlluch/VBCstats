@@ -1059,35 +1059,6 @@ elif marco == "Entrenadores":
     # Eliminar la columna ID Entrenador VBC para la visualización
     entrenadores_display = entrenadores.drop(columns=['ID Entrenador VBC'])
     
-    # Filtrar los partidos como local 
-    entrenadores_local = df_games_CopaRey[df_games_CopaRey['VBC Local'] == 1].groupby(['ID Entrenador VBC', 'Entrenador VBC']).agg(
-        Partidos=('ID Partido', 'count'),
-        Victorias=('VBC Victoria', lambda x: (x == 1).sum()),
-        Derrotas=('VBC Victoria', lambda x: (x == 0).sum())
-    ).reset_index()
-    # Añadir porcentaje de victorias
-    entrenadores_local['Porcentaje'] = round((entrenadores_local['Victorias'] / entrenadores_local['Partidos']) * 100, 1)
-    # Ordenar por número de partidos
-    entrenadores_local = entrenadores_local.sort_values(by='Partidos', ascending=False)
-    # Cambiar el nombre de las columnas
-    entrenadores_local = entrenadores_local.rename(columns={'Entrenador VBC': 'Entrenador'})
-    # Eliminar la columna ID Entrenador VBC para la visualización
-    entrenadores_local_display = entrenadores_local.drop(columns=['ID Entrenador VBC'])
-    
-    # Filtrar los partidos como visitante
-    entrenadores_visitante = df_games_CopaRey[df_games_CopaRey['VBC Local'] == 0].groupby(['ID Entrenador VBC', 'Entrenador VBC']).agg(
-        Partidos=('ID Partido', 'count'),
-        Victorias=('VBC Victoria', lambda x: (x == 1).sum()),
-        Derrotas=('VBC Victoria', lambda x: (x == 0).sum())
-    ).reset_index()
-    # Añadir porcentaje de victorias
-    entrenadores_visitante['Porcentaje'] = round((entrenadores_visitante['Victorias'] / entrenadores_visitante['Partidos']) * 100, 1)
-    # Ordenar por número de partidos
-    entrenadores_visitante = entrenadores_visitante.sort_values(by='Partidos', ascending=False)
-    # Cambiar el nombre de las columnas
-    entrenadores_visitante = entrenadores_visitante.rename(columns={'Entrenador VBC': 'Entrenador'})
-    # Eliminar la columna ID Entrenador VBC para la visualización
-    entrenadores_visitante_display = entrenadores_visitante.drop(columns=['ID Entrenador VBC'])
     
     # Crear 3 columnas para mostrar los resultados
     col1, col2, col3 = st.columns(3)
