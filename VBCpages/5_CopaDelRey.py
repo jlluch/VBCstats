@@ -1102,23 +1102,3 @@ elif marco == "Entrenadores":
             'Derrotas': st.column_config.NumberColumn(width="small"),
             '%': st.column_config.NumberColumn(width="small", format="%.1f%% ")
         })
-    
-    with col2:
-        st.write("Entrenadores como local")
-        st.dataframe(entrenadores_local_display, hide_index=True, column_config={
-            'Entrenador': st.column_config.TextColumn(width="medium"),
-            'Partidos': st.column_config.NumberColumn(width="small"),
-            'Victorias': st.column_config.NumberColumn(width="small"),
-            'Derrotas': st.column_config.NumberColumn(width="small"),
-            'Porcentaje': st.column_config.NumberColumn(width="small", format="%.1f%%")
-        })
-    
-    with col3:
-        st.write("Entrenadores como visitante")
-        st.dataframe(entrenadores_visitante_display, hide_index=True, column_config={
-            'Entrenador': st.column_config.TextColumn(width="medium"),
-            'Partidos': st.column_config.NumberColumn(width="small"),
-            'Victorias': st.column_config.NumberColumn(width="small"),
-            'Derrotas': st.column_config.NumberColumn(width="small"),
-            'Porcentaje': st.column_config.NumberColumn(width="small", format="%.1f%%")
-        })
