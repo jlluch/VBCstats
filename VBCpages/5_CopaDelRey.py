@@ -1020,7 +1020,13 @@ elif marco == "Estadísticas contra un rival":
     #stats_total.columns = ['Total']
     
     st.write("Estadísticas")
-    st.dataframe(stats_total)
+    # Mostrar stats_total sin el índice y todas las columnas small
+    st.dataframe(stats_total, hide_index=True, column_config={
+        'Partidos': st.column_config.NumberColumn(width="small"),
+        'Victorias': st.column_config.NumberColumn(width="small"),
+        'Derrotas': st.column_config.NumberColumn(width="small"),
+        'Puntos': st.column_config.NumberColumn(width="small")})
+    
 
 elif marco == "Entrenadores":
     # Crear un marco para mostrar los entrenadores
