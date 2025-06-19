@@ -991,7 +991,7 @@ elif marco == "Estadísticas contra un rival":
     id_rival = df_games_CopaRey[df_games_CopaRey['Equipo Rival'] == rival]['ID Rival'].unique()[0]
 
     # Selecciona todos los partidos contra el rival    
-    partidos_rival = df_games_CopaRey[df_games_CopaRey['ID Rival'].isin(ids_rival)]
+    partidos_rival = df_games_CopaRey[df_games_CopaRey['ID Rival']==id_rival]
     # Calcula estadísticas medias por partido, separando por VBC y Rival y local y visitante
     partidos_local = partidos_rival[partidos_rival['VBC Local'] == 1]
     partidos_visitante = partidos_rival[partidos_rival['VBC Local'] == 0]
