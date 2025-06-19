@@ -1013,12 +1013,6 @@ elif marco == "Estadísticas contra un rival":
         'Valoración Rival': [round(partidos_rival['Val Rival'].mean(), 1)],
     })
     
-    # Transponer las estadísticas totales
-    #stats_total = stats_total.T
-    
-    # Renombrar las columnas de las tablas transpuestas
-    #stats_total.columns = ['Total']
-    
     st.write("Estadísticas")
     # Mostrar stats_total sin el índice y todas las columnas small
     st.dataframe(stats_total, hide_index=True, column_config={
@@ -1058,8 +1052,7 @@ elif marco == "Entrenadores":
     entrenadores = entrenadores.rename(columns={'Entrenador VBC': 'Entrenador'})
     # Eliminar la columna ID Entrenador VBC para la visualización
     entrenadores_display = entrenadores.drop(columns=['ID Entrenador VBC'])
-    
-    
+        
     # Crear 3 columnas para mostrar los resultados
     col1, col2, col3 = st.columns(3)
     
