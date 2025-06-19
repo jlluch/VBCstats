@@ -10,3 +10,6 @@ name = "Euroleague"
 [[pages]]
 path = "VBCpages/4_Saporta.py"
 name = "Copa Saporta"
+[[pages]]
+path = "VBCpages/5_CopaDelRey.py"
+name = "Copa del Rey"
