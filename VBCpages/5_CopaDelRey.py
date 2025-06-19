@@ -1014,15 +1014,13 @@ elif marco == "Estadísticas contra un rival":
     })
     
     # Transponer las estadísticas totales
-    stats_total = stats_total.T
+    #stats_total = stats_total.T
     
     # Renombrar las columnas de las tablas transpuestas
-    stats_total.columns = ['Total']
+    #stats_total.columns = ['Total']
     
     st.write("Estadísticas")
-    st.dataframe(stats_total, height=565, column_config={
-            stats_total.index.name: st.column_config.TextColumn(width="medium"),
-            "Total": st.column_config.TextColumn(width=50)})
+    st.dataframe(stats_total)
 
 elif marco == "Entrenadores":
     # Crear un marco para mostrar los entrenadores
