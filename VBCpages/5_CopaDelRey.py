@@ -51,7 +51,7 @@ df_players_CopaRey, df_games_CopaRey = load_data()
 df_games_CopaRey['Partido'] = df_games_CopaRey.apply(lambda x: f"VBC - {x['Equipo Rival']}"  if x['VBC Local'] else f"{x['Equipo Rival']} - VBC", axis=1)
 
 # Crear una columna con el enlace a la página del partido
-df_games_CopaRey['Enlace'] = df_games_CopaRey['ID Partido']
+df_games_CopaRey['Enlace'] = df_games_CopaRey.apply(lambda x: f"https://www.acb.com/partido/estadisticas/id/{x['ID Partido']}", axis=1)
 
 # Crear una columna con la diferencia de puntos
 df_games_CopaRey['Diferencia'] = df_games_CopaRey['Puntos VBC'] - df_games_CopaRey['Puntos Rival']
