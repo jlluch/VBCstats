@@ -1022,7 +1022,7 @@ elif marco == "Estadísticas contra un rival":
     st.write("Estadísticas")
     st.dataframe(stats_total, height=565, column_config={
             stats_total.index.name: st.column_config.TextColumn(width="medium"),
-            "Total": st.column_config.TextColumn(width="small")})
+            "Total": st.column_config.TextColumn(width=100)})
 
 elif marco == "Entrenadores":
     # Crear un marco para mostrar los entrenadores
