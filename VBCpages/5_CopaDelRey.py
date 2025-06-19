@@ -992,54 +992,7 @@ elif marco == "Estadísticas contra un rival":
 
     # Selecciona todos los partidos contra el rival    
     partidos_rival = df_games_CopaRey[df_games_CopaRey['ID Rival']==id_rival]
-    # Calcula estadísticas medias por partido, separando por VBC y Rival y local y visitante
-    partidos_local = partidos_rival[partidos_rival['VBC Local'] == 1]
-    partidos_visitante = partidos_rival[partidos_rival['VBC Local'] == 0]
-    # Crear una tabla VBC local con número de partidos, victorias, derrotas y medias de puntos, rebotes, asistencias, robos, tapones y valoración
-    stats_local = pd.DataFrame({
-        'Partidos': [len(partidos_local)],
-        'Victorias': [len(partidos_local[partidos_local['VBC Victoria'] == 1])],
-        'Derrotas': [len(partidos_local[partidos_local['VBC Victoria'] == 0])],
-        'Puntos': [round(partidos_local['Puntos VBC'].mean(), 1)],
-        'Rebotes': [round(partidos_local['Rebotes VBC'].mean(), 1)],
-        'Asistencias': [round(partidos_local['Asistencias VBC'].mean(), 1)],
-        'Robos': [round(partidos_local['Robos VBC'].mean(), 1)],
-        'Tapones': [round(partidos_local['Tapones VBC'].mean(), 1)],
-        'Valoración': [round(partidos_local['Val VBC'].mean(), 1)],
-        'Puntos Rival': [round(partidos_local['Puntos Rival'].mean(), 1)],
-        'Rebotes Rival': [round(partidos_local['Rebotes Rival'].mean(), 1)],
-        'Asistencias Rival': [round(partidos_local['Asistencias Rival'].mean(), 1)],
-        'Robos Rival': [round(partidos_local['Robos Rival'].mean(), 1)],
-        'Tapones Rival': [round(partidos_local['Tapones Rival'].mean(), 1)],
-        'Valoración Rival': [round(partidos_local['Val Rival'].mean(), 1)],        
-    })
     
-    # Crear una tabla VBC visitante con número de partidos, victorias, derrotas y medias de puntos, rebotes, asistencias, robos, tapones y valoración
-    stats_visitante = pd.DataFrame({
-        'Partidos': [len(partidos_visitante)],
-        'Victorias': [len(partidos_visitante[partidos_visitante['VBC Victoria'] == 1])],
-        'Derrotas': [len(partidos_visitante[partidos_visitante['VBC Victoria'] == 0])],
-        'Puntos': [round(partidos_visitante['Puntos VBC'].mean(), 1)],
-        'Rebotes': [round(partidos_visitante['Rebotes VBC'].mean(), 1)],
-        'Asistencias': [round(partidos_visitante['Asistencias VBC'].mean(), 1)],
-        'Robos': [round(partidos_visitante['Robos VBC'].mean(), 1)],
-        'Tapones': [round(partidos_visitante['Tapones VBC'].mean(), 1)],
-        'Valoración': [round(partidos_visitante['Val VBC'].mean(), 1)],
-        'Puntos Rival': [round(partidos_visitante['Puntos Rival'].mean(), 1)],
-        'Rebotes Rival': [round(partidos_visitante['Rebotes Rival'].mean(), 1)],
-        'Asistencias Rival': [round(partidos_visitante['Asistencias Rival'].mean(), 1)],
-        'Robos Rival': [round(partidos_visitante['Robos Rival'].mean(), 1)],
-        'Tapones Rival': [round(partidos_visitante['Tapones Rival'].mean(), 1)],
-        'Valoración Rival': [round(partidos_visitante['Val Rival'].mean(), 1)],        
-    })
-    
-    # Transponer las tablas para cambiar filas por columnas
-    stats_local = stats_local.T
-    stats_visitante = stats_visitante.T
-    
-    # Renombrar las columnas de las tablas transpuestas
-    stats_local.columns = ['Como Local']
-    stats_visitante.columns = ['Como Visitante']
     
     # Combinar las estadísticas de local y visitante
     stats_total = pd.DataFrame({
@@ -1066,25 +1019,8 @@ elif marco == "Estadísticas contra un rival":
     # Renombrar las columnas de las tablas transpuestas
     stats_total.columns = ['Total']
     
-    # Crear 3 columnas para mostrar las estadísticas
-    col1, col2, col3, col4 = st.columns(4)
-    
-    # Visualizar las estadísticas en las columnas
-    with col1:
-        st.write("Estadísticas VBC Local")
-        st.dataframe(stats_local, height=565, column_config={
-            stats_local.index.name: st.column_config.TextColumn(width="medium")
-        })
-    
-    with col2:
-        st.write("Estadísticas VBC Visitante")
-        st.dataframe(stats_visitante, height=565, column_config={
-            stats_visitante.index.name: st.column_config.TextColumn(width="medium")
-        })
-    
-    with col3:
-        st.write("Estadísticas Totales")
-        st.dataframe(stats_total, height=565, column_config={
+    st.write("Estadísticas")
+    st.dataframe(stats_total, height=565, column_config={
             stats_total.index.name: st.column_config.TextColumn(width="medium")
         })
 
