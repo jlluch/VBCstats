@@ -134,7 +134,7 @@ elif marco == "Líderes históricos":
         # Calcular el mayor número de tiros de 1,2 y 3 puntos anotados (mínimo 100) y el mayor porcentaje de tiros de 1,2 y 3 puntos anotados (mínimo 100 intentos)
         # Mostrar los resultados en una tabla
         # Crea una tabla con el acumulado de tiros de 1,2 y 3 puntos anotados, intentados y el porcentaje de acierto de cada jugador
-        tmin = 30 # Mínimo de tiros para mostrar el porcentaje
+        tmin = 10 # Mínimo de tiros para mostrar el porcentaje
         shots = df_players_CopaRey.groupby('Nombre')[['T1a', 'T1i', 'T2a', 'T2i', 'T3a', 'T3i']].sum()
         # Calula el porcentaje de acierto de cada jugador con 1 decimal
         shots['T1%'] = round(shots['T1a'] / shots['T1i'] * 100,1)
