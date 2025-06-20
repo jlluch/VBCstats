@@ -1,7 +1,7 @@
 [[pages]]
 path = "VBCpages/1_ACB.py"
 name = "Liga ACB"
-icon = "🇪🇸"
+icon = "ES"
 [[pages]]
 path = "VBCpages/2_Eurocup.py"
 name = "Eurocup"
@@ -17,4 +17,4 @@ icon = "🌍"
 [[pages]]
 path = "VBCpages/5_CopaDelRey.py"
 name = "Copa del Rey"
-icon = "🇪🇸"
+icon = "ES"
