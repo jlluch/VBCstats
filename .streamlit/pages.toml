@@ -1,7 +1,7 @@
 [[pages]]
 path = "VBCpages/1_ACB.py"
 name = "Liga ACB"
-icon = "🇪🇸"
+icon = "🏀"
 [[pages]]
 path = "VBCpages/2_Eurocup.py"
 name = "Eurocup"
