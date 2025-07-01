@@ -133,9 +133,10 @@ if marco == "Estadísticas de un partido":
     # Filtrar los jugadores del Valencia Basket en el partido seleccionado
     shots_vbc = players_vbc[['Dorsal', 'Nombre', 'T1a', 'T1i', 'T2a', 'T2i', 'T3a', 'T3i']]
     # Calcular los porcentajes de tiros
-    shots_vbc['T1%'] = round(shots_vbc['T1a'] / shots_vbc['T1i'] * 100, 1).fillna(0)
-    shots_vbc['T2%'] = round(shots_vbc['T2a'] / shots_vbc['T2i'] * 100, 1).fillna(0)
-    shots_vbc['T3%'] = round(shots_vbc['T3a'] / shots_vbc['T3i'] * 100, 1).fillna(0)
+    shots_vbc = shots_vbc.copy()
+    shots_vbc.loc[:, 'T1%'] = round(shots_vbc['T1a'] / shots_vbc['T1i'] * 100, 1).fillna(0)
+    shots_vbc.loc[:, 'T2%'] = round(shots_vbc['T2a'] / shots_vbc['T2i'] * 100, 1).fillna(0)
+    shots_vbc.loc[:, 'T3%'] = round(shots_vbc['T3a'] / shots_vbc['T3i'] * 100, 1).fillna(0)
     # Mostrar las estadísticas de tiros
     st.dataframe(shots_vbc[['Dorsal', 'Nombre', 'T1a', 'T1i', 'T1%', 'T2a', 'T2i', 'T2%', 'T3a', 'T3i', 'T3%']],
                     hide_index=True,
