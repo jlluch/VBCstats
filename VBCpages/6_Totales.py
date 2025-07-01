@@ -6,20 +6,7 @@
 import streamlit as st
 import pandas as pd
 import ast
-import locale
 from VBCpages.encrypt_utils import decrypt_csv_file
-
-# Set locale to Spanish - this will affect date formatting
-try:
-    # Try to set Spanish locale (Linux/Mac)
-    locale.setlocale(locale.LC_TIME, 'es_ES.UTF-8')
-except locale.Error:
-    try:
-        # Windows alternative
-        locale.setlocale(locale.LC_TIME, 'Spanish_Spain')
-    except locale.Error:
-        # Fallback if no Spanish locale is available
-        st.warning("No se pudo establecer el idioma español para las fechas.")
 
 def load_encrypted_data(file_path):
     try:
