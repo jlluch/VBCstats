@@ -66,7 +66,7 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 #Crear un selectnox para cada marco
-marco = st.selectbox("Selecciona una opción", ["Estadísticas de una temporada", "Estadísticas jugadores de una temporada", "Líderes de una temporada", "Estadísticas contra un rival", "Estadísticas de un partido", "Líderes históricos", "Récords equipo", "Entrenadores"])
+marco = st.selectbox("Selecciona una opción", ["Estadísticas de una temporada", "Estadísticas jugadores de una temporada", "Líderes de una temporada", "Estadísticas contra un rival", "Estadísticas de un partido", "Líderes históricos", "Récords equipo", "Entrenadores", "Totales"])
 if marco == "Estadísticas de un partido":
     #Crear un marco para mostrar las estadísticas de un partido en concreto
     st.subheader("Estadísticas de un partido")
@@ -1119,3 +1119,135 @@ elif marco == "Entrenadores":
             'Derrotas': st.column_config.NumberColumn(width="small"),
             'Porcentaje': st.column_config.NumberColumn(width="small", format="%.1f%%")
         })
+elif marco == "Totales":
+    # Crear un marco para mostrar las estadísticas totales desde el inicio de la ACB, las mismas que se muestran en Acumulados de la temporada actual, sin filtros
+    st.subheader("Estadísticas Totales de la ACB")
+    # Calcular las estadísticas totales desde el inicio de la ACB
+    #Crear un marco para mostrar las estadísticas totales del equipo
+    st.subheader("Estadísticas totales del equipo")
+    
+    # Calcular el total de partidos jugados, victorias y derrotas, total como local y como visitante y % de cada uno
+    total_games = len(df_games_Saporta)
+    total_wins = df_games_Saporta['VBC Victoria'].sum()
+    total_losses = total_games - total_wins
+    total_home = df_games_Saporta['VBC Local'].sum()
+    total_away = total_games - total_home
+    total_home_wins = df_games_Saporta[df_games_Saporta['VBC Local'] == 1]['VBC Victoria'].sum()
+    total_away_wins = df_games_Saporta[df_games_Saporta['VBC Local'] == 0]['VBC Victoria'].sum()
+    total_home_losses = total_home - total_home_wins
+    total_away_losses = total_away - total_away_wins
+    total_home_wins_percentage = round(total_home_wins * 100 / total_home, 1) if total_home > 0 else 0
+    total_away_wins_percentage = round(total_away_wins * 100 / total_away, 1) if total_away > 0 else 0
+    total_wins_percentage = round(total_wins * 100 / total_games, 1) if total_games > 0 else 0
+    total_losses_percentage = round(total_losses * 100 / total_games, 1) if total_games > 0 else 0
+    
+    # Crear un dataframe con los datos
+    team_stats = pd.DataFrame({
+        'Partidos': [total_games],
+        'Victorias': [total_wins],
+        'Derrotas': [total_losses],
+        'Local': [total_home],
+        'Visitante': [total_away],
+        'Vic. Local': [total_home_wins],
+        'Vic. Visitante': [total_away_wins],
+        'Der. Local': [total_home_losses],
+        'Der. Visitante': [total_away_losses],
+        'Victorias %': [total_wins_percentage],
+        'Derrotas %': [total_losses_percentage],
+        'Vic. Local %': [total_home_wins_percentage],
+        'Vic. Visitante %': [total_away_wins_percentage],
+    })
+    
+    # Crear 3 columnas para mostrar los datos
+    col1, col2, col3 = st.columns(3)
+    with col1:
+        st.write("Partidos")
+        st.dataframe(
+            team_stats[['Partidos', 'Victorias', 'Derrotas']],
+            hide_index=True,
+            column_config={
+                "Partidos": st.column_config.NumberColumn(width="small"),
+                "Victorias": st.column_config.NumberColumn(width="small"),
+                "Derrotas": st.column_config.NumberColumn(width="small"),
+            }
+        )
+    with col2:
+        st.write("Local/Visitante")
+        st.dataframe(
+            team_stats[['Local', 'Visitante', 'Vic. Local', 'Vic. Visitante', 'Der. Local', 'Der. Visitante']],
+            hide_index=True,
+            column_config={
+                "Local": st.column_config.NumberColumn(width="small"),
+                "Visitante": st.column_config.NumberColumn(width="small"),
+                "Vic. Local": st.column_config.NumberColumn(width="small"),
+                "Vic. Visitante": st.column_config.NumberColumn(width="small"),
+                "Der. Local": st.column_config.NumberColumn(width="small"),
+                "Der. Visitante": st.column_config.NumberColumn(width="small"),
+            }
+        )
+    with col3:
+        st.write("Porcentajes")
+        st.dataframe(
+            team_stats[['Victorias %', 'Derrotas %', 'Vic. Local %', 'Vic. Visitante %']],
+            hide_index=True,
+            column_config={
+                "Victorias %": st.column_config.NumberColumn(width="small"),
+                "Derrotas %": st.column_config.NumberColumn(width="small"),
+                "Vic. Local %": st.column_config.NumberColumn(width="small"),
+                "Vic. Visitante %": st.column_config.NumberColumn(width="small"),
+            }
+        )
+        
+    # Calcular los acumulados de VBC usando los datos totales Puntos, Rebotes, Asistencias, Robos, Tapones y Valoración de VBC y Rival, Tiros de VBC y Rival
+    team_stats_vbc = pd.DataFrame(df_games_Saporta[['Puntos VBC', 'Rebotes VBC', 'Asistencias VBC', 'Robos VBC', 'Tapones VBC', 'Val VBC']].sum(), columns=['Acumulados'])
+    team_stats_vbc['Media'] = round(team_stats_vbc['Acumulados'] / total_games, 1)
+    team_stats_rival = pd.DataFrame(df_games_Saporta[['Puntos Rival', 'Rebotes Rival', 'Asistencias Rival', 'Robos Rival', 'Tapones Rival', 'Val Rival']].sum(), columns=['Acumulados'])
+    team_stats_rival['Media'] = round(team_stats_rival['Acumulados'] / total_games, 1)
+    # Datos de tiros VBC
+    team_shots_vbc = pd.DataFrame(df_games_Saporta[['T1a VBC', 'T1i VBC', 'T2a VBC', 'T2i VBC', 'T3a VBC', 'T3i VBC']].sum(), columns=['Acumulados'])
+    team_shots_vbc['Media'] = round(team_shots_vbc['Acumulados'] / total_games, 1)
+    team_shots_vbc['%'] = round(team_shots_vbc['Acumulados']*100 / team_shots_vbc['Acumulados'].shift(-1), 1)
+    # Datos de tiros Rival
+    team_shots_rival = pd.DataFrame(df_games_Saporta[['T1a Rival', 'T1i Rival', 'T2a Rival', 'T2i Rival', 'T3a Rival', 'T3i Rival']].sum(), columns=['Acumulados'])
+    team_shots_rival['Media'] = round(team_shots_rival['Acumulados'] / total_games, 1)
+    team_shots_rival['%'] = round(team_shots_rival['Acumulados']*100 / team_shots_rival['Acumulados'].shift(-1), 1)
+    # Crear 4 columnas para mostrar los datos
+    col1, col2, col3, col4, col5 = st.columns(5)
+    with col1:
+        st.write("VBC Estadísticas")
+        st.dataframe(
+            team_stats_vbc,
+            column_config={
+                "Acumulados": st.column_config.NumberColumn(width="small"),
+                "Media":      st.column_config.NumberColumn(width="small"),
+            }
+        )
+    with col2:
+        st.write("Rival Estadísticas")
+        st.dataframe(
+            team_stats_rival,
+            column_config={
+                "Acumulados": st.column_config.NumberColumn(width="small"),
+                "Media":      st.column_config.NumberColumn(width="small"),
+            }
+        )
+    with col3:
+        st.write("VBC Tiros")
+        st.dataframe(
+            team_shots_vbc.iloc[::2],
+            column_config={
+                "Acumulados": st.column_config.NumberColumn(width="small"),
+                "Media":      st.column_config.NumberColumn(width="small"),
+                "%":          st.column_config.NumberColumn(width="small"),
+            }
+        )
+    with col4:
+        st.write("Rival Tiros")
+        st.dataframe(
+            team_shots_rival.iloc[::2],
+            column_config={
+                "Acumulados": st.column_config.NumberColumn(width="small"),
+                "Media":      st.column_config.NumberColumn(width="small"),
+                "%":          st.column_config.NumberColumn(width="small"),
+            }
+        )

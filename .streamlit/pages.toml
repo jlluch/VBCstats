@@ -1,15 +1,24 @@
 [[pages]]
 path = "VBCpages/1_ACB.py"
 name = "Liga ACB"
+icon = "🏀"
 [[pages]]
 path = "VBCpages/2_Eurocup.py"
 name = "Eurocup"
+icon = "🏀"
 [[pages]]
 path = "VBCpages/3_Euroleague.py"
 name = "Euroleague"
+icon = "🏀"
 [[pages]]
 path = "VBCpages/4_Saporta.py"
 name = "Copa Saporta"
+icon = "🏀"
 [[pages]]
 path = "VBCpages/5_CopaDelRey.py"
 name = "Copa del Rey"
+icon = "🏀"
+[[pages]]
+path = "VBCpages/6_Totales.py"
+name = "Totales"
+icon = "🏀"
