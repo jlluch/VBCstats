@@ -1136,8 +1136,6 @@ elif marco == "Récords equipo":
     # Tiros de 1,2 y 3 puntos anotados
     # Tiros de 1 punto
     max10_t1a = df_games_Total.sort_values(by='T1a VBC',ascending=False).head(lh)
-    # Multiplicar por 100 para mostrar el porcentaje
-    max10_t1a['T1% VBC'] = max10_t1a['T1% VBC']
     #Seleccionar las columnas a mostrar
     columns_to_show = ['ID Temporada', 'Jornada', 'Fecha', 'Partido', 'T1a VBC', 'T1% VBC', 'Enlace']
     st.write("Récords en tiros libres")
@@ -1153,8 +1151,6 @@ elif marco == "Récords equipo":
 
     # Tiros de 2 puntos
     max10_t2a = df_games_Total.sort_values(by='T2a VBC',ascending=False).head(lh)
-    # Multiplicar por 100 para mostrar el porcentaje
-    max10_t2a['T2% VBC'] = max10_t2a['T2% VBC']
     #Seleccionar las columnas a mostrar
     columns_to_show = ['ID Temporada', 'Jornada', 'Fecha', 'Partido', 'T2a VBC', 'T2% VBC', 'Enlace']
     st.write("Récords en tiros de 2 puntos")
@@ -1170,8 +1166,6 @@ elif marco == "Récords equipo":
 
     # Tiros de 3 puntos
     max10_t3a = df_games_Total.sort_values(by='T3a VBC',ascending=False).head(lh)
-    # Multiplicar por 100 para mostrar el porcentaje
-    max10_t3a['T3% VBC'] = max10_t3a['T3% VBC']
     #Seleccionar las columnas a mostrar
     columns_to_show = ['ID Temporada', 'Jornada', 'Fecha', 'Partido', 'T3a VBC', 'T3% VBC', 'Enlace']
     st.write("Récords en tiros de 3 puntos")
@@ -1188,9 +1182,7 @@ elif marco == "Récords equipo":
     # Porcentaje de acierto
     # Tiros de 1 punto
     max10_t1p = df_games_Total.sort_values(by=['T1% VBC','T1a VBC'],ascending=False).head(lh)
-    # Multiplicar por 100 para mostrar el porcentaje
-    max10_t1p['T1% VBC'] = max10_t1p['T1% VBC']
-    #Seleccionar las columnas a mostrar
+     #Seleccionar las columnas a mostrar
     columns_to_show = ['ID Temporada', 'Jornada', 'Fecha', 'Partido', 'T1% VBC', 'T1a VBC', 'Enlace']
     st.write("Récords en porcentaje de tiros libres")
     st.dataframe(max10_t1p[columns_to_show], hide_index=True, column_config={
@@ -1205,8 +1197,6 @@ elif marco == "Récords equipo":
 
     # Tiros de 2 puntos
     max10_t2p = df_games_Total.sort_values(by=['T2% VBC','T2a VBC'],ascending=False).head(lh)
-    # Multiplicar por 100 para mostrar el porcentaje
-    max10_t2p['T2% VBC'] = max10_t2p['T2% VBC']
     #Seleccionar las columnas a mostrar
     columns_to_show = ['ID Temporada', 'Jornada', 'Fecha', 'Partido', 'T2% VBC', 'T2a VBC', 'Enlace']
     st.write("Récords en porcentaje de tiros de 2 puntos")
@@ -1222,8 +1212,6 @@ elif marco == "Récords equipo":
 
     # Tiros de 3 puntos
     max10_t3p = df_games_Total.sort_values(by=['T3% VBC','T3a VBC'],ascending=False).head(lh)
-    # Multiplicar por 100 para mostrar el porcentaje
-    max10_t3p['T3% VBC'] = max10_t3p['T3% VBC']
     #Seleccionar las columnas a mostrar
     columns_to_show = ['ID Temporada', 'Jornada', 'Fecha', 'Partido', 'T3% VBC', 'T3a VBC', 'Enlace']
     st.write("Récords en porcentaje de tiros de 3 puntos")
