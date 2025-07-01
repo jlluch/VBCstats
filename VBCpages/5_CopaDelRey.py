@@ -106,6 +106,53 @@ if marco == "Estadísticas de un partido":
     'P1Rival', 'P2Rival', 'Q1Rival', 'Q2Rival', 'Q3Rival', 'Q4Rival',
     'PR1Rival', 'PR2Rival']
     st.dataframe(df_games_CopaRey[(df_games_CopaRey['ID Temporada'] == season) & (df_games_CopaRey['Fecha'] == date)][columns_to_show], hide_index=True)
+
+    # Jugadores del Valencia Basket
+    st.subheader("Jugadores Valencia Basket")
+    # Filtrar los jugadores del Valencia Basket en el partido seleccionado
+    players_vbc = df_players_CopaRey[(df_players_CopaRey['ID Temporada'] == season) & (df_players_CopaRey['Fecha'] == date)]
+    # Mostrar los jugadores del Valencia Basket en el partido seleccionado
+    st.dataframe(players_vbc[['Dorsal', 'Nombre', 'Minutos', 'Puntos', 'R.Def', 'R.Ofe', 'Rebotes', 'Asistencias', 'Robos', 'Perdidas', 'Tapones', 'Val', '+/-']],
+                    hide_index=True,
+                    column_config={
+                        "Dorsal": st.column_config.NumberColumn(width="small"),
+                        "Nombre": st.column_config.TextColumn(width="medium"),
+                        "Minutos": st.column_config.NumberColumn(width="small"),
+                        "Puntos": st.column_config.NumberColumn(width="small"),
+                        "R.Def": st.column_config.NumberColumn(width="small"),
+                        "R.Ofe": st.column_config.NumberColumn(width="small"),
+                        "Rebotes": st.column_config.NumberColumn(width="small"),
+                        "Asistencias": st.column_config.NumberColumn(width="small"),
+                        "Robos": st.column_config.NumberColumn(width="small"),
+                        "Perdidas": st.column_config.NumberColumn(width="small"),
+                        "Tapones": st.column_config.NumberColumn(width="small"),
+                        "Val": st.column_config.NumberColumn(width="small"),
+                        "+/-": st.column_config.NumberColumn(width="small")
+                    })
+    # Estadísticas de tiros con porcentajes
+    st.subheader("Estadísticas de tiros")
+    # Filtrar los jugadores del Valencia Basket en el partido seleccionado
+    shots_vbc = players_vbc[['Dorsal', 'Nombre', 'T1a', 'T1i', 'T2a', 'T2i', 'T3a', 'T3i']]
+    # Calcular los porcentajes de tiros
+    shots_vbc['T1%'] = round(shots_vbc['T1a'] / shots_vbc['T1i'] * 100, 1).fillna(0)
+    shots_vbc['T2%'] = round(shots_vbc['T2a'] / shots_vbc['T2i'] * 100, 1).fillna(0)
+    shots_vbc['T3%'] = round(shots_vbc['T3a'] / shots_vbc['T3i'] * 100, 1).fillna(0)
+    # Mostrar las estadísticas de tiros
+    st.dataframe(shots_vbc[['Dorsal', 'Nombre', 'T1a', 'T1i', 'T1%', 'T2a', 'T2i', 'T2%', 'T3a', 'T3i', 'T3%']],
+                    hide_index=True,
+                    column_config={
+                        "Dorsal": st.column_config.NumberColumn(width="small"),
+                        "Nombre": st.column_config.TextColumn(width="medium"),
+                        "T1a": st.column_config.NumberColumn(width="small"),
+                        "T1i": st.column_config.NumberColumn(width="small"),
+                        "T1%": st.column_config.NumberColumn(width="small"),
+                        "T2a": st.column_config.NumberColumn(width="small"),
+                        "T2i": st.column_config.NumberColumn(width="small"),
+                        "T2%": st.column_config.NumberColumn(width="small"),
+                        "T3a": st.column_config.NumberColumn(width="small"),
+                        "T3i": st.column_config.NumberColumn(width="small"),
+                        "T3%": st.column_config.NumberColumn(width="small")
+                    })
 elif marco == "Líderes históricos":    
     #Crear un marco para mostrar los líderes históricos
     st.subheader("Líderes históricos")
