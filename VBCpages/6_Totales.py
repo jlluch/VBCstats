@@ -127,7 +127,7 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 #Crear un selectbox para cada marco
-marco = st.selectbox("Selecciona una opción", ["Totales equipo", "Estadísticas de una temporada conjunta", "Estadísticas jugadores de una temporada conjunta", "Líderes históricos", "Récords equipo", "Entrenadores"])
+marco = st.selectbox("Selecciona una opción", ["Totales equipo", "Estadísticas de una temporada conjunta", "Estadísticas jugadores de una temporada conjunta", "Acumulados Temporadas", "Líderes históricos", "Récords equipo", "Entrenadores"])
 
 if marco == "Totales equipo":
     #Crear un marco para mostrar las estadísticas totales del equipo
@@ -653,7 +653,148 @@ elif marco == "Estadísticas jugadores de una temporada conjunta":
                     "T3%": st.column_config.NumberColumn(format="%.1f%%", width="small")
                 }
             )
+elif marco == "Acumulados Temporadas":
+    # Crear un marco para mostrar los acumulados de cad temporada en una tabla, con:
+    # Partidos, Victorias, Derrotas, % Victorias, Puntos, Puntos Rival,	Reb Of,	Reb Def, Asists, Robos, Perdidas, Faltas, Valoracion
+    # En otra tabla estadísticas de tiro:, TLa, TL%, T2a, T2%, T3a,   T3%
+    # Añadir un radio button para seleccionar por estadística total o por partido
+    st.subheader("Acumulados de temporadas")
+    tipo = st.radio("Selecciona el tipo de estadística", ["Total", "Por partido"])
+    # Calcular los acumulados de cada temporada
+        # Agrupar por temporadas y calcular los acumulados de cada temporada
+    temporadas_acumulados = df_games_Total.groupby('ID Temporada').agg(
+        Partidos=('ID Partido', 'count'),
+        Victoria=('VBC Victoria', 'sum'),
+        Derrota=('VBC Victoria', lambda x: (x == 0).sum()),
+        Puntos=('Puntos VBC', 'sum'),
+        Rival=('Puntos Rival', 'sum'),
+        RebOf=('R.Ofe VBC', 'sum'),
+        RebDef=('R.Def VBC', 'sum'),
+        Asist=('Asistencias VBC', 'sum'),
+        Robos=('Robos VBC', 'sum'),
+        Perdidas=('Perdidas VBC', 'sum'),
+        Tapones=('Tapones VBC', 'sum'),
+        Faltas=('FPC VBC', 'sum'),
+        Recibidas=('FPF VBC', 'sum'),
+        Val=('Val VBC', 'sum'),
+        T1a=('T1a VBC', 'sum'),
+        T2a=('T2a VBC', 'sum'),
+        T3a=('T3a VBC', 'sum'),
+        T1i=('T1i VBC', 'sum'),
+        T2i=('T2i VBC', 'sum'),
+        T3i=('T3i VBC', 'sum')
+    ).reset_index()
+    # Calcular los porcentajes de victorias y tiros
+    temporadas_acumulados['% Victoria'] = round(temporadas_acumulados['Victoria'] * 100 / temporadas_acumulados['Partidos'], 1)
+    temporadas_acumulados['TL%'] = round(temporadas_acumulados['T1a'] / temporadas_acumulados['T1i'] * 100, 1).fillna(0)
+    temporadas_acumulados['T2%'] = round(temporadas_acumulados['T2a'] / temporadas_acumulados['T2i'] * 100, 1).fillna(0)
+    temporadas_acumulados['T3%'] = round(temporadas_acumulados['T3a'] / temporadas_acumulados['T3i'] * 100, 1).fillna(0)
 
+    if tipo == "Total":
+        # Mostrar los resultados en dos tablas
+        st.dataframe(
+            temporadas_acumulados[['ID Temporada', 'Partidos', 'Victoria', 'Derrota', '% Victoria', 
+                                   'Puntos', 'Rival', 'RebOf', 'RebDef', 'Asist', 'Robos', 
+                                   'Perdidas', 'Tapones', 'Faltas', 'Recibidas', 'Val']],
+            hide_index=True,
+            column_config={
+                "ID Temporada": st.column_config.TextColumn(width="small"),
+                "Partidos": st.column_config.NumberColumn(width="small"),
+                "Victoria": st.column_config.NumberColumn(width="small"),
+                "Derrota": st.column_config.NumberColumn(width="small"),
+                "% Victoria": st.column_config.NumberColumn(format="%.1f%%", width="small"),
+                "Puntos": st.column_config.NumberColumn(width="small"),
+                "Rival": st.column_config.NumberColumn(width="small"),
+                "RebOf": st.column_config.NumberColumn(width="small"),
+                "RebDef": st.column_config.NumberColumn(width="small"),
+                "Asist": st.column_config.NumberColumn(width="small"),
+                "Robos": st.column_config.NumberColumn(width="small"),
+                "Perdidas": st.column_config.NumberColumn(width="small"),
+                "Tapones": st.column_config.NumberColumn(width="small"),
+                "Faltas": st.column_config.NumberColumn(width="small"),
+                "Recibidas": st.column_config.NumberColumn(width="small"),
+                "Val": st.column_config.NumberColumn(width="small")
+            }
+        )
+        # Mostrar la tabla de estadísticas de tiro con anotados, intentados y porcentajes
+        st.dataframe(
+            temporadas_acumulados[['ID Temporada', 'T1a', 'T1i', 'TL%', 'T2a', 'T2i','T2%', 'T3a', 'T3i', 'T3%']],
+            hide_index=True,
+            column_config={
+                "ID Temporada": st.column_config.TextColumn(width="small"),
+                "T1a": st.column_config.NumberColumn(width="small"),
+                "T1i": st.column_config.NumberColumn(width="small"),
+                "TL%": st.column_config.NumberColumn(format="%.1f%%", width="small"),
+                "T2a": st.column_config.NumberColumn(width="small"),
+                "T2i": st.column_config.NumberColumn(width="small"),
+                "T2%": st.column_config.NumberColumn(format="%.1f%%", width="small"),
+                "T3a": st.column_config.NumberColumn(width="small"),
+                "T3i": st.column_config.NumberColumn(width="small"),
+                "T3%": st.column_config.NumberColumn(format="%.1f%%", width="small")
+            })
+    else:  # Por partido
+        # Calcular medias por partido, quitar partidos, victorias, derrotas y porcentajes
+        temporadas_acumulados['Puntos'] = round(temporadas_acumulados['Puntos'] / temporadas_acumulados['Partidos'], 1)
+        temporadas_acumulados['Rival'] = round(temporadas_acumulados['Rival'] / temporadas_acumulados['Partidos'], 1)
+        temporadas_acumulados['RebOf'] = round(temporadas_acumulados['RebOf'] / temporadas_acumulados['Partidos'], 1)
+        temporadas_acumulados['RebDef'] = round(temporadas_acumulados['RebDef'] / temporadas_acumulados['Partidos'], 1)
+        temporadas_acumulados['Asist'] = round(temporadas_acumulados['Asist'] / temporadas_acumulados['Partidos'], 1)
+        temporadas_acumulados['Robos'] = round(temporadas_acumulados['Robos'] / temporadas_acumulados['Partidos'], 1)
+        temporadas_acumulados['Perdidas'] = round(temporadas_acumulados['Perdidas'] / temporadas_acumulados['Partidos'], 1)
+        temporadas_acumulados['Tapones'] = round(temporadas_acumulados['Tapones'] / temporadas_acumulados['Partidos'], 1)
+        temporadas_acumulados['Faltas'] = round(temporadas_acumulados['Faltas'] / temporadas_acumulados['Partidos'], 1)
+        temporadas_acumulados['Recibidas'] = round(temporadas_acumulados['Recibidas'] / temporadas_acumulados['Partidos'], 1)
+        temporadas_acumulados['Val'] = round(temporadas_acumulados['Val'] / temporadas_acumulados['Partidos'], 1)
+        # Mostrar los resultados en dos tablas
+        st.dataframe(
+            temporadas_acumulados[['ID Temporada', 'Partidos', 'Victoria', 'Derrota', '% Victoria', 
+                                   'Puntos', 'Rival', 'RebOf', 'RebDef', 'Asist', 'Robos', 
+                                   'Perdidas', 'Tapones', 'Faltas', 'Recibidas', 'Val']],
+            hide_index=True,
+            column_config={
+                "ID Temporada": st.column_config.TextColumn(width="small"),
+                "Partidos": st.column_config.NumberColumn(width="small"),
+                "Victoria": st.column_config.NumberColumn(width="small"),
+                "Derrota": st.column_config.NumberColumn(width="small"),
+                "% Victoria": st.column_config.NumberColumn(format="%.1f%%", width="small"),
+                "Puntos": st.column_config.NumberColumn(width="small"),
+                "Rival": st.column_config.NumberColumn(width="small"),
+                "RebOf": st.column_config.NumberColumn(width="small"),
+                "RebDef": st.column_config.NumberColumn(width="small"),
+                "Asist": st.column_config.NumberColumn(width="small"),
+                "Robos": st.column_config.NumberColumn(width="small"),
+                "Perdidas": st.column_config.NumberColumn(width="small"),
+                "Tapones": st.column_config.NumberColumn(width="small"),
+                "Faltas": st.column_config.NumberColumn(width="small"),
+                "Recibidas": st.column_config.NumberColumn(width="small"),
+                "Val": st.column_config.NumberColumn(width="small")
+            }
+        )
+        # Calcular medias de tiro,  anotados, intentados
+        temporadas_acumulados['T1a'] = round(temporadas_acumulados['T1a'] / temporadas_acumulados['Partidos'], 1)
+        temporadas_acumulados['T1i'] = round(temporadas_acumulados['T1i'] / temporadas_acumulados['Partidos'], 1)
+        temporadas_acumulados['T2a'] = round(temporadas_acumulados['T2a'] / temporadas_acumulados['Partidos'], 1)
+        temporadas_acumulados['T2i'] = round(temporadas_acumulados['T2i'] / temporadas_acumulados['Partidos'], 1)
+        temporadas_acumulados['T3a'] = round(temporadas_acumulados['T3a'] / temporadas_acumulados['Partidos'], 1)
+        temporadas_acumulados['T3i'] = round(temporadas_acumulados['T3i'] / temporadas_acumulados['Partidos'], 1)
+        # Mostrar la tabla de estadísticas de tiro con anotados, intentados y porcentajes
+        st.dataframe(
+            temporadas_acumulados[['ID Temporada', 'T1a', 'T1i', 'TL%', 'T2a', 'T2i','T2%', 'T3a', 'T3i', 'T3%']],
+            hide_index=True,
+            column_config={
+                "ID Temporada": st.column_config.TextColumn(width="small"),
+                "T1a": st.column_config.NumberColumn(width="small"),
+                "T1i": st.column_config.NumberColumn(width="small"),
+                "TL%": st.column_config.NumberColumn(format="%.1f%%", width="small"),
+                "T2a": st.column_config.NumberColumn(width="small"),
+                "T2i": st.column_config.NumberColumn(width="small"),
+                "T2%": st.column_config.NumberColumn(format="%.1f%%", width="small"),
+                "T3a": st.column_config.NumberColumn(width="small"),
+                "T3i": st.column_config.NumberColumn(width="small"),
+                "T3%": st.column_config.NumberColumn(format="%.1f%%", width="small")
+            })
+        
+    
 
 elif marco == "Líderes históricos":    
     #Crear un marco para mostrar los líderes históricos
