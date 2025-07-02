@@ -683,7 +683,7 @@ elif marco == "Acumulados Temporadas":
         T1i=('T1i VBC', 'sum'),
         T2i=('T2i VBC', 'sum'),
         T3i=('T3i VBC', 'sum')
-    ).reset_index()
+    ).reset_index().sort_values('ID Temporada', ascending=False)
     # Calcular los porcentajes de victorias y tiros
     temporadas_acumulados['% Victoria'] = round(temporadas_acumulados['Victoria'] * 100 / temporadas_acumulados['Partidos'], 1)
     temporadas_acumulados['TL%'] = round(temporadas_acumulados['T1a'] / temporadas_acumulados['T1i'] * 100, 1).fillna(0)
