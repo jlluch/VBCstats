@@ -793,9 +793,6 @@ elif marco == "Acumulados Temporadas":
                 "T3i": st.column_config.NumberColumn(width="small"),
                 "T3%": st.column_config.NumberColumn(format="%.1f%%", width="small")
             })
-        
-    
-
 elif marco == "Líderes históricos":    
     #Crear un marco para mostrar los líderes históricos
     st.subheader("Líderes históricos")

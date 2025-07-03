@@ -5,55 +5,20 @@
 # """
 import streamlit as st
 import pandas as pd
-from VBCpages.encrypt_utils import decrypt_csv_file
-
-def load_encrypted_data(file_path):
-    try:
-        # Get decryption key from secrets
-        decryption_key = st.secrets["data_encryption"]["key"]
-        return decrypt_csv_file(file_path, decryption_key)
-    except Exception as e:
-        st.error(f"Error accessing data: {str(e)}")
-        return None
 
 #Crear una función para cargar los datos de cada competición, de partidos y de jugadores
 #Hacer cache de los datos para que no se carguen cada vez que se actualiza la página
 
 @st.cache_data 
 def load_data():
-    path = r"Data/"
-    file_path = path+"estadisticas_jugadores_VBC_ACB.csv.enc"
-    df_players_ACB = load_encrypted_data(file_path)
-# Columns: ID Temporada,Jornada,Fase,Fecha,Hora,ID Partido,ID Equipo,Dorsal,Nombre,Titular,ID Jugador,Minutos,Puntos,
-# T2a,T2i,T2%,T3a,T3i,T3%,T1a,T1i,T1%,Rebotes,R.Def,R.Ofe,
-# Asistencias, Robos,Perdidas,CTP,Tapones,TR,Mates,FPF,FPC,+/-,Val,
-# eFG% ,TOV% ,OREB% ,DREB% ,Pace ,ORTG ,DRTG ,Net Rating ,AST/TO ,Posesiones
-    file_path = path+"estadisticas_partidos_VBC_ACB.csv.enc"
-    df_games_ACB = load_encrypted_data(file_path)
-# Columns: ID Temporada	Jornada	Fase	Fecha	Hora	ID Partido	VBC Local	VBC Victoria	Puntos VBC	Puntos Rival	
-# Entrenador VBC	ID Entrenador VBC	Minutos VBC	T2a VBC	T2i VBC	T2% VBC	T3a VBC	T3i VBC	T3% VBC	T1a VBC	T1i VBC	T1% VBC	
-# Rebotes VBC	R.Def VBC	R.Ofe VBC	Asistencias VBC	Robos VBC	Perdidas VBC	CTP VBC	Tapones VBC	TR VBC	Mates VBC	
-# FPF VBC	FPC VBC	+/- VBC	Val VBC	eFG% VBC	TOV% VBC	OREB% VBC	DREB% VBC	Pace VBC	ORTG VBC	DRTG VBC	
-# Net Rating VBC	AST/TO VBC	Posesiones VBC	
-# Equipo Rival	ID Rival	Entrenador Rival	ID Entrenador Rival	Minutos Rival	T2a Rival	T2i Rival	T2% Rival	
-# T3a Rival	T3i Rival	T3% Rival	T1a Rival	T1i Rival	T1% Rival	Rebotes Rival	R.Def Rival	R.Ofe Rival	Asistencias Rival	
-# Robos Rival	Perdidas Rival	CTP Rival	Tapones Rival	TR Rival	Mates Rival	FPF Rival	FPC Rival	+/- Rival	Val Rival	
-# eFG% Rival	TOV% Rival	OREB% Rival	DREB% Rival	Pace Rival	ORTG Rival	DRTG Rival	Net Rating Rival	AST/TO Rival	
-# Posesiones Rival	P1VBC	P2VBC	Q1VBC	Q2VBC	Q3VBC	Q4VBC	PR1VBC	PR2VBC	
-# P1Rival	P2Rival	Q1Rival	Q2Rival	Q3Rival	Q4Rival	PR1Rival	PR2Rival
+    
+    df_players_ACB = st.session_state.df_players_ACB 
+    df_games_ACB = st.session_state.df_games_ACB
     return df_players_ACB, df_games_ACB
 
 #Cargar los datos
 df_players_ACB, df_games_ACB = load_data()
 
-# Crear una columna con el partido
-df_games_ACB['Partido'] = df_games_ACB.apply(lambda x: f"VBC - {x['Equipo Rival']}"  if x['VBC Local'] else f"{x['Equipo Rival']} - VBC", axis=1)
-
-# Crear una columna con el enlace a la página del partido
-df_games_ACB['Enlace'] = df_games_ACB.apply(lambda x: f"https://www.acb.com/partido/estadisticas/id/{x['ID Partido']}", axis=1)
-
-# Crear una columna con la diferencia de puntos
-df_games_ACB['Diferencia'] = df_games_ACB['Puntos VBC'] - df_games_ACB['Puntos Rival']
 
 st.title("Estadísticas de la ACB")
 # Inyecta CSS para cambiar el ancho del selectbox
@@ -65,7 +30,7 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 #Crear un selectnox para cada marco
-marco = st.selectbox("Selecciona una opción", ["Acumulados de la temporada actual", "Estadísticas jugadores de la temporada", "Líderes de la temporada", "Comparativa temporada anterior", "Estadísticas contra un rival", "Estadísticas de un partido", "Líderes históricos", "Récords equipo", "Entrenadores", "Totales"])
+marco = st.selectbox("Selecciona una opción", ["Estadísticas de una temporada", "Estadísticas jugadores de una temporada", "Líderes de una temporada", "Comparativa temporada anterior", "Estadísticas contra un rival", "Estadísticas de un partido", "Líderes históricos", "Récords equipo", "Entrenadores", "Totales"])
 if marco == "Estadísticas de un partido":
     #Crear un marco para mostrar las estadísticas de un partido en concreto
     st.subheader("Estadísticas de un partido")
@@ -73,20 +38,21 @@ if marco == "Estadísticas de un partido":
     season = st.selectbox("Selecciona una temporada", df_games_ACB['ID Temporada'].sort_values(ascending=False).unique())
     #Seleccionar un partido
     # Crea una lista para el selectbox con la fecha, el equipo rival y si VBC es el equipo local
-    game_list = df_games_ACB[df_games_ACB['ID Temporada'] == season][['Fecha','Partido']]
+    game_list = df_games_ACB[df_games_ACB['ID Temporada'] == season]['Partido']
     # Invertir el orden de game_list
     game_list = game_list.iloc[::-1]     
-    
-    game_list = game_list.apply(lambda x: f"{x['Fecha']} - {x['Partido']}", axis=1)
-    game = st.selectbox("Selecciona un partido", game_list)
-    date = game.split(" - ")[0]        
+    # Eliminar id del partido
+    game_list2 = game_list.apply(lambda x: x.split(" - ")[1:])
+    game = st.selectbox("Selecciona un partido", game_list2)
+    index = list(game_list2).index(game)  # Obtener el índice del partido seleccionado
+    id_game = int((game_list.iloc[index]).split(" - ")[0])  # Obtener el ID del partido
     #Mostrar las estadísticas del partido seleccionado
     st.subheader("Datos del partido")
-    if game.split(" - ")[1] == "VBC":
+    if game[1] == "VBC":
         columns_to_show = ['ID Temporada', 'Jornada', 'Fase', 'Fecha', 'Hora', 'Puntos VBC','Equipo Rival','Puntos Rival', 'Entrenador VBC', 'Entrenador Rival']
     else:
         columns_to_show = ['ID Temporada', 'Jornada', 'Fase', 'Fecha', 'Hora', 'Equipo Rival','Puntos Rival', 'Puntos VBC', 'Entrenador Rival', 'Entrenador VBC']
-    st.dataframe(df_games_ACB[(df_games_ACB['ID Temporada'] == season) & (df_games_ACB['Fecha'] == date)][columns_to_show], hide_index=True)
+    st.dataframe(df_games_ACB[(df_games_ACB['ID Partido'] == id_game)][columns_to_show], hide_index=True)
     
     st.subheader("Estadísticas Valencia Basket")
     columns_to_show = ['Minutos VBC', 'T2a VBC','T2i VBC', 'T2% VBC', 'T3a VBC', 'T3i VBC', 'T3% VBC', 'T1a VBC',
@@ -94,7 +60,7 @@ if marco == "Estadísticas de un partido":
     'Asistencias VBC', 'Robos VBC', 'Perdidas VBC', 'CTP VBC',
     'Tapones VBC', 'TR VBC', 'Mates VBC', 'FPF VBC', 'FPC VBC', '+/- VBC', 'Val VBC', 
     'P1VBC','P2VBC', 'Q1VBC', 'Q2VBC', 'Q3VBC', 'Q4VBC', 'PR1VBC', 'PR2VBC']
-    st.dataframe(df_games_ACB[(df_games_ACB['ID Temporada'] == season) & (df_games_ACB['Fecha'] == date)][columns_to_show], hide_index=True)
+    st.dataframe(df_games_ACB[(df_games_ACB['ID Partido'] == id_game)][columns_to_show], hide_index=True)
     
     st.subheader("Estadísticas del rival")
     columns_to_show = ['Minutos Rival', 'T2a Rival', 'T2i Rival',
@@ -104,12 +70,12 @@ if marco == "Estadísticas de un partido":
     'Tapones Rival', 'TR Rival', 'Mates Rival', 'FPF Rival', 'FPC Rival','+/- Rival', 'Val Rival', 
     'P1Rival', 'P2Rival', 'Q1Rival', 'Q2Rival', 'Q3Rival', 'Q4Rival',
     'PR1Rival', 'PR2Rival']
-    st.dataframe(df_games_ACB[(df_games_ACB['ID Temporada'] == season) & (df_games_ACB['Fecha'] == date)][columns_to_show], hide_index=True)
+    st.dataframe(df_games_ACB[(df_games_ACB['ID Partido'] == id_game)][columns_to_show], hide_index=True)
 
     # Jugadores del Valencia Basket
     st.subheader("Jugadores Valencia Basket")
     # Filtrar los jugadores del Valencia Basket en el partido seleccionado
-    players_vbc = df_players_ACB[(df_players_ACB['ID Temporada'] == season) & (df_players_ACB['Fecha'] == date)]
+    players_vbc = df_players_ACB[(df_players_ACB['ID Partido'] == id_game)]
     # Mostrar los jugadores del Valencia Basket en el partido seleccionado
     st.dataframe(players_vbc[['Dorsal', 'Nombre', 'Minutos', 'Puntos', 'R.Def', 'R.Ofe', 'Rebotes', 'Asistencias', 'Robos', 'Perdidas', 'Tapones', 'Val', '+/-']],
                     hide_index=True,
@@ -412,12 +378,14 @@ elif marco == "Líderes históricos":
         mt2a.dataframe(max_T2a,column_config={"Nombre": st.column_config.TextColumn(width="medium"),"T2": st.column_config.TextColumn(width="small")})
         mt3a.dataframe(max_T3a,column_config={"Nombre": st.column_config.TextColumn(width="medium"),"T3": st.column_config.TextColumn(width="small")})      
 
-elif marco == "Acumulados de la temporada actual":
-    #Crear un marco para mostrar los acumulados de la temporada
-    st.subheader("Acumulados de la temporada")
-    #Seleccionar la temporada actual, cogiendo el id del último partido
-    season = df_games_ACB['ID Temporada'].max()
+elif marco == "Estadísticas de una temporada":
     
+    #Seleccionar una temporada, ordenar las temporadas de mayor a menor
+    season = st.selectbox("Selecciona una temporada", df_games_ACB['ID Temporada'].sort_values(ascending=False).unique())
+    
+    #Crear un marco para mostrar los acumulados de la temporada
+    st.subheader("Acumulados de una temporada")
+        
     # Añadir filtros
     st.write("Filtros")
     col1, col2, col3 = st.columns(3)
@@ -599,13 +567,16 @@ elif marco == "Acumulados de la temporada actual":
                 }
             )
 
-elif marco == "Líderes de la temporada":
+elif marco == "Líderes de una temporada":
+    
+    #Seleccionar una temporada, ordenar las temporadas de mayor a menor
+    season = st.selectbox("Selecciona una temporada", df_games_ACB['ID Temporada'].sort_values(ascending=False).unique())
+    
     #Crear un marco para mostrar los líderes de la temporada, lo mismo que en el marco de líderes históricos pero solo para la temporada actual
-    st.subheader("Líderes de la temporada")
+    st.subheader("Líderes de una temporada")
     lh = 5
     # Calcular los "lh" jugadores con el mayor número de partidos jugados, puntos, rebotes, asistencias, robos, tapones y valoración
-    # Mostrar los resultados en una tabla   
-    season = df_games_ACB['ID Temporada'].max()
+    # Mostrar los resultados en una tabla
     season_games = df_players_ACB[df_players_ACB['ID Temporada'] == season]
     max_games = season_games.groupby('Nombre')['ID Partido'].count()
     max_points = pd.DataFrame(season_games.groupby('Nombre')['Puntos'].sum())
@@ -840,12 +811,13 @@ elif marco == "Récords equipo":
     st.write("Récords en porcentaje de tiros de 3 puntos")
     st.dataframe(max10_t3p[columns_to_show], hide_index=True)
 
-elif marco == "Estadísticas jugadores de la temporada":
+elif marco == "Estadísticas jugadores de una temporada":
+    
+    #Seleccionar una temporada, ordenar las temporadas de mayor a menor
+    season = st.selectbox("Selecciona una temporada", df_games_ACB['ID Temporada'].sort_values(ascending=False).unique())
+    
     # Crear un marco para mostrar las estadísticas de los jugadores de la temporada actual
     st.subheader("Estadísticas jugadores de la temporada")
-    
-    # Seleccionar la temporada actual, cogiendo el id del último partido
-    season = df_games_ACB['ID Temporada'].max()
     
     # Añadir radio button para seleccionar total o por partido
     col1, col2 = st.columns([1, 2])
