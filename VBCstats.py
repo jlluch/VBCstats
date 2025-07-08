@@ -8,21 +8,8 @@ import pandas as pd
 from st_pages import get_nav_from_toml
 import streamlit.components.v1 as components
 from encrypt_utils import decrypt_csv_file
-import os
-
-# Ruta del archivo
-contador_path = "visitas.txt"
-# Leer el contador
-if os.path.exists(contador_path):
-    with open(contador_path, "r") as f:
-        visitas = int(f.read())
-else:
-    visitas = 0
-
-# Incrementar y guardar
-visitas += 1
-with open(contador_path, "w") as f:
-    f.write(str(visitas))
+import gspread
+from oauth2client.service_account import ServiceAccountCredentials
 
 # Configuración de la página
 st.set_page_config(
@@ -31,7 +18,6 @@ st.set_page_config(
     layout="wide",  # This forces wide mode
     initial_sidebar_state="expanded"
 )
-
 
 st.markdown("""
 <style>
@@ -43,7 +29,7 @@ st.markdown("""
     
 st.sidebar.header("Selecciona una competición")
 st.sidebar.markdown('Autor: Xavi Lluch\n https://x.com/xavi_runner\n\n Github: [JLLUCH](https://github.com/jlluch/VBCstats)')
-st.sidebar.markdown(f"Visitas: {visitas}")
+
 
 
 def load_encrypted_data(file_path):
@@ -202,6 +188,36 @@ nav = get_nav_from_toml(path=".streamlit/pages.toml")
 
 # Crea la navegación
 pg = st.navigation(nav)
+
+# --- CONTADOR DE VISITAS POR PÁGINA ---
+def contar_visita_google_sheets(nombre_pagina):
+    scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
+    creds = ServiceAccountCredentials.from_json_keyfile_dict(
+        st.secrets["gcp_service_account"], scope)
+    client = gspread.authorize(creds)
+
+    sheet = client.open("visitas_streamlit").sheet1
+    data = sheet.get_all_records()
+
+    for idx, fila in enumerate(data, start=2):
+        if fila["Página"] == nombre_pagina:
+            visitas = int(fila["Visitas"]) + 1
+            sheet.update_cell(idx, 2, visitas)
+            return visitas
+    # Si no existe, añadir
+    sheet.append_row([nombre_pagina, 1])
+    return 1
+
+# Solo contar una vez por carga
+if "pagina_contada" not in st.session_state or st.session_state.pagina_contada != pg.page["name"]:
+    visitas = contar_visita_google_sheets(pg.page["name"])
+    st.session_state.pagina_contada = pg.page["name"]
+else:
+    visitas = None  # Ya contada
+
+# Opcional: mostrar contador
+if visitas:
+    st.toast(f"👁️ Visitas a {pg.page['name']}: {visitas}")
 
 # Ejecuta la página seleccionada
 pg.run()
