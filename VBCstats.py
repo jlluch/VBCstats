@@ -217,10 +217,6 @@ if "pagina_contada" not in st.session_state or st.session_state.pagina_contada !
 else:
     visitas = None  # Ya contada
 
-""" # Opcional: mostrar contador
-if visitas:
-    st.toast(f"👁️ Visitas a {nombre_pagina}: {visitas}") """
-
 # Ejecuta la página seleccionada
 pg.run()
 
