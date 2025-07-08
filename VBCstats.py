@@ -196,7 +196,7 @@ def contar_visita_google_sheets(nombre_pagina):
         st.secrets["gcp_service_account"], scope)
     client = gspread.authorize(creds)
 
-    sheet = client.open("visitas_streamlit").sheet1
+    sheet = client.open("vbcStats").sheet1
     data = sheet.get_all_records()
 
     for idx, fila in enumerate(data, start=2):
