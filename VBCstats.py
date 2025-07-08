@@ -188,7 +188,7 @@ nav = get_nav_from_toml(path=".streamlit/pages.toml")
 # Crea la navegación
 pg = st.navigation(nav)
 
-st.write(pg) 
+st.write(pg.title) 
 
 # --- CONTADOR DE VISITAS POR PÁGINA ---
 def contar_visita_google_sheets(nombre_pagina):
