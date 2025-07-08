@@ -1,2 +1,4 @@
 st-pages
 cryptography
+gspread
+oauth2client
