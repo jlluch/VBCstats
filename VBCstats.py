@@ -8,6 +8,21 @@ import pandas as pd
 from st_pages import get_nav_from_toml
 import streamlit.components.v1 as components
 from encrypt_utils import decrypt_csv_file
+import os
+
+# Ruta del archivo
+contador_path = "visitas.txt"
+# Leer el contador
+if os.path.exists(contador_path):
+    with open(contador_path, "r") as f:
+        visitas = int(f.read())
+else:
+    visitas = 0
+
+# Incrementar y guardar
+visitas += 1
+with open(contador_path, "w") as f:
+    f.write(str(visitas))
 
 # Configuración de la página
 st.set_page_config(
