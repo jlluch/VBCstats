@@ -6,7 +6,7 @@
 import streamlit as st
 import pandas as pd
 from st_pages import get_nav_from_toml
-import streamlit.components.v1 as components
+from streamlit_extras.navigation import get_nav_from_toml
 from encrypt_utils import decrypt_csv_file
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
@@ -207,17 +207,19 @@ def contar_visita_google_sheets(nombre_pagina):
     # Si no existe, añadir
     sheet.append_row([nombre_pagina, 1])
     return 1
+# ✅ Obtener nombre de la página seleccionada
+nombre_pagina = pg.name
 
 # Solo contar una vez por carga
-if "pagina_contada" not in st.session_state or st.session_state.pagina_contada != pg.page["name"]:
-    visitas = contar_visita_google_sheets(pg.page["name"])
-    st.session_state.pagina_contada = pg.page["name"]
+if "pagina_contada" not in st.session_state or st.session_state.pagina_contada != nombre_pagina:
+    visitas = contar_visita_google_sheets(nombre_pagina)
+    st.session_state.pagina_contada = nombre_pagina
 else:
     visitas = None  # Ya contada
 
 # Opcional: mostrar contador
 if visitas:
-    st.toast(f"👁️ Visitas a {pg.page['name']}: {visitas}")
+    st.toast(f"👁️ Visitas a {nombre_pagina}: {visitas}")
 
 # Ejecuta la página seleccionada
 pg.run()
