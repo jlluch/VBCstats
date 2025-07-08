@@ -6,7 +6,6 @@
 import streamlit as st
 import pandas as pd
 from st_pages import get_nav_from_toml
-from streamlit_extras.navigation import get_nav_from_toml
 from encrypt_utils import decrypt_csv_file
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
