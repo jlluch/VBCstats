@@ -43,6 +43,7 @@ st.markdown("""
     
 st.sidebar.header("Selecciona una competición")
 st.sidebar.markdown('Autor: Xavi Lluch\n https://x.com/xavi_runner\n\n Github: [JLLUCH](https://github.com/jlluch/VBCstats)')
+st.sidebar.markdown(f"Visitas: {visitas}")
 
 
 def load_encrypted_data(file_path):
