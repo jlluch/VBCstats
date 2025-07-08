@@ -2,3 +2,4 @@ st-pages
 cryptography
 gspread
 oauth2client
+streamlit_extras
