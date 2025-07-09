@@ -1021,16 +1021,19 @@ elif marco == "Récords equipo":
     lh = 10
     #Crear un marco para mostrar los récords del equipo
     st.subheader("Récords del equipo")
+    df_games_records = df_games_Total.copy()
+    df_games_records['Partido'] = df_games_records['Partido'].apply(lambda x: '-'.join(x.split('-')[-2:]))
+
     #Crear una tabla con los 10 mejores récords del equipo en puntos, puntos en una parte, puntos en un cuarto, rebotes, asistencias, robos, tapones, valoración, tiros de 1,2 y 3 puntos anotados y porcentaje de acierto en un partido
     #Puntos partido
-    max10_points = df_games_Total.sort_values(by='Puntos VBC',ascending=False).head(lh)
+    max10_points = df_games_records.sort_values(by='Puntos VBC',ascending=False).head(lh)
     #Seleccionar las columnas a mostrar
     columns_to_show = ['ID Temporada', 'Jornada', 'Fecha', 'Partido', 'Puntos VBC', 'Puntos Rival', 'Enlace']
     st.write("Récords en puntos")
     st.dataframe(max10_points[columns_to_show], hide_index=True, column_config={
         "ID Temporada": st.column_config.NumberColumn(width="small"),
         "Jornada": st.column_config.NumberColumn(width="small"),
-        "Fecha": st.column_config.DateColumn(format="DD-MM-YYYY", width="small"),
+        "Fecha": st.column_config.DateColumn(format="%d/%m/%Y", width="small"),
         "Partido": st.column_config.TextColumn(width="small"),
         "Puntos VBC": st.column_config.NumberColumn(width="small"),
         "Puntos Rival": st.column_config.NumberColumn(width="small"),
@@ -1038,22 +1041,22 @@ elif marco == "Récords equipo":
     })
     
     # Diferencia de puntos
-    max10_diff = df_games_Total.sort_values(by='Diferencia',ascending=False).head(lh)
+    max10_diff = df_games_records.sort_values(by='Diferencia',ascending=False).head(lh)
     #Seleccionar las columnas a mostrar
     columns_to_show = ['ID Temporada', 'Jornada', 'Fecha', 'Partido', 'Diferencia','Enlace']
     st.write("Récords en diferencia de puntos")
     st.dataframe(max10_diff[columns_to_show], hide_index=True, column_config={
         "ID Temporada": st.column_config.NumberColumn(width="small"),
         "Jornada": st.column_config.NumberColumn(width="small"),
-        "Fecha": st.column_config.DateColumn(format="DD-MM-YYYY", width="small"),
+        "Fecha": st.column_config.DateColumn(format="%d/%m/%Y", width="small"),
         "Partido": st.column_config.TextColumn(width="small"),
         "Diferencia": st.column_config.NumberColumn(width="small"),
         "Enlace": st.column_config.LinkColumn()
     })
 
     # Puntos en una parte, máximo en P1VBC o P2VBC
-    max10_p1 = df_games_Total.sort_values(by='P1VBC',ascending=False).head(lh).copy()
-    max10_p2 = df_games_Total.sort_values(by='P2VBC',ascending=False).head(lh).copy()
+    max10_p1 = df_games_records.sort_values(by='P1VBC',ascending=False).head(lh).copy()
+    max10_p2 = df_games_records.sort_values(by='P2VBC',ascending=False).head(lh).copy()
     # Seleccionar las 10 mejores de ambas e indicar si es la primera o la segunda parte
     max10_p1['Parte'] = "Primera"
     max10_p2['Parte'] = "Segunda"
@@ -1070,7 +1073,7 @@ elif marco == "Récords equipo":
     st.dataframe(max10_parts[columns_to_show], hide_index=True, column_config={
         "ID Temporada": st.column_config.NumberColumn(width="small"),
         "Jornada": st.column_config.NumberColumn(width="small"),
-        "Fecha": st.column_config.DateColumn(format="DD-MM-YYYY", width="small"),
+        "Fecha": st.column_config.DateColumn(format="%d/%m/%Y", width="small"),
         "Partido": st.column_config.TextColumn(width="small"),
         "Puntos": st.column_config.NumberColumn(width="small"),
         "Parte": st.column_config.TextColumn(width="small"),
@@ -1079,10 +1082,10 @@ elif marco == "Récords equipo":
     
     # Puntos en un cuarto, máximo en Q1VBC, Q2VBC, Q3VBC o Q4VBC
     # Seleccionar los 10 partidos con más puntos en un cuarto
-    max10_q1 = df_games_Total.sort_values(by='Q1VBC',ascending=False).head(lh).copy()
-    max10_q2 = df_games_Total.sort_values(by='Q2VBC',ascending=False).head(lh).copy()
-    max10_q3 = df_games_Total.sort_values(by='Q3VBC',ascending=False).head(lh).copy()
-    max10_q4 = df_games_Total.sort_values(by='Q4VBC',ascending=False).head(lh).copy()
+    max10_q1 = df_games_records.sort_values(by='Q1VBC',ascending=False).head(lh).copy()
+    max10_q2 = df_games_records.sort_values(by='Q2VBC',ascending=False).head(lh).copy()
+    max10_q3 = df_games_records.sort_values(by='Q3VBC',ascending=False).head(lh).copy()
+    max10_q4 = df_games_records.sort_values(by='Q4VBC',ascending=False).head(lh).copy()
     # Seleccionar las 10 mejores de cada cuarto
     max10_q1['Cuarto'] = "Q1"
     max10_q2['Cuarto'] = "Q2"
@@ -1101,7 +1104,7 @@ elif marco == "Récords equipo":
     st.dataframe(max10_quarters[columns_to_show], hide_index=True, column_config={
         "ID Temporada": st.column_config.NumberColumn(width="small"),
         "Jornada": st.column_config.NumberColumn(width="small"),
-        "Fecha": st.column_config.DateColumn(format="DD-MM-YYYY", width="small"),
+        "Fecha": st.column_config.DateColumn(format="%d/%m/%Y", width="small"),
         "Partido": st.column_config.TextColumn(width="small"),
         "Puntos": st.column_config.NumberColumn(width="small"),
         "Cuarto": st.column_config.TextColumn(width="small"),
@@ -1109,14 +1112,14 @@ elif marco == "Récords equipo":
     })
         
     # Rebotes
-    max10_rebounds = df_games_Total.sort_values(by='Rebotes VBC',ascending=False).head(lh)
+    max10_rebounds = df_games_records.sort_values(by='Rebotes VBC',ascending=False).head(lh)
     #Seleccionar las columnas a mostrar
     columns_to_show = ['ID Temporada', 'Jornada', 'Fecha', 'Partido', 'Rebotes VBC', 'Rebotes Rival', 'Enlace']
     st.write("Récords en rebotes")
     st.dataframe(max10_rebounds[columns_to_show], hide_index=True, column_config={
         "ID Temporada": st.column_config.NumberColumn(width="small"),
         "Jornada": st.column_config.NumberColumn(width="small"),
-        "Fecha": st.column_config.DateColumn(format="DD-MM-YYYY", width="small"),
+        "Fecha": st.column_config.DateColumn(format="%d/%m/%Y", width="small"),
         "Partido": st.column_config.TextColumn(width="small"),
         "Rebotes VBC": st.column_config.NumberColumn(width="small"),
         "Rebotes Rival": st.column_config.NumberColumn(width="small"),
@@ -1124,14 +1127,14 @@ elif marco == "Récords equipo":
     })
     
     # Asistencias 
-    max10_assists = df_games_Total.sort_values(by='Asistencias VBC',ascending=False).head(lh)
+    max10_assists = df_games_records.sort_values(by='Asistencias VBC',ascending=False).head(lh)
     #Seleccionar las columnas a mostrar
     columns_to_show = ['ID Temporada', 'Jornada', 'Fecha', 'Partido', 'Asistencias VBC', 'Asistencias Rival', 'Enlace']
     st.write("Récords en asistencias")
     st.dataframe(max10_assists[columns_to_show], hide_index=True, column_config={
         "ID Temporada": st.column_config.NumberColumn(width="small"),
         "Jornada": st.column_config.NumberColumn(width="small"),
-        "Fecha": st.column_config.DateColumn(format="DD-MM-YYYY", width="small"),
+        "Fecha": st.column_config.DateColumn(format="%d/%m/%Y", width="small"),
         "Partido": st.column_config.TextColumn(width="small"),
         "Asistencias VBC": st.column_config.NumberColumn(width="small"),
         "Asistencias Rival": st.column_config.NumberColumn(width="small"),
@@ -1139,14 +1142,14 @@ elif marco == "Récords equipo":
     })
 
     # Robos
-    max10_steals = df_games_Total.sort_values(by='Robos VBC',ascending=False).head(lh)
+    max10_steals = df_games_records.sort_values(by='Robos VBC',ascending=False).head(lh)
     #Seleccionar las columnas a mostrar
     columns_to_show = ['ID Temporada', 'Jornada', 'Fecha', 'Partido', 'Robos VBC', 'Robos Rival', 'Enlace']
     st.write("Récords en robos")
     st.dataframe(max10_steals[columns_to_show], hide_index=True, column_config={
         "ID Temporada": st.column_config.NumberColumn(width="small"),
         "Jornada": st.column_config.NumberColumn(width="small"),
-        "Fecha": st.column_config.DateColumn(format="DD-MM-YYYY", width="small"),
+        "Fecha": st.column_config.DateColumn(format="%d/%m/%Y", width="small"),
         "Partido": st.column_config.TextColumn(width="small"),
         "Robos VBC": st.column_config.NumberColumn(width="small"),
         "Robos Rival": st.column_config.NumberColumn(width="small"),
@@ -1154,14 +1157,14 @@ elif marco == "Récords equipo":
     })
 
     # Tapones
-    max10_blocks = df_games_Total.sort_values(by='Tapones VBC',ascending=False).head(lh)
+    max10_blocks = df_games_records.sort_values(by='Tapones VBC',ascending=False).head(lh)
     #Seleccionar las columnas a mostrar
     columns_to_show = ['ID Temporada', 'Jornada', 'Fecha', 'Partido', 'Tapones VBC', 'Tapones Rival', 'Enlace']
     st.write("Récords en tapones")
     st.dataframe(max10_blocks[columns_to_show], hide_index=True, column_config={
         "ID Temporada": st.column_config.NumberColumn(width="small"),
         "Jornada": st.column_config.NumberColumn(width="small"),
-        "Fecha": st.column_config.DateColumn(format="DD-MM-YYYY", width="small"),
+        "Fecha": st.column_config.DateColumn(format="%d/%m/%Y", width="small"),
         "Partido": st.column_config.TextColumn(width="small"),
         "Tapones VBC": st.column_config.NumberColumn(width="small"),
         "Tapones Rival": st.column_config.NumberColumn(width="small"),
@@ -1169,14 +1172,14 @@ elif marco == "Récords equipo":
     })
 
     # Valoración
-    max10_val = df_games_Total.sort_values(by='Val VBC',ascending=False).head(lh)
+    max10_val = df_games_records.sort_values(by='Val VBC',ascending=False).head(lh)
     #Seleccionar las columnas a mostrar
     columns_to_show = ['ID Temporada', 'Jornada', 'Fecha', 'Partido', 'Val VBC', 'Val Rival', 'Enlace']
     st.write("Récords en valoración")
     st.dataframe(max10_val[columns_to_show], hide_index=True, column_config={
         "ID Temporada": st.column_config.NumberColumn(width="small"),
         "Jornada": st.column_config.NumberColumn(width="small"),
-        "Fecha": st.column_config.DateColumn(format="DD-MM-YYYY", width="small"),
+        "Fecha": st.column_config.DateColumn(format="%d/%m/%Y", width="small"),
         "Partido": st.column_config.TextColumn(width="small"),
         "Val VBC": st.column_config.NumberColumn(width="small"),
         "Val Rival": st.column_config.NumberColumn(width="small"),
@@ -1185,14 +1188,14 @@ elif marco == "Récords equipo":
 
     # Tiros de 1,2 y 3 puntos anotados
     # Tiros de 1 punto
-    max10_t1a = df_games_Total.sort_values(by='T1a VBC',ascending=False).head(lh)
+    max10_t1a = df_games_records.sort_values(by='T1a VBC',ascending=False).head(lh)
     #Seleccionar las columnas a mostrar
     columns_to_show = ['ID Temporada', 'Jornada', 'Fecha', 'Partido', 'T1a VBC', 'T1% VBC', 'Enlace']
     st.write("Récords en tiros libres")
     st.dataframe(max10_t1a[columns_to_show], hide_index=True, column_config={
         "ID Temporada": st.column_config.NumberColumn(width="small"),
         "Jornada": st.column_config.NumberColumn(width="small"),
-        "Fecha": st.column_config.DateColumn(format="DD-MM-YYYY", width="small"),
+        "Fecha": st.column_config.DateColumn(format="%d/%m/%Y", width="small"),
         "Partido": st.column_config.TextColumn(width="small"),
         "T1a VBC": st.column_config.NumberColumn(width="small"),
         "T1% VBC": st.column_config.NumberColumn(width="small"),
@@ -1200,14 +1203,14 @@ elif marco == "Récords equipo":
     })
 
     # Tiros de 2 puntos
-    max10_t2a = df_games_Total.sort_values(by='T2a VBC',ascending=False).head(lh)
+    max10_t2a = df_games_records.sort_values(by='T2a VBC',ascending=False).head(lh)
     #Seleccionar las columnas a mostrar
     columns_to_show = ['ID Temporada', 'Jornada', 'Fecha', 'Partido', 'T2a VBC', 'T2% VBC', 'Enlace']
     st.write("Récords en tiros de 2 puntos")
     st.dataframe(max10_t2a[columns_to_show], hide_index=True, column_config={
         "ID Temporada": st.column_config.NumberColumn(width="small"),
         "Jornada": st.column_config.NumberColumn(width="small"),
-        "Fecha": st.column_config.DateColumn(format="DD-MM-YYYY", width="small"),
+        "Fecha": st.column_config.DateColumn(format="%d/%m/%Y", width="small"),
         "Partido": st.column_config.TextColumn(width="small"),
         "T2a VBC": st.column_config.NumberColumn(width="small"),
         "T2% VBC": st.column_config.NumberColumn(width="small"),
@@ -1215,14 +1218,14 @@ elif marco == "Récords equipo":
     })
 
     # Tiros de 3 puntos
-    max10_t3a = df_games_Total.sort_values(by='T3a VBC',ascending=False).head(lh)
+    max10_t3a = df_games_records.sort_values(by='T3a VBC',ascending=False).head(lh)
     #Seleccionar las columnas a mostrar
     columns_to_show = ['ID Temporada', 'Jornada', 'Fecha', 'Partido', 'T3a VBC', 'T3% VBC', 'Enlace']
     st.write("Récords en tiros de 3 puntos")
     st.dataframe(max10_t3a[columns_to_show], hide_index=True, column_config={
         "ID Temporada": st.column_config.NumberColumn(width="small"),
         "Jornada": st.column_config.NumberColumn(width="small"),
-        "Fecha": st.column_config.DateColumn(format="DD-MM-YYYY", width="small"),
+        "Fecha": st.column_config.DateColumn(format="%d/%m/%Y", width="small"),
         "Partido": st.column_config.TextColumn(width="small"),
         "T3a VBC": st.column_config.NumberColumn(width="small"),
         "T3% VBC": st.column_config.NumberColumn(width="small"),
@@ -1231,14 +1234,14 @@ elif marco == "Récords equipo":
 
     # Porcentaje de acierto
     # Tiros de 1 punto
-    max10_t1p = df_games_Total.sort_values(by=['T1% VBC','T1a VBC'],ascending=False).head(lh)
+    max10_t1p = df_games_records.sort_values(by=['T1% VBC','T1a VBC'],ascending=False).head(lh)
      #Seleccionar las columnas a mostrar
     columns_to_show = ['ID Temporada', 'Jornada', 'Fecha', 'Partido', 'T1% VBC', 'T1a VBC', 'Enlace']
     st.write("Récords en porcentaje de tiros libres")
     st.dataframe(max10_t1p[columns_to_show], hide_index=True, column_config={
         "ID Temporada": st.column_config.NumberColumn(width="small"),
         "Jornada": st.column_config.NumberColumn(width="small"),
-        "Fecha": st.column_config.DateColumn(format="DD-MM-YYYY", width="small"),
+        "Fecha": st.column_config.DateColumn(format="%d/%m/%Y", width="small"),
         "Partido": st.column_config.TextColumn(width="small"),
         "T1% VBC": st.column_config.NumberColumn(width="small"),
         "T1a VBC": st.column_config.NumberColumn(width="small"),
@@ -1246,14 +1249,14 @@ elif marco == "Récords equipo":
     })
 
     # Tiros de 2 puntos
-    max10_t2p = df_games_Total.sort_values(by=['T2% VBC','T2a VBC'],ascending=False).head(lh)
+    max10_t2p = df_games_records.sort_values(by=['T2% VBC','T2a VBC'],ascending=False).head(lh)
     #Seleccionar las columnas a mostrar
     columns_to_show = ['ID Temporada', 'Jornada', 'Fecha', 'Partido', 'T2% VBC', 'T2a VBC', 'Enlace']
     st.write("Récords en porcentaje de 2 puntos")
     st.dataframe(max10_t2p[columns_to_show], hide_index=True, column_config={
         "ID Temporada": st.column_config.NumberColumn(width="small"),
         "Jornada": st.column_config.NumberColumn(width="small"),
-        "Fecha": st.column_config.DateColumn(format="DD-MM-YYYY", width="small"),
+        "Fecha": st.column_config.DateColumn(format="%d/%m/%Y", width="small"),
         "Partido": st.column_config.TextColumn(width="small"),
         "T2% VBC": st.column_config.NumberColumn(width="small"),
         "T2a VBC": st.column_config.NumberColumn(width="small"),
@@ -1261,14 +1264,14 @@ elif marco == "Récords equipo":
     })
 
     # Tiros de 3 puntos
-    max10_t3p = df_games_Total.sort_values(by=['T3% VBC','T3a VBC'],ascending=False).head(lh)
+    max10_t3p = df_games_records.sort_values(by=['T3% VBC','T3a VBC'],ascending=False).head(lh)
     #Seleccionar las columnas a mostrar
     columns_to_show = ['ID Temporada', 'Jornada', 'Fecha', 'Partido', 'T3% VBC', 'T3a VBC', 'Enlace']
     st.write("Récords en porcentaje de 3 puntos")
     st.dataframe(max10_t3p[columns_to_show], hide_index=True, column_config={
         "ID Temporada": st.column_config.NumberColumn(width="small"),
         "Jornada": st.column_config.NumberColumn(width="small"),
-        "Fecha": st.column_config.DateColumn(format="DD-MM-YYYY", width="small"),
+        "Fecha": st.column_config.DateColumn(format="%d/%m/%Y", width="small"),
         "Partido": st.column_config.TextColumn(width="small"),
         "T3% VBC": st.column_config.NumberColumn(width="small"),
         "T3a VBC": st.column_config.NumberColumn(width="small"),
