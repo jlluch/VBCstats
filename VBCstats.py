@@ -197,13 +197,14 @@ def contar_visita_google_sheets(nombre_pagina):
 
     sheet = client.open("vbcStats").sheet1
     data = sheet.get_all_records()
-    st.sidebar.markdown(data)    
 
     for idx, fila in enumerate(data, start=2):
         if fila["Página"] == nombre_pagina:
             visitas = int(fila["Visitas"]) + 1
             sheet.update_cell(idx, 2, visitas)
-            return visitas
+            # devuelve el número de visitas totales
+            return data[-1]["Visitas"]
+            
     # Si no existe, añadir
     sheet.append_row([nombre_pagina, 1])
     return 1
