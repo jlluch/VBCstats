@@ -21,7 +21,7 @@ st.set_page_config(
 st.markdown("""
 <style>
     [data-testid="stSidebar"] {
-        width: 15rem !important;
+        width: 12rem !important;
     }
 </style>
 """, unsafe_allow_html=True)
