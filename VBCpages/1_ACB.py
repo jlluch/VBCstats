@@ -51,7 +51,7 @@ if marco == "Estadísticas de un partido":
     if game[1] == "VBC":
         columns_to_show = ['ID Temporada', 'Jornada', 'Fase', 'Fecha', 'Hora', 'Puntos VBC','Equipo Rival','Puntos Rival', 'Entrenador VBC', 'Entrenador Rival']
     else:
-        columns_to_show = ['ID Temporada', 'Jornada', 'Fase', 'Fecha', 'Hora', 'Equipo Rival','Puntos Rival'
+        columns_to_show = ['ID Temporada', 'Jornada', 'Fase', 'Fecha', 'Hora', 'Equipo Rival','Puntos Rival', 'Puntos VBC', 'Entrenador VBC', 'Entrenador Rival']]
     df_partido = df_games_ACB[(df_games_ACB['ID Partido'] == id_game)][columns_to_show]
     df_partido['Fecha'] = pd.to_datetime(df_partido['Fecha']).dt.strftime('%d/%m/%Y')
     st.dataframe(df_partido, hide_index=True)
