@@ -1033,7 +1033,7 @@ elif marco == "Récords equipo":
     st.dataframe(max10_points[columns_to_show], hide_index=True, column_config={
         "ID Temporada": st.column_config.NumberColumn(width="small"),
         "Jornada": st.column_config.NumberColumn(width="small"),
-        "Fecha": st.column_config.DateColumn(format="%d/%m/%Y", width="small"),
+        "Fecha": st.column_config.DateColumn(format="DD/MM/YYYY", width="small"),
         "Partido": st.column_config.TextColumn(width="small"),
         "Puntos VBC": st.column_config.NumberColumn(width="small"),
         "Puntos Rival": st.column_config.NumberColumn(width="small"),
@@ -1048,7 +1048,7 @@ elif marco == "Récords equipo":
     st.dataframe(max10_diff[columns_to_show], hide_index=True, column_config={
         "ID Temporada": st.column_config.NumberColumn(width="small"),
         "Jornada": st.column_config.NumberColumn(width="small"),
-        "Fecha": st.column_config.DateColumn(format="%d/%m/%Y", width="small"),
+        "Fecha": st.column_config.DateColumn(format="DD/MM/YYYY", width="small"),
         "Partido": st.column_config.TextColumn(width="small"),
         "Diferencia": st.column_config.NumberColumn(width="small"),
         "Enlace": st.column_config.LinkColumn()
@@ -1073,7 +1073,7 @@ elif marco == "Récords equipo":
     st.dataframe(max10_parts[columns_to_show], hide_index=True, column_config={
         "ID Temporada": st.column_config.NumberColumn(width="small"),
         "Jornada": st.column_config.NumberColumn(width="small"),
-        "Fecha": st.column_config.DateColumn(format="%d/%m/%Y", width="small"),
+        "Fecha": st.column_config.DateColumn(format="DD/MM/YYYY", width="small"),
         "Partido": st.column_config.TextColumn(width="small"),
         "Puntos": st.column_config.NumberColumn(width="small"),
         "Parte": st.column_config.TextColumn(width="small"),
@@ -1104,7 +1104,7 @@ elif marco == "Récords equipo":
     st.dataframe(max10_quarters[columns_to_show], hide_index=True, column_config={
         "ID Temporada": st.column_config.NumberColumn(width="small"),
         "Jornada": st.column_config.NumberColumn(width="small"),
-        "Fecha": st.column_config.DateColumn(format="%d/%m/%Y", width="small"),
+        "Fecha": st.column_config.DateColumn(format="DD/MM/YYYY", width="small"),
         "Partido": st.column_config.TextColumn(width="small"),
         "Puntos": st.column_config.NumberColumn(width="small"),
         "Cuarto": st.column_config.TextColumn(width="small"),
@@ -1119,7 +1119,7 @@ elif marco == "Récords equipo":
     st.dataframe(max10_rebounds[columns_to_show], hide_index=True, column_config={
         "ID Temporada": st.column_config.NumberColumn(width="small"),
         "Jornada": st.column_config.NumberColumn(width="small"),
-        "Fecha": st.column_config.DateColumn(format="%d/%m/%Y", width="small"),
+        "Fecha": st.column_config.DateColumn(format="DD/MM/YYYY", width="small"),
         "Partido": st.column_config.TextColumn(width="small"),
         "Rebotes VBC": st.column_config.NumberColumn(width="small"),
         "Rebotes Rival": st.column_config.NumberColumn(width="small"),
@@ -1134,7 +1134,7 @@ elif marco == "Récords equipo":
     st.dataframe(max10_assists[columns_to_show], hide_index=True, column_config={
         "ID Temporada": st.column_config.NumberColumn(width="small"),
         "Jornada": st.column_config.NumberColumn(width="small"),
-        "Fecha": st.column_config.DateColumn(format="%d/%m/%Y", width="small"),
+        "Fecha": st.column_config.DateColumn(format="DD/MM/YYYY", width="small"),
         "Partido": st.column_config.TextColumn(width="small"),
         "Asistencias VBC": st.column_config.NumberColumn(width="small"),
         "Asistencias Rival": st.column_config.NumberColumn(width="small"),
@@ -1149,7 +1149,7 @@ elif marco == "Récords equipo":
     st.dataframe(max10_steals[columns_to_show], hide_index=True, column_config={
         "ID Temporada": st.column_config.NumberColumn(width="small"),
         "Jornada": st.column_config.NumberColumn(width="small"),
-        "Fecha": st.column_config.DateColumn(format="%d/%m/%Y", width="small"),
+        "Fecha": st.column_config.DateColumn(format="DD/MM/YYYY", width="small"),
         "Partido": st.column_config.TextColumn(width="small"),
         "Robos VBC": st.column_config.NumberColumn(width="small"),
         "Robos Rival": st.column_config.NumberColumn(width="small"),
@@ -1164,7 +1164,7 @@ elif marco == "Récords equipo":
     st.dataframe(max10_blocks[columns_to_show], hide_index=True, column_config={
         "ID Temporada": st.column_config.NumberColumn(width="small"),
         "Jornada": st.column_config.NumberColumn(width="small"),
-        "Fecha": st.column_config.DateColumn(format="%d/%m/%Y", width="small"),
+        "Fecha": st.column_config.DateColumn(format="DD/MM/YYYY", width="small"),
         "Partido": st.column_config.TextColumn(width="small"),
         "Tapones VBC": st.column_config.NumberColumn(width="small"),
         "Tapones Rival": st.column_config.NumberColumn(width="small"),
@@ -1179,7 +1179,7 @@ elif marco == "Récords equipo":
     st.dataframe(max10_val[columns_to_show], hide_index=True, column_config={
         "ID Temporada": st.column_config.NumberColumn(width="small"),
         "Jornada": st.column_config.NumberColumn(width="small"),
-        "Fecha": st.column_config.DateColumn(format="%d/%m/%Y", width="small"),
+        "Fecha": st.column_config.DateColumn(format="DD/MM/YYYY", width="small"),
         "Partido": st.column_config.TextColumn(width="small"),
         "Val VBC": st.column_config.NumberColumn(width="small"),
         "Val Rival": st.column_config.NumberColumn(width="small"),
@@ -1195,7 +1195,7 @@ elif marco == "Récords equipo":
     st.dataframe(max10_t1a[columns_to_show], hide_index=True, column_config={
         "ID Temporada": st.column_config.NumberColumn(width="small"),
         "Jornada": st.column_config.NumberColumn(width="small"),
-        "Fecha": st.column_config.DateColumn(format="%d/%m/%Y", width="small"),
+        "Fecha": st.column_config.DateColumn(format="DD/MM/YYYY", width="small"),
         "Partido": st.column_config.TextColumn(width="small"),
         "T1a VBC": st.column_config.NumberColumn(width="small"),
         "T1% VBC": st.column_config.NumberColumn(width="small"),
@@ -1210,7 +1210,7 @@ elif marco == "Récords equipo":
     st.dataframe(max10_t2a[columns_to_show], hide_index=True, column_config={
         "ID Temporada": st.column_config.NumberColumn(width="small"),
         "Jornada": st.column_config.NumberColumn(width="small"),
-        "Fecha": st.column_config.DateColumn(format="%d/%m/%Y", width="small"),
+        "Fecha": st.column_config.DateColumn(format="DD/MM/YYYY", width="small"),
         "Partido": st.column_config.TextColumn(width="small"),
         "T2a VBC": st.column_config.NumberColumn(width="small"),
         "T2% VBC": st.column_config.NumberColumn(width="small"),
@@ -1225,7 +1225,7 @@ elif marco == "Récords equipo":
     st.dataframe(max10_t3a[columns_to_show], hide_index=True, column_config={
         "ID Temporada": st.column_config.NumberColumn(width="small"),
         "Jornada": st.column_config.NumberColumn(width="small"),
-        "Fecha": st.column_config.DateColumn(format="%d/%m/%Y", width="small"),
+        "Fecha": st.column_config.DateColumn(format="DD/MM/YYYY", width="small"),
         "Partido": st.column_config.TextColumn(width="small"),
         "T3a VBC": st.column_config.NumberColumn(width="small"),
         "T3% VBC": st.column_config.NumberColumn(width="small"),
@@ -1241,7 +1241,7 @@ elif marco == "Récords equipo":
     st.dataframe(max10_t1p[columns_to_show], hide_index=True, column_config={
         "ID Temporada": st.column_config.NumberColumn(width="small"),
         "Jornada": st.column_config.NumberColumn(width="small"),
-        "Fecha": st.column_config.DateColumn(format="%d/%m/%Y", width="small"),
+        "Fecha": st.column_config.DateColumn(format="DD/MM/YYYY", width="small"),
         "Partido": st.column_config.TextColumn(width="small"),
         "T1% VBC": st.column_config.NumberColumn(width="small"),
         "T1a VBC": st.column_config.NumberColumn(width="small"),
@@ -1256,7 +1256,7 @@ elif marco == "Récords equipo":
     st.dataframe(max10_t2p[columns_to_show], hide_index=True, column_config={
         "ID Temporada": st.column_config.NumberColumn(width="small"),
         "Jornada": st.column_config.NumberColumn(width="small"),
-        "Fecha": st.column_config.DateColumn(format="%d/%m/%Y", width="small"),
+        "Fecha": st.column_config.DateColumn(format="DD/MM/YYYY", width="small"),
         "Partido": st.column_config.TextColumn(width="small"),
         "T2% VBC": st.column_config.NumberColumn(width="small"),
         "T2a VBC": st.column_config.NumberColumn(width="small"),
@@ -1271,7 +1271,7 @@ elif marco == "Récords equipo":
     st.dataframe(max10_t3p[columns_to_show], hide_index=True, column_config={
         "ID Temporada": st.column_config.NumberColumn(width="small"),
         "Jornada": st.column_config.NumberColumn(width="small"),
-        "Fecha": st.column_config.DateColumn(format="%d/%m/%Y", width="small"),
+        "Fecha": st.column_config.DateColumn(format="DD/MM/YYYY", width="small"),
         "Partido": st.column_config.TextColumn(width="small"),
         "T3% VBC": st.column_config.NumberColumn(width="small"),
         "T3a VBC": st.column_config.NumberColumn(width="small"),

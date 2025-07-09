@@ -51,8 +51,10 @@ if marco == "Estadísticas de un partido":
     if game[1] == "VBC":
         columns_to_show = ['ID Temporada', 'Jornada', 'Fase', 'Fecha', 'Hora', 'Puntos VBC','Equipo Rival','Puntos Rival', 'Entrenador VBC', 'Entrenador Rival']
     else:
-        columns_to_show = ['ID Temporada', 'Jornada', 'Fase', 'Fecha', 'Hora', 'Equipo Rival','Puntos Rival', 'Puntos VBC', 'Entrenador Rival', 'Entrenador VBC']
-    st.dataframe(df_games_ACB[(df_games_ACB['ID Partido'] == id_game)][columns_to_show], hide_index=True)
+        columns_to_show = ['ID Temporada', 'Jornada', 'Fase', 'Fecha', 'Hora', 'Equipo Rival','Puntos Rival'
+   df_partido = df_games_ACB[(df_games_ACB['ID Partido'] == id_game)][columns_to_show]
+    df_partido['Fecha'] = pd.to_datetime(df_partido['Fecha']).dt.strftime('%d/%m/%Y')
+    st.dataframe(df_partido, hide_index=True))
     
     st.subheader("Estadísticas Valencia Basket")
     columns_to_show = ['Minutos VBC', 'T2a VBC','T2i VBC', 'T2% VBC', 'T3a VBC', 'T3i VBC', 'T3% VBC', 'T1a VBC',
@@ -655,7 +657,10 @@ elif marco == "Líderes de una temporada":
     # Muestra los resultados en tablas y en columnas de streamlit separadas
     mt1a, mt1p, mt2a, mt2p, mt3a, mt3p = st.columns(6)
     mt1a.dataframe(max_t1a, width=180, column_config={"T.Libres": st.column_config.TextColumn(width="small")})
-    mt1p.dataframe(max_t1p, width=180, column_config={"T1%": st.column_config.TextColumn(width="small")})
+    mt1p.dataframe(max_t1p, width=180, column_config={"T1%": st.c
+   df_games_records = df_games_ACB.copy()
+    df_games_records['Fecha'] = pd.to_datetime(df_games_records['Fecha']).dt.strftime('%d/%m/%Y')
+    df_games_records['Partido'] = df_games_records['Partido'].apply(lambda x: '-'.join(x.split('-')[-2:])) olumn_config.TextColumn(width="small")})
     mt2a.dataframe(max_t2a, width=180, column_config={"T2": st.column_config.TextColumn(width="small")})
     mt2p.dataframe(max_t2p, width=180, column_config={"T2%": st.column_config.TextColumn(width="small")})
     mt3a.dataframe(max_t3a, width=180, column_config={"T3": st.column_config.TextColumn(width="small")})
@@ -665,24 +670,28 @@ elif marco == "Récords equipo":
     lh = 10
     #Crear un marco para mostrar los récords del equipo
     st.subheader("Récords del equipo")
+    df_games_records = df_games_ACB.copy()
+    df_games_records['Fecha'] = pd.to_datetime(df_games_records['Fecha']).dt.strftime('%d/%m/%Y')
+    df_games_records['Partido'] = df_games_records['Partido'].apply(lambda x: '-'.join(x.split('-')[-2:]))
+    
     #Crear una tabla con los 10 mejores récords del equipo en puntos, puntos en una parte, puntos en un cuarto, rebotes, asistencias, robos, tapones, valoración, tiros de 1,2 y 3 puntos anotados y porcentaje de acierto en un partido
     #Puntos partido
-    max10_points = df_games_ACB.sort_values(by='Puntos VBC',ascending=False).head(lh)
+    max10_points = df_games_records.sort_values(by='Puntos VBC',ascending=False).head(lh)
     #Seleccionar las columnas a mostrar
     columns_to_show = ['ID Temporada', 'Jornada', 'Fecha', 'Partido', 'Puntos VBC', 'Puntos Rival', 'Entrenador VBC', 'Enlace']
     st.write("Récords en puntos")
-    st.dataframe(max10_points[columns_to_show], hide_index=True)
+    st.dataframe(max10_points[columns_to_show], hide_index=True, column_config={"Enlace": st.column_config.LinkColumn()})
     
     # Diferencia de puntos
-    max10_diff = df_games_ACB.sort_values(by='Diferencia',ascending=False).head(lh)
+    max10_diff = df_games_records.sort_values(by='Diferencia',ascending=False).head(lh)
     #Seleccionar las columnas a mostrar
     columns_to_show = ['ID Temporada', 'Jornada', 'Fecha', 'Partido', 'Diferencia', 'Entrenador VBC', 'Enlace']
     st.write("Récords en diferencia de puntos")
-    st.dataframe(max10_diff[columns_to_show], hide_index=True)
+    st.dataframe(max10_diff[columns_to_show], hide_index=True, column_config={"Enlace": st.column_config.LinkColumn()})
 
     # Puntos en una parte, máximo en P1VBC o P2VBC
-    max10_p1 = df_games_ACB.sort_values(by='P1VBC',ascending=False).head(lh)
-    max10_p2 = df_games_ACB.sort_values(by='P2VBC',ascending=False).head(lh)
+    max10_p1 = df_games_records.sort_values(by='P1VBC',ascending=False).head(lh)
+    max10_p2 = df_games_records.sort_values(by='P2VBC',ascending=False).head(lh)
     # Seleccionar las 10 mejores de ambas e indicar si es la primera o la segunda parte
     max10_p1['Parte'] = "Primera"
     max10_p2['Parte'] = "Segunda"
@@ -696,14 +705,14 @@ elif marco == "Récords equipo":
     # Seleccionar las columnas a mostrar
     columns_to_show = ['ID Temporada', 'Jornada', 'Fecha', 'Partido', 'Puntos', 'Entrenador VBC', 'Parte', 'Enlace']
     st.write("Récords de puntos en una parte")
-    st.dataframe(max10_parts[columns_to_show], hide_index=True)
+    st.dataframe(max10_parts[columns_to_show], hide_index=True, column_config={"Enlace": st.column_config.LinkColumn()})
     
     # Puntos en un cuarto, máximo en Q1VBC, Q2VBC, Q3VBC o Q4VBC
     # Seleccionar los 10 partidos con más puntos en un cuarto
-    max10_q1 = df_games_ACB.sort_values(by='Q1VBC',ascending=False).head(lh)
-    max10_q2 = df_games_ACB.sort_values(by='Q2VBC',ascending=False).head(lh)
-    max10_q3 = df_games_ACB.sort_values(by='Q3VBC',ascending=False).head(lh)
-    max10_q4 = df_games_ACB.sort_values(by='Q4VBC',ascending=False).head(lh)
+    max10_q1 = df_games_records.sort_values(by='Q1VBC',ascending=False).head(lh)
+    max10_q2 = df_games_records.sort_values(by='Q2VBC',ascending=False).head(lh)
+    max10_q3 = df_games_records.sort_values(by='Q3VBC',ascending=False).head(lh)
+    max10_q4 = df_games_records.sort_values(by='Q4VBC',ascending=False).head(lh)
     # Seleccionar las 10 mejores de cada cuarto
     max10_q1['Cuarto'] = "Q1"
     max10_q2['Cuarto'] = "Q2"
@@ -718,99 +727,99 @@ elif marco == "Récords equipo":
     # Seleccionar las columnas a mostrar
     columns_to_show = ['ID Temporada', 'Jornada', 'Fecha', 'Partido', 'Puntos', 'Entrenador VBC', 'Cuarto', 'Enlace']
     st.write("Récords de puntos en un cuarto")
-    st.dataframe(max10_quarters[columns_to_show], hide_index=True)
+    st.dataframe(max10_quarters[columns_to_show], hide_index=True, column_config={"Enlace": st.column_config.LinkColumn()})
         
     # Rebotes
-    max10_rebounds = df_games_ACB.sort_values(by='Rebotes VBC',ascending=False).head(lh)
+    max10_rebounds = df_games_records.sort_values(by='Rebotes VBC',ascending=False).head(lh)
     #Seleccionar las columnas a mostrar
     columns_to_show = ['ID Temporada', 'Jornada', 'Fecha', 'Partido', 'Rebotes VBC', 'Rebotes Rival', 'Entrenador VBC', 'Enlace']
     st.write("Récords en rebotes")
-    st.dataframe(max10_rebounds[columns_to_show], hide_index=True)
+    st.dataframe(max10_rebounds[columns_to_show], hide_index=True, column_config={"Enlace": st.column_config.LinkColumn()})
     
     # Asistencias 
-    max10_assists = df_games_ACB.sort_values(by='Asistencias VBC',ascending=False).head(lh)
+    max10_assists = df_games_records.sort_values(by='Asistencias VBC',ascending=False).head(lh)
     #Seleccionar las columnas a mostrar
     columns_to_show = ['ID Temporada', 'Jornada', 'Fecha', 'Partido', 'Asistencias VBC', 'Asistencias Rival', 'Entrenador VBC', 'Enlace']
     st.write("Récords en asistencias")
-    st.dataframe(max10_assists[columns_to_show], hide_index=True)
+    st.dataframe(max10_assists[columns_to_show], hide_index=True, column_config={"Enlace": st.column_config.LinkColumn()})
 
     # Robos
-    max10_steals = df_games_ACB.sort_values(by='Robos VBC',ascending=False).head(lh)
+    max10_steals = df_games_records.sort_values(by='Robos VBC',ascending=False).head(lh)
     #Seleccionar las columnas a mostrar
     columns_to_show = ['ID Temporada', 'Jornada', 'Fecha', 'Partido', 'Robos VBC', 'Robos Rival', 'Entrenador VBC', 'Enlace']
     st.write("Récords en robos")
-    st.dataframe(max10_steals[columns_to_show], hide_index=True)
+    st.dataframe(max10_steals[columns_to_show], hide_index=True, column_config={"Enlace": st.column_config.LinkColumn()})
 
     # Tapones
-    max10_blocks = df_games_ACB.sort_values(by='Tapones VBC',ascending=False).head(lh)
+    max10_blocks = df_games_records.sort_values(by='Tapones VBC',ascending=False).head(lh)
     #Seleccionar las columnas a mostrar
     columns_to_show = ['ID Temporada', 'Jornada', 'Fecha', 'Partido', 'Tapones VBC', 'Tapones Rival', 'Entrenador VBC', 'Enlace']
     st.write("Récords en tapones")
-    st.dataframe(max10_blocks[columns_to_show], hide_index=True)
+    st.dataframe(max10_blocks[columns_to_show], hide_index=True, column_config={"Enlace": st.column_config.LinkColumn()})
 
     # Valoración
-    max10_val = df_games_ACB.sort_values(by='Val VBC',ascending=False).head(lh)
+    max10_val = df_games_records.sort_values(by='Val VBC',ascending=False).head(lh)
     #Seleccionar las columnas a mostrar
     columns_to_show = ['ID Temporada', 'Jornada', 'Fecha', 'Partido', 'Val VBC', 'Val Rival', 'Entrenador VBC', 'Enlace']
     st.write("Récords en valoración")
-    st.dataframe(max10_val[columns_to_show], hide_index=True)
+    st.dataframe(max10_val[columns_to_show], hide_index=True, column_config={"Enlace": st.column_config.LinkColumn()})
 
     # Tiros de 1,2 y 3 puntos anotados
     # Tiros de 1 punto
-    max10_t1a = df_games_ACB.sort_values(by='T1a VBC',ascending=False).head(lh)
+    max10_t1a = df_games_records.sort_values(by='T1a VBC',ascending=False).head(lh)
     # Multiplicar por 100 para mostrar el porcentaje
     max10_t1a['T1% VBC'] = max10_t1a['T1% VBC']*100
     #Seleccionar las columnas a mostrar
     columns_to_show = ['ID Temporada', 'Jornada', 'Fecha', 'Partido', 'T1a VBC', 'T1% VBC', 'Entrenador VBC', 'Enlace']
     st.write("Récords en tiros libres")
-    st.dataframe(max10_t1a[columns_to_show], hide_index=True)
+    st.dataframe(max10_t1a[columns_to_show], hide_index=True, column_config={"Enlace": st.column_config.LinkColumn()})
 
     # Tiros de 2 puntos
-    max10_t2a = df_games_ACB.sort_values(by='T2a VBC',ascending=False).head(lh)
+    max10_t2a = df_games_records.sort_values(by='T2a VBC',ascending=False).head(lh)
     # Multiplicar por 100 para mostrar el porcentaje
     max10_t2a['T2% VBC'] = max10_t2a['T2% VBC']*100
     #Seleccionar las columnas a mostrar
     columns_to_show = ['ID Temporada', 'Jornada', 'Fecha', 'Partido', 'T2a VBC', 'T2% VBC', 'Entrenador VBC', 'Enlace']
     st.write("Récords en tiros de 2 puntos")
-    st.dataframe(max10_t2a[columns_to_show], hide_index=True)
+    st.dataframe(max10_t2a[columns_to_show], hide_index=True, column_config={"Enlace": st.column_config.LinkColumn()})
 
     # Tiros de 3 puntos
-    max10_t3a = df_games_ACB.sort_values(by='T3a VBC',ascending=False).head(lh)
+    max10_t3a = df_games_records.sort_values(by='T3a VBC',ascending=False).head(lh)
     # Multiplicar por 100 para mostrar el porcentaje
     max10_t3a['T3% VBC'] = max10_t3a['T3% VBC']*100
     #Seleccionar las columnas a mostrar
     columns_to_show = ['ID Temporada', 'Jornada', 'Fecha', 'Partido', 'T3a VBC', 'T3% VBC', 'Entrenador VBC', 'Enlace']
     st.write("Récords en tiros de 3 puntos")
-    st.dataframe(max10_t3a[columns_to_show], hide_index=True)
+    st.dataframe(max10_t3a[columns_to_show], hide_index=True, column_config={"Enlace": st.column_config.LinkColumn()})
 
     # Porcentaje de acierto
     # Tiros de 1 punto
-    max10_t1p = df_games_ACB.sort_values(by=['T1% VBC','T1a VBC'],ascending=False).head(lh)
+    max10_t1p = df_games_records.sort_values(by=['T1% VBC','T1a VBC'],ascending=False).head(lh)
     # Multiplicar por 100 para mostrar el porcentaje
     max10_t1p['T1% VBC'] = max10_t1p['T1% VBC']*100
     #Seleccionar las columnas a mostrar
     columns_to_show = ['ID Temporada', 'Jornada', 'Fecha', 'Partido', 'T1% VBC', 'T1a VBC', 'Entrenador VBC', 'Enlace']
     st.write("Récords en porcentaje de tiros libres")
-    st.dataframe(max10_t1p[columns_to_show], hide_index=True)
+    st.dataframe(max10_t1p[columns_to_show], hide_index=True, column_config={"Enlace": st.column_config.LinkColumn()})
 
     # Tiros de 2 puntos
-    max10_t2p = df_games_ACB.sort_values(by=['T2% VBC','T2a VBC'],ascending=False).head(lh)
+    max10_t2p = df_games_records.sort_values(by=['T2% VBC','T2a VBC'],ascending=False).head(lh)
     # Multiplicar por 100 para mostrar el porcentaje
     max10_t2p['T2% VBC'] = max10_t2p['T2% VBC']*100
     #Seleccionar las columnas a mostrar
     columns_to_show = ['ID Temporada', 'Jornada', 'Fecha', 'Partido', 'T2% VBC', 'T2a VBC', 'Entrenador VBC', 'Enlace']
     st.write("Récords en porcentaje de tiros de 2 puntos")
-    st.dataframe(max10_t2p[columns_to_show], hide_index=True)
+    st.dataframe(max10_t2p[columns_to_show], hide_index=True, column_config={"Enlace": st.column_config.LinkColumn()})
 
     # Tiros de 3 puntos
-    max10_t3p = df_games_ACB.sort_values(by=['T3% VBC','T3a VBC'],ascending=False).head(lh)
+    max10_t3p = df_games_records.sort_values(by=['T3% VBC','T3a VBC'],ascending=False).head(lh)
     # Multiplicar por 100 para mostrar el porcentaje
     max10_t3p['T3% VBC'] = max10_t3p['T3% VBC']*100
     #Seleccionar las columnas a mostrar
     columns_to_show = ['ID Temporada', 'Jornada', 'Fecha', 'Partido', 'T3% VBC', 'T3a VBC', 'Entrenador VBC', 'Enlace']
     st.write("Récords en porcentaje de tiros de 3 puntos")
-    st.dataframe(max10_t3p[columns_to_show], hide_index=True)
-
+    st.dataframe(max10_t3p[columns_to_show], hide_index=True, column_config={"Enlace": st.column_config.LinkColumn()})
+    
 elif marco == "Estadísticas jugadores de una temporada":
     
     #Seleccionar una temporada, ordenar las temporadas de mayor a menor
@@ -1345,7 +1354,7 @@ elif marco == "Totales":
                 "Victorias": st.column_config.NumberColumn(width="small"),
                 "Derrotas": st.column_config.NumberColumn(width="small"),
             }
-        )
+        )   
     with col2:
         st.write("Local/Visitante")
         st.dataframe(
@@ -1359,7 +1368,7 @@ elif marco == "Totales":
                 "Der. Local": st.column_config.NumberColumn(width="small"),
                 "Der. Visitante": st.column_config.NumberColumn(width="small"),
             }
-        )
+        )   
     with col3:
         st.write("Porcentajes")
         st.dataframe(
@@ -1426,10 +1435,3 @@ elif marco == "Totales":
                 "%":          st.column_config.NumberColumn(width="small"),
             }
         )
-
-
-
-
-
-
-
