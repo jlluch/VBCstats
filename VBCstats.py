@@ -21,13 +21,12 @@ st.set_page_config(
 st.markdown("""
 <style>
     [data-testid="stSidebar"] {
-        width: 12rem !important;
+        width: 14rem !important;
     }
 </style>
 """, unsafe_allow_html=True)
     
-st.sidebar.header("Selecciona una competición")
-st.sidebar.markdown('Autor: Xavi Lluch\n https://x.com/xavi_runner\n\n Github: [JLLUCH](https://github.com/jlluch/VBCstats)')
+
 
 
 
@@ -198,6 +197,7 @@ def contar_visita_google_sheets(nombre_pagina):
 
     sheet = client.open("vbcStats").sheet1
     data = sheet.get_all_records()
+    st.sidebar.markdown(data)    
 
     for idx, fila in enumerate(data, start=2):
         if fila["Página"] == nombre_pagina:
@@ -216,6 +216,11 @@ if "pagina_contada" not in st.session_state or st.session_state.pagina_contada !
     st.session_state.pagina_contada = nombre_pagina
 else:
     visitas = None  # Ya contada
+
+
+
+st.sidebar.header("Selecciona una competición")
+st.sidebar.markdown('Autor: Xavi Lluch\n https://x.com/xavi_runner\n\n Github: [JLLUCH](https://github.com/jlluch/VBCstats)')
 
 # Ejecuta la página seleccionada
 pg.run()
