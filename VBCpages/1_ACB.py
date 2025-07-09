@@ -665,28 +665,1353 @@ elif marco == "Líderes de una temporada":
     mt3a.dataframe(max_t3a, width=180, column_config={"T3": st.column_config.TextColumn(width="small")})
     mt3p.dataframe(max_t3p, width=180, column_config={"T3%": st.column_config.TextColumn(width="small")})
     
+elif marco == "Estadísticas de una temporada":
+    
+    #Seleccionar una temporada, ordenar las temporadas de mayor a menor
+    season = st.selectbox("Selecciona una temporada", df_games_ACB['ID Temporada'].sort_values(ascending=False).unique())
+    
+    #Crear un marco para mostrar los acumulados de la temporada
+    st.subheader("Acumulados de una temporada")
+        
+    # Añadir filtros
+    st.write("Filtros")
+    col1, col2, col3 = st.columns(3)
+    
+    with col1:
+        # Radio button para filtrar por victorias/derrotas
+        resultado_filtro = st.radio("Resultado", ["Todos", "Victorias", "Derrotas"], horizontal=True)
+    
+    # Obtener el rango de jornadas de la temporada
+    jornadas_temporada = df_games_ACB[df_games_ACB['ID Temporada'] == season]['Jornada'].unique()
+    min_jornada = min(jornadas_temporada)
+    max_jornada = max(jornadas_temporada)
+    
+    with col2:
+        # Spinner para seleccionar jornada inicial
+        jornada_inicio = st.number_input("Jornada inicial", min_value=min_jornada, max_value=max_jornada, value=min_jornada)
+    
+    with col3:
+        # Spinner para seleccionar jornada final, debe ser mayor o igual que jornada_inicio
+        jornada_fin = st.number_input("Jornada final", min_value=jornada_inicio, max_value=max_jornada, value=max_jornada)
+    
+    # Filtrar partidos por temporada
+    season_games = df_games_ACB[df_games_ACB['ID Temporada'] == season]
+    
+    # Filtrar por jornadas
+    season_games = season_games[(season_games['Jornada'] >= jornada_inicio) & 
+                                (season_games['Jornada'] <= jornada_fin)]
+    
+    # Filtrar por resultado (victorias/derrotas)
+    if resultado_filtro == "Victorias":
+        season_games = season_games[season_games['VBC Victoria'] == 1]
+    elif resultado_filtro == "Derrotas":
+        season_games = season_games[season_games['VBC Victoria'] == 0]
+    
+    # Mostrar información sobre los filtros aplicados
+    filtros_aplicados = []
+    if resultado_filtro != "Todos":
+        filtros_aplicados.append(f"Resultado: {resultado_filtro}")
+    if jornada_inicio > min_jornada or jornada_fin < max_jornada:
+        filtros_aplicados.append(f"Jornadas: {jornada_inicio} a {jornada_fin}")
+    
+    if filtros_aplicados:
+        st.write(f"**Filtros aplicados:** {', '.join(filtros_aplicados)}")
+    
+    # Si no quedan partidos después del filtrado, mostrar mensaje y salir
+    if len(season_games) == 0:
+        st.warning("No hay datos disponibles para los filtros seleccionados.")
+    else:
+        # Calcular total partidos jugados, victorias y derrotas, total como local y como visitante y % de cada uno
+        # usando los datos filtrados
+        total_games = len(season_games)
+        total_wins = season_games['VBC Victoria'].sum()
+        total_losses = total_games - total_wins
+        total_home = season_games['VBC Local'].sum()
+        total_away = total_games - total_home
+        total_home_wins = season_games[season_games['VBC Local'] == 1]['VBC Victoria'].sum()
+        total_away_wins = season_games[season_games['VBC Local'] == 0]['VBC Victoria'].sum()
+        total_home_losses = total_home - total_home_wins
+        total_away_losses = total_away - total_away_wins
+        total_home_wins_percentage = round(total_home_wins * 100 / total_home, 1) if total_home > 0 else 0
+        total_away_wins_percentage = round(total_away_wins * 100 / total_away, 1) if total_away > 0 else 0
+        total_wins_percentage = round(total_wins * 100 / total_games, 1) if total_games > 0 else 0
+        total_losses_percentage = round(total_losses * 100 / total_games, 1) if total_games > 0 else 0
+        
+        # Crear un dataframe con los datos
+        season_stats = pd.DataFrame({
+            'Partidos': [total_games],
+            'Victorias': [total_wins],
+            'Derrotas': [total_losses],
+            'Local': [total_home],
+            'Visitante': [total_away],
+            'Vic. Local': [total_home_wins],
+            'Vic. Visitante': [total_away_wins],
+            'Der. Local': [total_home_losses],
+            'Der. Visitante': [total_away_losses],
+            'Victorias %': [total_wins_percentage],
+            'Derrotas %': [total_losses_percentage],
+            'Vic. Local %': [total_home_wins_percentage],
+            'Vic. Visitante %': [total_away_wins_percentage],
+        })
+        
+        # Crear 3 columnas para mostrar los datos
+        col1, col2, col3 = st.columns(3)
+        with col1:
+            st.write("Partidos")
+            st.dataframe(
+                season_stats[['Partidos', 'Victorias', 'Derrotas']],
+                hide_index=True,
+                column_config={
+                    "Partidos": st.column_config.NumberColumn(width="small"),
+                    "Victorias": st.column_config.NumberColumn(width="small"),
+                    "Derrotas": st.column_config.NumberColumn(width="small"),
+                }
+            )   
+        with col2:
+            st.write("Local/Visitante")
+            st.dataframe(
+                season_stats[['Local', 'Visitante', 'Vic. Local', 'Vic. Visitante', 'Der. Local', 'Der. Visitante']],
+                hide_index=True,
+                column_config={
+                    "Local": st.column_config.NumberColumn(width="small"),
+                    "Visitante": st.column_config.NumberColumn(width="small"),
+                    "Vic. Local": st.column_config.NumberColumn(width="small"),
+                    "Vic. Visitante": st.column_config.NumberColumn(width="small"),
+                    "Der. Local": st.column_config.NumberColumn(width="small"),
+                    "Der. Visitante": st.column_config.NumberColumn(width="small"),
+                }
+            )   
+        with col3:
+            st.write("Porcentajes")
+            st.dataframe(
+                season_stats[['Victorias %', 'Derrotas %', 'Vic. Local %', 'Vic. Visitante %']],
+                hide_index=True,
+                column_config={
+                    "Victorias %": st.column_config.NumberColumn(width="small"),
+                    "Derrotas %": st.column_config.NumberColumn(width="small"),
+                    "Vic. Local %": st.column_config.NumberColumn(width="small"),
+                    "Vic. Visitante %": st.column_config.NumberColumn(width="small"),
+                }
+            )
+        
+        # Calcular los acumulados de la temporada VBC usando los datos filtrados
+        season_stats_vbc = pd.DataFrame(season_games[['Puntos VBC', 'Rebotes VBC', 'Asistencias VBC', 'Robos VBC', 'Tapones VBC', 'Val VBC']].sum(), columns=['Acumulados'])
+        season_stats_vbc['Media'] = round(season_stats_vbc['Acumulados'] / len(season_games), 1)
+        
+        # Calcular los acumulados de la temporada Rival
+        season_stats_rival = pd.DataFrame(season_games[['Puntos Rival', 'Rebotes Rival', 'Asistencias Rival', 'Robos Rival', 'Tapones Rival', 'Val Rival']].sum(), columns=['Acumulados'])
+        season_stats_rival['Media'] = round(season_stats_rival['Acumulados'] / len(season_games), 1)
+        
+        # Datos de tiros VBC
+        season_shots_vbc = pd.DataFrame(season_games[['T1a VBC', 'T1i VBC', 'T2a VBC', 'T2i VBC', 'T3a VBC', 'T3i VBC']].sum(), columns=['Acumulados'])
+        season_shots_vbc['Media'] = round(season_shots_vbc['Acumulados'] / len(season_games), 1)
+        season_shots_vbc['%'] = round(season_shots_vbc['Acumulados']*100 / season_shots_vbc['Acumulados'].shift(-1), 1)
+        
+        # Datos de tiros Rival
+        season_shots_rival = pd.DataFrame(season_games[['T1a Rival', 'T1i Rival', 'T2a Rival', 'T2i Rival', 'T3a Rival', 'T3i Rival']].sum(), columns=['Acumulados'])
+        season_shots_rival['Media'] = round(season_shots_rival['Acumulados'] / len(season_games), 1)
+        season_shots_rival['%'] = round(season_shots_rival['Acumulados']*100 / season_shots_rival['Acumulados'].shift(-1), 1)
+        
+        # Crear 4 columnas para mostrar los datos
+        col1, col2, col3, col4, col5 = st.columns(5)
+        
+        with col1:
+            st.write("VBC Estadísticas")
+            st.dataframe(
+                season_stats_vbc,
+                column_config={
+                    "Acumulados": st.column_config.NumberColumn(width="small"),
+                    "Media":      st.column_config.NumberColumn(width="small"),
+                }
+            )
+        with col2:
+            st.write("Rival Estadísticas")
+            st.dataframe(
+                season_stats_rival,
+                column_config={
+                    "Acumulados": st.column_config.NumberColumn(width="small"),
+                    "Media":      st.column_config.NumberColumn(width="small"),
+                }
+            )
+        with col3:
+            st.write("VBC Tiros")
+            st.dataframe(
+                season_shots_vbc.iloc[::2],
+                column_config={
+                    "Acumulados": st.column_config.NumberColumn(width="small"),
+                    "Media":      st.column_config.NumberColumn(width="small"),
+                    "%":          st.column_config.NumberColumn(width="small"),
+                }
+            )
+        with col4:
+            st.write("Rival Tiros")
+            st.dataframe(
+                season_shots_rival.iloc[::2],
+                column_config={
+                    "Acumulados": st.column_config.NumberColumn(width="small"),
+                    "Media":      st.column_config.NumberColumn(width="small"),
+                    "%":          st.column_config.NumberColumn(width="small"),
+                }
+            )
+
+elif marco == "Líderes de una temporada":
+    
+    #Seleccionar una temporada, ordenar las temporadas de mayor a menor
+    season = st.selectbox("Selecciona una temporada", df_games_ACB['ID Temporada'].sort_values(ascending=False).unique())
+    
+    #Crear un marco para mostrar los líderes de la temporada, lo mismo que en el marco de líderes históricos pero solo para la temporada actual
+    st.subheader("Líderes de una temporada")
+    lh = 5
+    # Calcular los "lh" jugadores con el mayor número de partidos jugados, puntos, rebotes, asistencias, robos, tapones y valoración
+    # Mostrar los resultados en una tabla
+    season_games = df_players_ACB[df_players_ACB['ID Temporada'] == season]
+    max_games = season_games.groupby('Nombre')['ID Partido'].count()
+    max_points = pd.DataFrame(season_games.groupby('Nombre')['Puntos'].sum())
+    # Calcular la media por partido, teniendo en cuenta los partidos que ha jugado cada jugador
+    max_points['Media'] = round(max_points['Puntos']/max_games,1)        
+    max_points = max_points.sort_values(by='Puntos',ascending=False).head(lh)
+    
+    max_rebounds = pd.DataFrame(season_games.groupby('Nombre')['Rebotes'].sum())
+    # Calcular la media por partido, teniendo en cuenta los partidos que ha jugado cada jugador
+    max_rebounds['Media'] = round(max_rebounds['Rebotes']/max_games,1)
+    max_rebounds = max_rebounds.sort_values(by='Rebotes',ascending=False).head(lh)
+    
+    max_assists = pd.DataFrame(season_games.groupby('Nombre')['Asistencias'].sum())
+    # Calcular la media por partido, teniendo en cuenta los partidos que ha jugado cada jugador
+    max_assists['Media'] = round(max_assists['Asistencias']/max_games,1)
+    max_assists = max_assists.sort_values(by='Asistencias',ascending=False).head(lh)
+    
+    max_steals = pd.DataFrame(season_games.groupby('Nombre')['Robos'].sum())
+    # Calcular la media por partido, teniendo en cuenta los partidos que ha jugado cada jugador
+    max_steals['Media'] = round(max_steals['Robos']/max_games,1)
+    max_steals = max_steals.sort_values(by='Robos',ascending=False).head(lh)
+    
+    max_blocks = pd.DataFrame(season_games.groupby('Nombre')['Tapones'].sum())
+    # Calcular la media por partido, teniendo en cuenta los partidos que ha jugado cada jugador
+    max_blocks['Media'] = round(max_blocks['Tapones']/max_games,1)
+    max_blocks = max_blocks.sort_values(by='Tapones',ascending=False).head(lh)
+    
+    max_val = pd.DataFrame(season_games.groupby('Nombre')['Val'].sum())
+    # Calcular la media por partido, teniendo en cuenta los partidos que ha jugado cada jugador
+    max_val['Media'] = round(max_val['Val']/max_games,1)
+    max_val = max_val.sort_values(by='Val',ascending=False).head(lh)
+    
+    #Ordenar partidos jugados
+    max_games = max_games.sort_values(ascending=False).head(lh)
+    #Cambiar nombre de la columna
+    max_games = max_games.rename("Partidos")        
+    # Calcular el mayor número de tiros de 1,2 y 3 puntos anotados y el mayor porcentaje de tiros de 1,2 y 3 puntos anotados
+    # Mostrar los resultados en una tabla
+    # Crea una tabla con el acumulado de tiros de 1,2 y 3 puntos anotados, intentados y el porcentaje de acierto de cada jugador
+    shots = season_games.groupby('Nombre')[['T1a', 'T1i', 'T2a', 'T2i', 'T3a', 'T3i']].sum()
+    # Calula el porcentaje de acierto de cada jugador con 1 decimal
+    shots['T1%'] = round(shots['T1a'] / shots['T1i'] * 100,1)
+    shots['T2%'] = round(shots['T2a'] / shots['T2i'] * 100,1)
+    shots['T3%'] = round(shots['T3a'] / shots['T3i'] * 100,1)
+    max_t1a = shots['T1a'].sort_values(ascending=False).head(lh)
+    #Cambiar nombre de la columna
+    max_t1a = max_t1a.rename("T.Libres")
+    max_t2a = shots['T2a'].sort_values(ascending=False).head(lh)
+    #Cambiar nombre de la columna
+    max_t2a = max_t2a.rename("T2")
+    max_t3a = shots['T3a'].sort_values(ascending=False).head(lh)
+    #Cambiar nombre de la columna
+    max_t3a = max_t3a.rename("T3")
+    max_t1p = (shots['T1%']).sort_values(ascending=False).head(lh)
+    #Cambiar nombre de la columna
+    max_t1p = max_t1p.rename("T1%")
+    max_t2p = (shots['T2%']).sort_values(ascending=False).head(lh)
+    #Cambiar nombre de la columna
+    max_t2p = max_t2p.rename("T2%")
+    max_t3p = (shots['T3%']).sort_values(ascending=False).head(lh)
+    #Cambiar nombre de la columna
+    max_t3p = max_t3p.rename("T3%")
+    
+    # Muestra los resultados en tablas y en columnas de streamlit separadas
+    mg, mp, mr, ma = st.columns(4)
+    mg.dataframe(max_games)
+    mp.dataframe(max_points)
+    mr.dataframe(max_rebounds)
+    ma.dataframe(max_assists)
+    
+    ms, mb, mv, vc = st.columns(4)
+    ms.dataframe(max_steals)
+    mb.dataframe(max_blocks)
+    mv.dataframe(max_val)
+    
+    # Muestra los resultados en tablas y en columnas de streamlit separadas
+    mt1a, mt1p, mt2a, mt2p, mt3a, mt3p = st.columns(6)
+    mt1a.dataframe(max_t1a, width=180, column_config={"T.Libres": st.column_config.TextColumn(width="small")})
+    mt1p.dataframe(max_t1p, width=180, column_config={"T1%": st.column_config.TextColumn(width="small")})
+    mt2a.dataframe(max_t2a, width=180, column_config={"T2": st.column_config.TextColumn(width="small")})
+    mt2p.dataframe(max_t2p, width=180, column_config={"T2%": st.column_config.TextColumn(width="small")})
+    mt3a.dataframe(max_t3a, width=180, column_config={"T3": st.column_config.TextColumn(width="small")})
+    mt3p.dataframe(max_t3p, width=180, column_config={"T3%": st.column_config.TextColumn(width="small")})
+    
+elif marco == "Estadísticas de una temporada":
+    
+    #Seleccionar una temporada, ordenar las temporadas de mayor a menor
+    season = st.selectbox("Selecciona una temporada", df_games_ACB['ID Temporada'].sort_values(ascending=False).unique())
+    
+    #Crear un marco para mostrar los acumulados de la temporada
+    st.subheader("Acumulados de una temporada")
+        
+    # Añadir filtros
+    st.write("Filtros")
+    col1, col2, col3 = st.columns(3)
+    
+    with col1:
+        # Radio button para filtrar por victorias/derrotas
+        resultado_filtro = st.radio("Resultado", ["Todos", "Victorias", "Derrotas"], horizontal=True)
+    
+    # Obtener el rango de jornadas de la temporada
+    jornadas_temporada = df_games_ACB[df_games_ACB['ID Temporada'] == season]['Jornada'].unique()
+    min_jornada = min(jornadas_temporada)
+    max_jornada = max(jornadas_temporada)
+    
+    with col2:
+        # Spinner para seleccionar jornada inicial
+        jornada_inicio = st.number_input("Jornada inicial", min_value=min_jornada, max_value=max_jornada, value=min_jornada)
+    
+    with col3:
+        # Spinner para seleccionar jornada final, debe ser mayor o igual que jornada_inicio
+        jornada_fin = st.number_input("Jornada final", min_value=jornada_inicio, max_value=max_jornada, value=max_jornada)
+    
+    # Filtrar partidos por temporada
+    season_games = df_games_ACB[df_games_ACB['ID Temporada'] == season]
+    
+    # Filtrar por jornadas
+    season_games = season_games[(season_games['Jornada'] >= jornada_inicio) & 
+                                (season_games['Jornada'] <= jornada_fin)]
+    
+    # Filtrar por resultado (victorias/derrotas)
+    if resultado_filtro == "Victorias":
+        season_games = season_games[season_games['VBC Victoria'] == 1]
+    elif resultado_filtro == "Derrotas":
+        season_games = season_games[season_games['VBC Victoria'] == 0]
+    
+    # Mostrar información sobre los filtros aplicados
+    filtros_aplicados = []
+    if resultado_filtro != "Todos":
+        filtros_aplicados.append(f"Resultado: {resultado_filtro}")
+    if jornada_inicio > min_jornada or jornada_fin < max_jornada:
+        filtros_aplicados.append(f"Jornadas: {jornada_inicio} a {jornada_fin}")
+    
+    if filtros_aplicados:
+        st.write(f"**Filtros aplicados:** {', '.join(filtros_aplicados)}")
+    
+    # Si no quedan partidos después del filtrado, mostrar mensaje y salir
+    if len(season_games) == 0:
+        st.warning("No hay datos disponibles para los filtros seleccionados.")
+    else:
+        # Calcular total partidos jugados, victorias y derrotas, total como local y como visitante y % de cada uno
+        # usando los datos filtrados
+        total_games = len(season_games)
+        total_wins = season_games['VBC Victoria'].sum()
+        total_losses = total_games - total_wins
+        total_home = season_games['VBC Local'].sum()
+        total_away = total_games - total_home
+        total_home_wins = season_games[season_games['VBC Local'] == 1]['VBC Victoria'].sum()
+        total_away_wins = season_games[season_games['VBC Local'] == 0]['VBC Victoria'].sum()
+        total_home_losses = total_home - total_home_wins
+        total_away_losses = total_away - total_away_wins
+        total_home_wins_percentage = round(total_home_wins * 100 / total_home, 1) if total_home > 0 else 0
+        total_away_wins_percentage = round(total_away_wins * 100 / total_away, 1) if total_away > 0 else 0
+        total_wins_percentage = round(total_wins * 100 / total_games, 1) if total_games > 0 else 0
+        total_losses_percentage = round(total_losses * 100 / total_games, 1) if total_games > 0 else 0
+        
+        # Crear un dataframe con los datos
+        season_stats = pd.DataFrame({
+            'Partidos': [total_games],
+            'Victorias': [total_wins],
+            'Derrotas': [total_losses],
+            'Local': [total_home],
+            'Visitante': [total_away],
+            'Vic. Local': [total_home_wins],
+            'Vic. Visitante': [total_away_wins],
+            'Der. Local': [total_home_losses],
+            'Der. Visitante': [total_away_losses],
+            'Victorias %': [total_wins_percentage],
+            'Derrotas %': [total_losses_percentage],
+            'Vic. Local %': [total_home_wins_percentage],
+            'Vic. Visitante %': [total_away_wins_percentage],
+        })
+        
+        # Crear 3 columnas para mostrar los datos
+        col1, col2, col3 = st.columns(3)
+        with col1:
+            st.write("Partidos")
+            st.dataframe(
+                season_stats[['Partidos', 'Victorias', 'Derrotas']],
+                hide_index=True,
+                column_config={
+                    "Partidos": st.column_config.NumberColumn(width="small"),
+                    "Victorias": st.column_config.NumberColumn(width="small"),
+                    "Derrotas": st.column_config.NumberColumn(width="small"),
+                }
+            )   
+        with col2:
+            st.write("Local/Visitante")
+            st.dataframe(
+                season_stats[['Local', 'Visitante', 'Vic. Local', 'Vic. Visitante', 'Der. Local', 'Der. Visitante']],
+                hide_index=True,
+                column_config={
+                    "Local": st.column_config.NumberColumn(width="small"),
+                    "Visitante": st.column_config.NumberColumn(width="small"),
+                    "Vic. Local": st.column_config.NumberColumn(width="small"),
+                    "Vic. Visitante": st.column_config.NumberColumn(width="small"),
+                    "Der. Local": st.column_config.NumberColumn(width="small"),
+                    "Der. Visitante": st.column_config.NumberColumn(width="small"),
+                }
+            )   
+        with col3:
+            st.write("Porcentajes")
+            st.dataframe(
+                season_stats[['Victorias %', 'Derrotas %', 'Vic. Local %', 'Vic. Visitante %']],
+                hide_index=True,
+                column_config={
+                    "Victorias %": st.column_config.NumberColumn(width="small"),
+                    "Derrotas %": st.column_config.NumberColumn(width="small"),
+                    "Vic. Local %": st.column_config.NumberColumn(width="small"),
+                    "Vic. Visitante %": st.column_config.NumberColumn(width="small"),
+                }
+            )
+        
+        # Calcular los acumulados de la temporada VBC usando los datos filtrados
+        season_stats_vbc = pd.DataFrame(season_games[['Puntos VBC', 'Rebotes VBC', 'Asistencias VBC', 'Robos VBC', 'Tapones VBC', 'Val VBC']].sum(), columns=['Acumulados'])
+        season_stats_vbc['Media'] = round(season_stats_vbc['Acumulados'] / len(season_games), 1)
+        
+        # Calcular los acumulados de la temporada Rival
+        season_stats_rival = pd.DataFrame(season_games[['Puntos Rival', 'Rebotes Rival', 'Asistencias Rival', 'Robos Rival', 'Tapones Rival', 'Val Rival']].sum(), columns=['Acumulados'])
+        season_stats_rival['Media'] = round(season_stats_rival['Acumulados'] / len(season_games), 1)
+        
+        # Datos de tiros VBC
+        season_shots_vbc = pd.DataFrame(season_games[['T1a VBC', 'T1i VBC', 'T2a VBC', 'T2i VBC', 'T3a VBC', 'T3i VBC']].sum(), columns=['Acumulados'])
+        season_shots_vbc['Media'] = round(season_shots_vbc['Acumulados'] / len(season_games), 1)
+        season_shots_vbc['%'] = round(season_shots_vbc['Acumulados']*100 / season_shots_vbc['Acumulados'].shift(-1), 1)
+        
+        # Datos de tiros Rival
+        season_shots_rival = pd.DataFrame(season_games[['T1a Rival', 'T1i Rival', 'T2a Rival', 'T2i Rival', 'T3a Rival', 'T3i Rival']].sum(), columns=['Acumulados'])
+        season_shots_rival['Media'] = round(season_shots_rival['Acumulados'] / len(season_games), 1)
+        season_shots_rival['%'] = round(season_shots_rival['Acumulados']*100 / season_shots_rival['Acumulados'].shift(-1), 1)
+        
+        # Crear 4 columnas para mostrar los datos
+        col1, col2, col3, col4, col5 = st.columns(5)
+        
+        with col1:
+            st.write("VBC Estadísticas")
+            st.dataframe(
+                season_stats_vbc,
+                column_config={
+                    "Acumulados": st.column_config.NumberColumn(width="small"),
+                    "Media":      st.column_config.NumberColumn(width="small"),
+                }
+            )
+        with col2:
+            st.write("Rival Estadísticas")
+            st.dataframe(
+                season_stats_rival,
+                column_config={
+                    "Acumulados": st.column_config.NumberColumn(width="small"),
+                    "Media":      st.column_config.NumberColumn(width="small"),
+                }
+            )
+        with col3:
+            st.write("VBC Tiros")
+            st.dataframe(
+                season_shots_vbc.iloc[::2],
+                column_config={
+                    "Acumulados": st.column_config.NumberColumn(width="small"),
+                    "Media":      st.column_config.NumberColumn(width="small"),
+                    "%":          st.column_config.NumberColumn(width="small"),
+                }
+            )
+        with col4:
+            st.write("Rival Tiros")
+            st.dataframe(
+                season_shots_rival.iloc[::2],
+                column_config={
+                    "Acumulados": st.column_config.NumberColumn(width="small"),
+                    "Media":      st.column_config.NumberColumn(width="small"),
+                    "%":          st.column_config.NumberColumn(width="small"),
+                }
+            )
+
+elif marco == "Líderes de una temporada":
+    
+    #Seleccionar una temporada, ordenar las temporadas de mayor a menor
+    season = st.selectbox("Selecciona una temporada", df_games_ACB['ID Temporada'].sort_values(ascending=False).unique())
+    
+    #Crear un marco para mostrar los líderes de la temporada, lo mismo que en el marco de líderes históricos pero solo para la temporada actual
+    st.subheader("Líderes de una temporada")
+    lh = 5
+    # Calcular los "lh" jugadores con el mayor número de partidos jugados, puntos, rebotes, asistencias, robos, tapones y valoración
+    # Mostrar los resultados en una tabla
+    season_games = df_players_ACB[df_players_ACB['ID Temporada'] == season]
+    max_games = season_games.groupby('Nombre')['ID Partido'].count()
+    max_points = pd.DataFrame(season_games.groupby('Nombre')['Puntos'].sum())
+    # Calcular la media por partido, teniendo en cuenta los partidos que ha jugado cada jugador
+    max_points['Media'] = round(max_points['Puntos']/max_games,1)        
+    max_points = max_points.sort_values(by='Puntos',ascending=False).head(lh)
+    
+    max_rebounds = pd.DataFrame(season_games.groupby('Nombre')['Rebotes'].sum())
+    # Calcular la media por partido, teniendo en cuenta los partidos que ha jugado cada jugador
+    max_rebounds['Media'] = round(max_rebounds['Rebotes']/max_games,1)
+    max_rebounds = max_rebounds.sort_values(by='Rebotes',ascending=False).head(lh)
+    
+    max_assists = pd.DataFrame(season_games.groupby('Nombre')['Asistencias'].sum())
+    # Calcular la media por partido, teniendo en cuenta los partidos que ha jugado cada jugador
+    max_assists['Media'] = round(max_assists['Asistencias']/max_games,1)
+    max_assists = max_assists.sort_values(by='Asistencias',ascending=False).head(lh)
+    
+    max_steals = pd.DataFrame(season_games.groupby('Nombre')['Robos'].sum())
+    # Calcular la media por partido, teniendo en cuenta los partidos que ha jugado cada jugador
+    max_steals['Media'] = round(max_steals['Robos']/max_games,1)
+    max_steals = max_steals.sort_values(by='Robos',ascending=False).head(lh)
+    
+    max_blocks = pd.DataFrame(season_games.groupby('Nombre')['Tapones'].sum())
+    # Calcular la media por partido, teniendo en cuenta los partidos que ha jugado cada jugador
+    max_blocks['Media'] = round(max_blocks['Tapones']/max_games,1)
+    max_blocks = max_blocks.sort_values(by='Tapones',ascending=False).head(lh)
+    
+    max_val = pd.DataFrame(season_games.groupby('Nombre')['Val'].sum())
+    # Calcular la media por partido, teniendo en cuenta los partidos que ha jugado cada jugador
+    max_val['Media'] = round(max_val['Val']/max_games,1)
+    max_val = max_val.sort_values(by='Val',ascending=False).head(lh)
+    
+    #Ordenar partidos jugados
+    max_games = max_games.sort_values(ascending=False).head(lh)
+    #Cambiar nombre de la columna
+    max_games = max_games.rename("Partidos")        
+    # Calcular el mayor número de tiros de 1,2 y 3 puntos anotados y el mayor porcentaje de tiros de 1,2 y 3 puntos anotados
+    # Mostrar los resultados en una tabla
+    # Crea una tabla con el acumulado de tiros de 1,2 y 3 puntos anotados, intentados y el porcentaje de acierto de cada jugador
+    shots = season_games.groupby('Nombre')[['T1a', 'T1i', 'T2a', 'T2i', 'T3a', 'T3i']].sum()
+    # Calula el porcentaje de acierto de cada jugador con 1 decimal
+    shots['T1%'] = round(shots['T1a'] / shots['T1i'] * 100,1)
+    shots['T2%'] = round(shots['T2a'] / shots['T2i'] * 100,1)
+    shots['T3%'] = round(shots['T3a'] / shots['T3i'] * 100,1)
+    max_t1a = shots['T1a'].sort_values(ascending=False).head(lh)
+    #Cambiar nombre de la columna
+    max_t1a = max_t1a.rename("T.Libres")
+    max_t2a = shots['T2a'].sort_values(ascending=False).head(lh)
+    #Cambiar nombre de la columna
+    max_t2a = max_t2a.rename("T2")
+    max_t3a = shots['T3a'].sort_values(ascending=False).head(lh)
+    #Cambiar nombre de la columna
+    max_t3a = max_t3a.rename("T3")
+    max_t1p = (shots['T1%']).sort_values(ascending=False).head(lh)
+    #Cambiar nombre de la columna
+    max_t1p = max_t1p.rename("T1%")
+    max_t2p = (shots['T2%']).sort_values(ascending=False).head(lh)
+    #Cambiar nombre de la columna
+    max_t2p = max_t2p.rename("T2%")
+    max_t3p = (shots['T3%']).sort_values(ascending=False).head(lh)
+    #Cambiar nombre de la columna
+    max_t3p = max_t3p.rename("T3%")
+    
+    # Muestra los resultados en tablas y en columnas de streamlit separadas
+    mg, mp, mr, ma = st.columns(4)
+    mg.dataframe(max_games)
+    mp.dataframe(max_points)
+    mr.dataframe(max_rebounds)
+    ma.dataframe(max_assists)
+    
+    ms, mb, mv, vc = st.columns(4)
+    ms.dataframe(max_steals)
+    mb.dataframe(max_blocks)
+    mv.dataframe(max_val)
+    
+    # Muestra los resultados en tablas y en columnas de streamlit separadas
+    mt1a, mt1p, mt2a, mt2p, mt3a, mt3p = st.columns(6)
+    mt1a.dataframe(max_t1a, width=180, column_config={"T.Libres": st.column_config.TextColumn(width="small")})
+    mt1p.dataframe(max_t1p, width=180, column_config={"T1%": st.column_config.TextColumn(width="small")})
+    mt2a.dataframe(max_t2a, width=180, column_config={"T2": st.column_config.TextColumn(width="small")})
+    mt2p.dataframe(max_t2p, width=180, column_config={"T2%": st.column_config.TextColumn(width="small")})
+    mt3a.dataframe(max_t3a, width=180, column_config={"T3": st.column_config.TextColumn(width="small")})
+    mt3p.dataframe(max_t3p, width=180, column_config={"T3%": st.column_config.TextColumn(width="small")})
+    
+elif marco == "Estadísticas de una temporada":
+    
+    #Seleccionar una temporada, ordenar las temporadas de mayor a menor
+    season = st.selectbox("Selecciona una temporada", df_games_ACB['ID Temporada'].sort_values(ascending=False).unique())
+    
+    #Crear un marco para mostrar los acumulados de la temporada
+    st.subheader("Acumulados de una temporada")
+        
+    # Añadir filtros
+    st.write("Filtros")
+    col1, col2, col3 = st.columns(3)
+    
+    with col1:
+        # Radio button para filtrar por victorias/derrotas
+        resultado_filtro = st.radio("Resultado", ["Todos", "Victorias", "Derrotas"], horizontal=True)
+    
+    # Obtener el rango de jornadas de la temporada
+    jornadas_temporada = df_games_ACB[df_games_ACB['ID Temporada'] == season]['Jornada'].unique()
+    min_jornada = min(jornadas_temporada)
+    max_jornada = max(jornadas_temporada)
+    
+    with col2:
+        # Spinner para seleccionar jornada inicial
+        jornada_inicio = st.number_input("Jornada inicial", min_value=min_jornada, max_value=max_jornada, value=min_jornada)
+    
+    with col3:
+        # Spinner para seleccionar jornada final, debe ser mayor o igual que jornada_inicio
+        jornada_fin = st.number_input("Jornada final", min_value=jornada_inicio, max_value=max_jornada, value=max_jornada)
+    
+    # Filtrar partidos por temporada
+    season_games = df_games_ACB[df_games_ACB['ID Temporada'] == season]
+    
+    # Filtrar por jornadas
+    season_games = season_games[(season_games['Jornada'] >= jornada_inicio) & 
+                                (season_games['Jornada'] <= jornada_fin)]
+    
+    # Filtrar por resultado (victorias/derrotas)
+    if resultado_filtro == "Victorias":
+        season_games = season_games[season_games['VBC Victoria'] == 1]
+    elif resultado_filtro == "Derrotas":
+        season_games = season_games[season_games['VBC Victoria'] == 0]
+    
+    # Mostrar información sobre los filtros aplicados
+    filtros_aplicados = []
+    if resultado_filtro != "Todos":
+        filtros_aplicados.append(f"Resultado: {resultado_filtro}")
+    if jornada_inicio > min_jornada or jornada_fin < max_jornada:
+        filtros_aplicados.append(f"Jornadas: {jornada_inicio} a {jornada_fin}")
+    
+    if filtros_aplicados:
+        st.write(f"**Filtros aplicados:** {', '.join(filtros_aplicados)}")
+    
+    # Si no quedan partidos después del filtrado, mostrar mensaje y salir
+    if len(season_games) == 0:
+        st.warning("No hay datos disponibles para los filtros seleccionados.")
+    else:
+        # Calcular total partidos jugados, victorias y derrotas, total como local y como visitante y % de cada uno
+        # usando los datos filtrados
+        total_games = len(season_games)
+        total_wins = season_games['VBC Victoria'].sum()
+        total_losses = total_games - total_wins
+        total_home = season_games['VBC Local'].sum()
+        total_away = total_games - total_home
+        total_home_wins = season_games[season_games['VBC Local'] == 1]['VBC Victoria'].sum()
+        total_away_wins = season_games[season_games['VBC Local'] == 0]['VBC Victoria'].sum()
+        total_home_losses = total_home - total_home_wins
+        total_away_losses = total_away - total_away_wins
+        total_home_wins_percentage = round(total_home_wins * 100 / total_home, 1) if total_home > 0 else 0
+        total_away_wins_percentage = round(total_away_wins * 100 / total_away, 1) if total_away > 0 else 0
+        total_wins_percentage = round(total_wins * 100 / total_games, 1) if total_games > 0 else 0
+        total_losses_percentage = round(total_losses * 100 / total_games, 1) if total_games > 0 else 0
+        
+        # Crear un dataframe con los datos
+        season_stats = pd.DataFrame({
+            'Partidos': [total_games],
+            'Victorias': [total_wins],
+            'Derrotas': [total_losses],
+            'Local': [total_home],
+            'Visitante': [total_away],
+            'Vic. Local': [total_home_wins],
+            'Vic. Visitante': [total_away_wins],
+            'Der. Local': [total_home_losses],
+            'Der. Visitante': [total_away_losses],
+            'Victorias %': [total_wins_percentage],
+            'Derrotas %': [total_losses_percentage],
+            'Vic. Local %': [total_home_wins_percentage],
+            'Vic. Visitante %': [total_away_wins_percentage],
+        })
+        
+        # Crear 3 columnas para mostrar los datos
+        col1, col2, col3 = st.columns(3)
+        with col1:
+            st.write("Partidos")
+            st.dataframe(
+                season_stats[['Partidos', 'Victorias', 'Derrotas']],
+                hide_index=True,
+                column_config={
+                    "Partidos": st.column_config.NumberColumn(width="small"),
+                    "Victorias": st.column_config.NumberColumn(width="small"),
+                    "Derrotas": st.column_config.NumberColumn(width="small"),
+                }
+            )   
+        with col2:
+            st.write("Local/Visitante")
+            st.dataframe(
+                season_stats[['Local', 'Visitante', 'Vic. Local', 'Vic. Visitante', 'Der. Local', 'Der. Visitante']],
+                hide_index=True,
+                column_config={
+                    "Local": st.column_config.NumberColumn(width="small"),
+                    "Visitante": st.column_config.NumberColumn(width="small"),
+                    "Vic. Local": st.column_config.NumberColumn(width="small"),
+                    "Vic. Visitante": st.column_config.NumberColumn(width="small"),
+                    "Der. Local": st.column_config.NumberColumn(width="small"),
+                    "Der. Visitante": st.column_config.NumberColumn(width="small"),
+                }
+            )   
+        with col3:
+            st.write("Porcentajes")
+            st.dataframe(
+                season_stats[['Victorias %', 'Derrotas %', 'Vic. Local %', 'Vic. Visitante %']],
+                hide_index=True,
+                column_config={
+                    "Victorias %": st.column_config.NumberColumn(width="small"),
+                    "Derrotas %": st.column_config.NumberColumn(width="small"),
+                    "Vic. Local %": st.column_config.NumberColumn(width="small"),
+                    "Vic. Visitante %": st.column_config.NumberColumn(width="small"),
+                }
+            )
+        
+        # Calcular los acumulados de la temporada VBC usando los datos filtrados
+        season_stats_vbc = pd.DataFrame(season_games[['Puntos VBC', 'Rebotes VBC', 'Asistencias VBC', 'Robos VBC', 'Tapones VBC', 'Val VBC']].sum(), columns=['Acumulados'])
+        season_stats_vbc['Media'] = round(season_stats_vbc['Acumulados'] / len(season_games), 1)
+        
+        # Calcular los acumulados de la temporada Rival
+        season_stats_rival = pd.DataFrame(season_games[['Puntos Rival', 'Rebotes Rival', 'Asistencias Rival', 'Robos Rival', 'Tapones Rival', 'Val Rival']].sum(), columns=['Acumulados'])
+        season_stats_rival['Media'] = round(season_stats_rival['Acumulados'] / len(season_games), 1)
+        
+        # Datos de tiros VBC
+        season_shots_vbc = pd.DataFrame(season_games[['T1a VBC', 'T1i VBC', 'T2a VBC', 'T2i VBC', 'T3a VBC', 'T3i VBC']].sum(), columns=['Acumulados'])
+        season_shots_vbc['Media'] = round(season_shots_vbc['Acumulados'] / len(season_games), 1)
+        season_shots_vbc['%'] = round(season_shots_vbc['Acumulados']*100 / season_shots_vbc['Acumulados'].shift(-1), 1)
+        
+        # Datos de tiros Rival
+        season_shots_rival = pd.DataFrame(season_games[['T1a Rival', 'T1i Rival', 'T2a Rival', 'T2i Rival', 'T3a Rival', 'T3i Rival']].sum(), columns=['Acumulados'])
+        season_shots_rival['Media'] = round(season_shots_rival['Acumulados'] / len(season_games), 1)
+        season_shots_rival['%'] = round(season_shots_rival['Acumulados']*100 / season_shots_rival['Acumulados'].shift(-1), 1)
+        
+        # Crear 4 columnas para mostrar los datos
+        col1, col2, col3, col4, col5 = st.columns(5)
+        
+        with col1:
+            st.write("VBC Estadísticas")
+            st.dataframe(
+                season_stats_vbc,
+                column_config={
+                    "Acumulados": st.column_config.NumberColumn(width="small"),
+                    "Media":      st.column_config.NumberColumn(width="small"),
+                }
+            )
+        with col2:
+            st.write("Rival Estadísticas")
+            st.dataframe(
+                season_stats_rival,
+                column_config={
+                    "Acumulados": st.column_config.NumberColumn(width="small"),
+                    "Media":      st.column_config.NumberColumn(width="small"),
+                }
+            )
+        with col3:
+            st.write("VBC Tiros")
+            st.dataframe(
+                season_shots_vbc.iloc[::2],
+                column_config={
+                    "Acumulados": st.column_config.NumberColumn(width="small"),
+                    "Media":      st.column_config.NumberColumn(width="small"),
+                    "%":          st.column_config.NumberColumn(width="small"),
+                }
+            )
+        with col4:
+            st.write("Rival Tiros")
+            st.dataframe(
+                season_shots_rival.iloc[::2],
+                column_config={
+                    "Acumulados": st.column_config.NumberColumn(width="small"),
+                    "Media":      st.column_config.NumberColumn(width="small"),
+                    "%":          st.column_config.NumberColumn(width="small"),
+                }
+            )
+
+elif marco == "Líderes de una temporada":
+    
+    #Seleccionar una temporada, ordenar las temporadas de mayor a menor
+    season = st.selectbox("Selecciona una temporada", df_games_ACB['ID Temporada'].sort_values(ascending=False).unique())
+    
+    #Crear un marco para mostrar los líderes de la temporada, lo mismo que en el marco de líderes históricos pero solo para la temporada actual
+    st.subheader("Líderes de una temporada")
+    lh = 5
+    # Calcular los "lh" jugadores con el mayor número de partidos jugados, puntos, rebotes, asistencias, robos, tapones y valoración
+    # Mostrar los resultados en una tabla
+    season_games = df_players_ACB[df_players_ACB['ID Temporada'] == season]
+    max_games = season_games.groupby('Nombre')['ID Partido'].count()
+    max_points = pd.DataFrame(season_games.groupby('Nombre')['Puntos'].sum())
+    # Calcular la media por partido, teniendo en cuenta los partidos que ha jugado cada jugador
+    max_points['Media'] = round(max_points['Puntos']/max_games,1)        
+    max_points = max_points.sort_values(by='Puntos',ascending=False).head(lh)
+    
+    max_rebounds = pd.DataFrame(season_games.groupby('Nombre')['Rebotes'].sum())
+    # Calcular la media por partido, teniendo en cuenta los partidos que ha jugado cada jugador
+    max_rebounds['Media'] = round(max_rebounds['Rebotes']/max_games,1)
+    max_rebounds = max_rebounds.sort_values(by='Rebotes',ascending=False).head(lh)
+    
+    max_assists = pd.DataFrame(season_games.groupby('Nombre')['Asistencias'].sum())
+    # Calcular la media por partido, teniendo en cuenta los partidos que ha jugado cada jugador
+    max_assists['Media'] = round(max_assists['Asistencias']/max_games,1)
+    max_assists = max_assists.sort_values(by='Asistencias',ascending=False).head(lh)
+    
+    max_steals = pd.DataFrame(season_games.groupby('Nombre')['Robos'].sum())
+    # Calcular la media por partido, teniendo en cuenta los partidos que ha jugado cada jugador
+    max_steals['Media'] = round(max_steals['Robos']/max_games,1)
+    max_steals = max_steals.sort_values(by='Robos',ascending=False).head(lh)
+    
+    max_blocks = pd.DataFrame(season_games.groupby('Nombre')['Tapones'].sum())
+    # Calcular la media por partido, teniendo en cuenta los partidos que ha jugado cada jugador
+    max_blocks['Media'] = round(max_blocks['Tapones']/max_games,1)
+    max_blocks = max_blocks.sort_values(by='Tapones',ascending=False).head(lh)
+    
+    max_val = pd.DataFrame(season_games.groupby('Nombre')['Val'].sum())
+    # Calcular la media por partido, teniendo en cuenta los partidos que ha jugado cada jugador
+    max_val['Media'] = round(max_val['Val']/max_games,1)
+    max_val = max_val.sort_values(by='Val',ascending=False).head(lh)
+    
+    #Ordenar partidos jugados
+    max_games = max_games.sort_values(ascending=False).head(lh)
+    #Cambiar nombre de la columna
+    max_games = max_games.rename("Partidos")        
+    # Calcular el mayor número de tiros de 1,2 y 3 puntos anotados y el mayor porcentaje de tiros de 1,2 y 3 puntos anotados
+    # Mostrar los resultados en una tabla
+    # Crea una tabla con el acumulado de tiros de 1,2 y 3 puntos anotados, intentados y el porcentaje de acierto de cada jugador
+    shots = season_games.groupby('Nombre')[['T1a', 'T1i', 'T2a', 'T2i', 'T3a', 'T3i']].sum()
+    # Calula el porcentaje de acierto de cada jugador con 1 decimal
+    shots['T1%'] = round(shots['T1a'] / shots['T1i'] * 100,1)
+    shots['T2%'] = round(shots['T2a'] / shots['T2i'] * 100,1)
+    shots['T3%'] = round(shots['T3a'] / shots['T3i'] * 100,1)
+    max_t1a = shots['T1a'].sort_values(ascending=False).head(lh)
+    #Cambiar nombre de la columna
+    max_t1a = max_t1a.rename("T.Libres")
+    max_t2a = shots['T2a'].sort_values(ascending=False).head(lh)
+    #Cambiar nombre de la columna
+    max_t2a = max_t2a.rename("T2")
+    max_t3a = shots['T3a'].sort_values(ascending=False).head(lh)
+    #Cambiar nombre de la columna
+    max_t3a = max_t3a.rename("T3")
+    max_t1p = (shots['T1%']).sort_values(ascending=False).head(lh)
+    #Cambiar nombre de la columna
+    max_t1p = max_t1p.rename("T1%")
+    max_t2p = (shots['T2%']).sort_values(ascending=False).head(lh)
+    #Cambiar nombre de la columna
+    max_t2p = max_t2p.rename("T2%")
+    max_t3p = (shots['T3%']).sort_values(ascending=False).head(lh)
+    #Cambiar nombre de la columna
+    max_t3p = max_t3p.rename("T3%")
+    
+    # Muestra los resultados en tablas y en columnas de streamlit separadas
+    mg, mp, mr, ma = st.columns(4)
+    mg.dataframe(max_games)
+    mp.dataframe(max_points)
+    mr.dataframe(max_rebounds)
+    ma.dataframe(max_assists)
+    
+    ms, mb, mv, vc = st.columns(4)
+    ms.dataframe(max_steals)
+    mb.dataframe(max_blocks)
+    mv.dataframe(max_val)
+    
+    # Muestra los resultados en tablas y en columnas de streamlit separadas
+    mt1a, mt1p, mt2a, mt2p, mt3a, mt3p = st.columns(6)
+    mt1a.dataframe(max_t1a, width=180, column_config={"T.Libres": st.column_config.TextColumn(width="small")})
+    mt1p.dataframe(max_t1p, width=180, column_config={"T1%": st.column_config.TextColumn(width="small")})
+    mt2a.dataframe(max_t2a, width=180, column_config={"T2": st.column_config.TextColumn(width="small")})
+    mt2p.dataframe(max_t2p, width=180, column_config={"T2%": st.column_config.TextColumn(width="small")})
+    mt3a.dataframe(max_t3a, width=180, column_config={"T3": st.column_config.TextColumn(width="small")})
+    mt3p.dataframe(max_t3p, width=180, column_config={"T3%": st.column_config.TextColumn(width="small")})
+    
+elif marco == "Estadísticas de una temporada":
+    
+    #Seleccionar una temporada, ordenar las temporadas de mayor a menor
+    season = st.selectbox("Selecciona una temporada", df_games_ACB['ID Temporada'].sort_values(ascending=False).unique())
+    
+    #Crear un marco para mostrar los acumulados de la temporada
+    st.subheader("Acumulados de una temporada")
+        
+    # Añadir filtros
+    st.write("Filtros")
+    col1, col2, col3 = st.columns(3)
+    
+    with col1:
+        # Radio button para filtrar por victorias/derrotas
+        resultado_filtro = st.radio("Resultado", ["Todos", "Victorias", "Derrotas"], horizontal=True)
+    
+    # Obtener el rango de jornadas de la temporada
+    jornadas_temporada = df_games_ACB[df_games_ACB['ID Temporada'] == season]['Jornada'].unique()
+    min_jornada = min(jornadas_temporada)
+    max_jornada = max(jornadas_temporada)
+    
+    with col2:
+        # Spinner para seleccionar jornada inicial
+        jornada_inicio = st.number_input("Jornada inicial", min_value=min_jornada, max_value=max_jornada, value=min_jornada)
+    
+    with col3:
+        # Spinner para seleccionar jornada final, debe ser mayor o igual que jornada_inicio
+        jornada_fin = st.number_input("Jornada final", min_value=jornada_inicio, max_value=max_jornada, value=max_jornada)
+    
+    # Filtrar partidos por temporada
+    season_games = df_games_ACB[df_games_ACB['ID Temporada'] == season]
+    
+    # Filtrar por jornadas
+    season_games = season_games[(season_games['Jornada'] >= jornada_inicio) & 
+                                (season_games['Jornada'] <= jornada_fin)]
+    
+    # Filtrar por resultado (victorias/derrotas)
+    if resultado_filtro == "Victorias":
+        season_games = season_games[season_games['VBC Victoria'] == 1]
+    elif resultado_filtro == "Derrotas":
+        season_games = season_games[season_games['VBC Victoria'] == 0]
+    
+    # Mostrar información sobre los filtros aplicados
+    filtros_aplicados = []
+    if resultado_filtro != "Todos":
+        filtros_aplicados.append(f"Resultado: {resultado_filtro}")
+    if jornada_inicio > min_jornada or jornada_fin < max_jornada:
+        filtros_aplicados.append(f"Jornadas: {jornada_inicio} a {jornada_fin}")
+    
+    if filtros_aplicados:
+        st.write(f"**Filtros aplicados:** {', '.join(filtros_aplicados)}")
+    
+    # Si no quedan partidos después del filtrado, mostrar mensaje y salir
+    if len(season_games) == 0:
+        st.warning("No hay datos disponibles para los filtros seleccionados.")
+    else:
+        # Calcular total partidos jugados, victorias y derrotas, total como local y como visitante y % de cada uno
+        # usando los datos filtrados
+        total_games = len(season_games)
+        total_wins = season_games['VBC Victoria'].sum()
+        total_losses = total_games - total_wins
+        total_home = season_games['VBC Local'].sum()
+        total_away = total_games - total_home
+        total_home_wins = season_games[season_games['VBC Local'] == 1]['VBC Victoria'].sum()
+        total_away_wins = season_games[season_games['VBC Local'] == 0]['VBC Victoria'].sum()
+        total_home_losses = total_home - total_home_wins
+        total_away_losses = total_away - total_away_wins
+        total_home_wins_percentage = round(total_home_wins * 100 / total_home, 1) if total_home > 0 else 0
+        total_away_wins_percentage = round(total_away_wins * 100 / total_away, 1) if total_away > 0 else 0
+        total_wins_percentage = round(total_wins * 100 / total_games, 1) if total_games > 0 else 0
+        total_losses_percentage = round(total_losses * 100 / total_games, 1) if total_games > 0 else 0
+        
+        # Crear un dataframe con los datos
+        season_stats = pd.DataFrame({
+            'Partidos': [total_games],
+            'Victorias': [total_wins],
+            'Derrotas': [total_losses],
+            'Local': [total_home],
+            'Visitante': [total_away],
+            'Vic. Local': [total_home_wins],
+            'Vic. Visitante': [total_away_wins],
+            'Der. Local': [total_home_losses],
+            'Der. Visitante': [total_away_losses],
+            'Victorias %': [total_wins_percentage],
+            'Derrotas %': [total_losses_percentage],
+            'Vic. Local %': [total_home_wins_percentage],
+            'Vic. Visitante %': [total_away_wins_percentage],
+        })
+        
+        # Crear 3 columnas para mostrar los datos
+        col1, col2, col3 = st.columns(3)
+        with col1:
+            st.write("Partidos")
+            st.dataframe(
+                season_stats[['Partidos', 'Victorias', 'Derrotas']],
+                hide_index=True,
+                column_config={
+                    "Partidos": st.column_config.NumberColumn(width="small"),
+                    "Victorias": st.column_config.NumberColumn(width="small"),
+                    "Derrotas": st.column_config.NumberColumn(width="small"),
+                }
+            )   
+        with col2:
+            st.write("Local/Visitante")
+            st.dataframe(
+                season_stats[['Local', 'Visitante', 'Vic. Local', 'Vic. Visitante', 'Der. Local', 'Der. Visitante']],
+                hide_index=True,
+                column_config={
+                    "Local": st.column_config.NumberColumn(width="small"),
+                    "Visitante": st.column_config.NumberColumn(width="small"),
+                    "Vic. Local": st.column_config.NumberColumn(width="small"),
+                    "Vic. Visitante": st.column_config.NumberColumn(width="small"),
+                    "Der. Local": st.column_config.NumberColumn(width="small"),
+                    "Der. Visitante": st.column_config.NumberColumn(width="small"),
+                }
+            )   
+        with col3:
+            st.write("Porcentajes")
+            st.dataframe(
+                season_stats[['Victorias %', 'Derrotas %', 'Vic. Local %', 'Vic. Visitante %']],
+                hide_index=True,
+                column_config={
+                    "Victorias %": st.column_config.NumberColumn(width="small"),
+                    "Derrotas %": st.column_config.NumberColumn(width="small"),
+                    "Vic. Local %": st.column_config.NumberColumn(width="small"),
+                    "Vic. Visitante %": st.column_config.NumberColumn(width="small"),
+                }
+            )
+        
+        # Calcular los acumulados de la temporada VBC usando los datos filtrados
+        season_stats_vbc = pd.DataFrame(season_games[['Puntos VBC', 'Rebotes VBC', 'Asistencias VBC', 'Robos VBC', 'Tapones VBC', 'Val VBC']].sum(), columns=['Acumulados'])
+        season_stats_vbc['Media'] = round(season_stats_vbc['Acumulados'] / len(season_games), 1)
+        
+        # Calcular los acumulados de la temporada Rival
+        season_stats_rival = pd.DataFrame(season_games[['Puntos Rival', 'Rebotes Rival', 'Asistencias Rival', 'Robos Rival', 'Tapones Rival', 'Val Rival']].sum(), columns=['Acumulados'])
+        season_stats_rival['Media'] = round(season_stats_rival['Acumulados'] / len(season_games), 1)
+        
+        # Datos de tiros VBC
+        season_shots_vbc = pd.DataFrame(season_games[['T1a VBC', 'T1i VBC', 'T2a VBC', 'T2i VBC', 'T3a VBC', 'T3i VBC']].sum(), columns=['Acumulados'])
+        season_shots_vbc['Media'] = round(season_shots_vbc['Acumulados'] / len(season_games), 1)
+        season_shots_vbc['%'] = round(season_shots_vbc['Acumulados']*100 / season_shots_vbc['Acumulados'].shift(-1), 1)
+        
+        # Datos de tiros Rival
+        season_shots_rival = pd.DataFrame(season_games[['T1a Rival', 'T1i Rival', 'T2a Rival', 'T2i Rival', 'T3a Rival', 'T3i Rival']].sum(), columns=['Acumulados'])
+        season_shots_rival['Media'] = round(season_shots_rival['Acumulados'] / len(season_games), 1)
+        season_shots_rival['%'] = round(season_shots_rival['Acumulados']*100 / season_shots_rival['Acumulados'].shift(-1), 1)
+        
+        # Crear 4 columnas para mostrar los datos
+        col1, col2, col3, col4, col5 = st.columns(5)
+        
+        with col1:
+            st.write("VBC Estadísticas")
+            st.dataframe(
+                season_stats_vbc,
+                column_config={
+                    "Acumulados": st.column_config.NumberColumn(width="small"),
+                    "Media":      st.column_config.NumberColumn(width="small"),
+                }
+            )
+        with col2:
+            st.write("Rival Estadísticas")
+            st.dataframe(
+                season_stats_rival,
+                column_config={
+                    "Acumulados": st.column_config.NumberColumn(width="small"),
+                    "Media":      st.column_config.NumberColumn(width="small"),
+                }
+            )
+        with col3:
+            st.write("VBC Tiros")
+            st.dataframe(
+                season_shots_vbc.iloc[::2],
+                column_config={
+                    "Acumulados": st.column_config.NumberColumn(width="small"),
+                    "Media":      st.column_config.NumberColumn(width="small"),
+                    "%":          st.column_config.NumberColumn(width="small"),
+                }
+            )
+        with col4:
+            st.write("Rival Tiros")
+            st.dataframe(
+                season_shots_rival.iloc[::2],
+                column_config={
+                    "Acumulados": st.column_config.NumberColumn(width="small"),
+                    "Media":      st.column_config.NumberColumn(width="small"),
+                    "%":          st.column_config.NumberColumn(width="small"),
+                }
+            )
+
+elif marco == "Líderes de una temporada":
+    
+    #Seleccionar una temporada, ordenar las temporadas de mayor a menor
+    season = st.selectbox("Selecciona una temporada", df_games_ACB['ID Temporada'].sort_values(ascending=False).unique())
+    
+    #Crear un marco para mostrar los líderes de la temporada, lo mismo que en el marco de líderes históricos pero solo para la temporada actual
+    st.subheader("Líderes de una temporada")
+    lh = 5
+    # Calcular los "lh" jugadores con el mayor número de partidos jugados, puntos, rebotes, asistencias, robos, tapones y valoración
+    # Mostrar los resultados en una tabla
+    season_games = df_players_ACB[df_players_ACB['ID Temporada'] == season]
+    max_games = season_games.groupby('Nombre')['ID Partido'].count()
+    max_points = pd.DataFrame(season_games.groupby('Nombre')['Puntos'].sum())
+    # Calcular la media por partido, teniendo en cuenta los partidos que ha jugado cada jugador
+    max_points['Media'] = round(max_points['Puntos']/max_games,1)        
+    max_points = max_points.sort_values(by='Puntos',ascending=False).head(lh)
+    
+    max_rebounds = pd.DataFrame(season_games.groupby('Nombre')['Rebotes'].sum())
+    # Calcular la media por partido, teniendo en cuenta los partidos que ha jugado cada jugador
+    max_rebounds['Media'] = round(max_rebounds['Rebotes']/max_games,1)
+    max_rebounds = max_rebounds.sort_values(by='Rebotes',ascending=False).head(lh)
+    
+    max_assists = pd.DataFrame(season_games.groupby('Nombre')['Asistencias'].sum())
+    # Calcular la media por partido, teniendo en cuenta los partidos que ha jugado cada jugador
+    max_assists['Media'] = round(max_assists['Asistencias']/max_games,1)
+    max_assists = max_assists.sort_values(by='Asistencias',ascending=False).head(lh)
+    
+    max_steals = pd.DataFrame(season_games.groupby('Nombre')['Robos'].sum())
+    # Calcular la media por partido, teniendo en cuenta los partidos que ha jugado cada jugador
+    max_steals['Media'] = round(max_steals['Robos']/max_games,1)
+    max_steals = max_steals.sort_values(by='Robos',ascending=False).head(lh)
+    
+    max_blocks = pd.DataFrame(season_games.groupby('Nombre')['Tapones'].sum())
+    # Calcular la media por partido, teniendo en cuenta los partidos que ha jugado cada jugador
+    max_blocks['Media'] = round(max_blocks['Tapones']/max_games,1)
+    max_blocks = max_blocks.sort_values(by='Tapones',ascending=False).head(lh)
+    
+    max_val = pd.DataFrame(season_games.groupby('Nombre')['Val'].sum())
+    # Calcular la media por partido, teniendo en cuenta los partidos que ha jugado cada jugador
+    max_val['Media'] = round(max_val['Val']/max_games,1)
+    max_val = max_val.sort_values(by='Val',ascending=False).head(lh)
+    
+    #Ordenar partidos jugados
+    max_games = max_games.sort_values(ascending=False).head(lh)
+    #Cambiar nombre de la columna
+    max_games = max_games.rename("Partidos")        
+    # Calcular el mayor número de tiros de 1,2 y 3 puntos anotados y el mayor porcentaje de tiros de 1,2 y 3 puntos anotados
+    # Mostrar los resultados en una tabla
+    # Crea una tabla con el acumulado de tiros de 1,2 y 3 puntos anotados, intentados y el porcentaje de acierto de cada jugador
+    shots = season_games.groupby('Nombre')[['T1a', 'T1i', 'T2a', 'T2i', 'T3a', 'T3i']].sum()
+    # Calula el porcentaje de acierto de cada jugador con 1 decimal
+    shots['T1%'] = round(shots['T1a'] / shots['T1i'] * 100,1)
+    shots['T2%'] = round(shots['T2a'] / shots['T2i'] * 100,1)
+    shots['T3%'] = round(shots['T3a'] / shots['T3i'] * 100,1)
+    max_t1a = shots['T1a'].sort_values(ascending=False).head(lh)
+    #Cambiar nombre de la columna
+    max_t1a = max_t1a.rename("T.Libres")
+    max_t2a = shots['T2a'].sort_values(ascending=False).head(lh)
+    #Cambiar nombre de la columna
+    max_t2a = max_t2a.rename("T2")
+    max_t3a = shots['T3a'].sort_values(ascending=False).head(lh)
+    #Cambiar nombre de la columna
+    max_t3a = max_t3a.rename("T3")
+    max_t1p = (shots['T1%']).sort_values(ascending=False).head(lh)
+    #Cambiar nombre de la columna
+    max_t1p = max_t1p.rename("T1%")
+    max_t2p = (shots['T2%']).sort_values(ascending=False).head(lh)
+    #Cambiar nombre de la columna
+    max_t2p = max_t2p.rename("T2%")
+    max_t3p = (shots['T3%']).sort_values(ascending=False).head(lh)
+    #Cambiar nombre de la columna
+    max_t3p = max_t3p.rename("T3%")
+    
+    # Muestra los resultados en tablas y en columnas de streamlit separadas
+    mg, mp, mr, ma = st.columns(4)
+    mg.dataframe(max_games)
+    mp.dataframe(max_points)
+    mr.dataframe(max_rebounds)
+    ma.dataframe(max_assists)
+    
+    ms, mb, mv, vc = st.columns(4)
+    ms.dataframe(max_steals)
+    mb.dataframe(max_blocks)
+    mv.dataframe(max_val)
+    
+    # Muestra los resultados en tablas y en columnas de streamlit separadas
+    mt1a, mt1p, mt2a, mt2p, mt3a, mt3p = st.columns(6)
+    mt1a.dataframe(max_t1a, width=180, column_config={"T.Libres": st.column_config.TextColumn(width="small")})
+    mt1p.dataframe(max_t1p, width=180, column_config={"T1%": st.column_config.TextColumn(width="small")})
+    mt2a.dataframe(max_t2a, width=180, column_config={"T2": st.column_config.TextColumn(width="small")})
+    mt2p.dataframe(max_t2p, width=180, column_config={"T2%": st.column_config.TextColumn(width="small")})
+    mt3a.dataframe(max_t3a, width=180, column_config={"T3": st.column_config.TextColumn(width="small")})
+    mt3p.dataframe(max_t3p, width=180, column_config={"T3%": st.column_config.TextColumn(width="small")})
+    
+elif marco == "Estadísticas de una temporada":
+    
+    #Seleccionar una temporada, ordenar las temporadas de mayor a menor
+    season = st.selectbox("Selecciona una temporada", df_games_ACB['ID Temporada'].sort_values(ascending=False).unique())
+    
+    #Crear un marco para mostrar los acumulados de la temporada
+    st.subheader("Acumulados de una temporada")
+        
+    # Añadir filtros
+    st.write("Filtros")
+    col1, col2, col3 = st.columns(3)
+    
+    with col1:
+        # Radio button para filtrar por victorias/derrotas
+        resultado_filtro = st.radio("Resultado", ["Todos", "Victorias", "Derrotas"], horizontal=True)
+    
+    # Obtener el rango de jornadas de la temporada
+    jornadas_temporada = df_games_ACB[df_games_ACB['ID Temporada'] == season]['Jornada'].unique()
+    min_jornada = min(jornadas_temporada)
+    max_jornada = max(jornadas_temporada)
+    
+    with col2:
+        # Spinner para seleccionar jornada inicial
+        jornada_inicio = st.number_input("Jornada inicial", min_value=min_jornada, max_value=max_jornada, value=min_jornada)
+    
+    with col3:
+        # Spinner para seleccionar jornada final, debe ser mayor o igual que jornada_inicio
+        jornada_fin = st.number_input("Jornada final", min_value=jornada_inicio, max_value=max_jornada, value=max_jornada)
+    
+    # Filtrar partidos por temporada
+    season_games = df_games_ACB[df_games_ACB['ID Temporada'] == season]
+    
+    # Filtrar por jornadas
+    season_games = season_games[(season_games['Jornada'] >= jornada_inicio) & 
+                                (season_games['Jornada'] <= jornada_fin)]
+    
+    # Filtrar por resultado (victorias/derrotas)
+    if resultado_filtro == "Victorias":
+        season_games = season_games[season_games['VBC Victoria'] == 1]
+    elif resultado_filtro == "Derrotas":
+        season_games = season_games[season_games['VBC Victoria'] == 0]
+    
+    # Mostrar información sobre los filtros aplicados
+    filtros_aplicados = []
+    if resultado_filtro != "Todos":
+        filtros_aplicados.append(f"Resultado: {resultado_filtro}")
+    if jornada_inicio > min_jornada or jornada_fin < max_jornada:
+        filtros_aplicados.append(f"Jornadas: {jornada_inicio} a {jornada_fin}")
+    
+    if filtros_aplicados:
+        st.write(f"**Filtros aplicados:** {', '.join(filtros_aplicados)}")
+    
+    # Si no quedan partidos después del filtrado, mostrar mensaje y salir
+    if len(season_games) == 0:
+        st.warning("No hay datos disponibles para los filtros seleccionados.")
+    else:
+        # Calcular total partidos jugados, victorias y derrotas, total como local y como visitante y % de cada uno
+        # usando los datos filtrados
+        total_games = len(season_games)
+        total_wins = season_games['VBC Victoria'].sum()
+        total_losses = total_games - total_wins
+        total_home = season_games['VBC Local'].sum()
+        total_away = total_games - total_home
+        total_home_wins = season_games[season_games['VBC Local'] == 1]['VBC Victoria'].sum()
+        total_away_wins = season_games[season_games['VBC Local'] == 0]['VBC Victoria'].sum()
+        total_home_losses = total_home - total_home_wins
+        total_away_losses = total_away - total_away_wins
+        total_home_wins_percentage = round(total_home_wins * 100 / total_home, 1) if total_home > 0 else 0
+        total_away_wins_percentage = round(total_away_wins * 100 / total_away, 1) if total_away > 0 else 0
+        total_wins_percentage = round(total_wins * 100 / total_games, 1) if total_games > 0 else 0
+        total_losses_percentage = round(total_losses * 100 / total_games, 1) if total_games > 0 else 0
+        
+        # Crear un dataframe con los datos
+        season_stats = pd.DataFrame({
+            'Partidos': [total_games],
+            'Victorias': [total_wins],
+            'Derrotas': [total_losses],
+            'Local': [total_home],
+            'Visitante': [total_away],
+            'Vic. Local': [total_home_wins],
+            'Vic. Visitante': [total_away_wins],
+            'Der. Local': [total_home_losses],
+            'Der. Visitante': [total_away_losses],
+            'Victorias %': [total_wins_percentage],
+            'Derrotas %': [total_losses_percentage],
+            'Vic. Local %': [total_home_wins_percentage],
+            'Vic. Visitante %': [total_away_wins_percentage],
+        })
+        
+        # Crear 3 columnas para mostrar los datos
+        col1, col2, col3 = st.columns(3)
+        with col1:
+            st.write("Partidos")
+            st.dataframe(
+                season_stats[['Partidos', 'Victorias', 'Derrotas']],
+                hide_index=True,
+                column_config={
+                    "Partidos": st.column_config.NumberColumn(width="small"),
+                    "Victorias": st.column_config.NumberColumn(width="small"),
+                    "Derrotas": st.column_config.NumberColumn(width="small"),
+                }
+            )   
+        with col2:
+            st.write("Local/Visitante")
+            st.dataframe(
+                season_stats[['Local', 'Visitante', 'Vic. Local', 'Vic. Visitante', 'Der. Local', 'Der. Visitante']],
+                hide_index=True,
+                column_config={
+                    "Local": st.column_config.NumberColumn(width="small"),
+                    "Visitante": st.column_config.NumberColumn(width="small"),
+                    "Vic. Local": st.column_config.NumberColumn(width="small"),
+                    "Vic. Visitante": st.column_config.NumberColumn(width="small"),
+                    "Der. Local": st.column_config.NumberColumn(width="small"),
+                    "Der. Visitante": st.column_config.NumberColumn(width="small"),
+                }
+            )   
+        with col3:
+            st.write("Porcentajes")
+            st.dataframe(
+                season_stats[['Victorias %', 'Derrotas %', 'Vic. Local %', 'Vic. Visitante %']],
+                hide_index=True,
+                column_config={
+                    "Victorias %": st.column_config.NumberColumn(width="small"),
+                    "Derrotas %": st.column_config.NumberColumn(width="small"),
+                    "Vic. Local %": st.column_config.NumberColumn(width="small"),
+                    "Vic. Visitante %": st.column_config.NumberColumn(width="small"),
+                }
+            )
+        
+        # Calcular los acumulados de la temporada VBC usando los datos filtrados
+        season_stats_vbc = pd.DataFrame(season_games[['Puntos VBC', 'Rebotes VBC', 'Asistencias VBC', 'Robos VBC', 'Tapones VBC', 'Val VBC']].sum(), columns=['Acumulados'])
+        season_stats_vbc['Media'] = round(season_stats_vbc['Acumulados'] / len(season_games), 1)
+        
+        # Calcular los acumulados de la temporada Rival
+        season_stats_rival = pd.DataFrame(season_games[['Puntos Rival', 'Rebotes Rival', 'Asistencias Rival', 'Robos Rival', 'Tapones Rival', 'Val Rival']].sum(), columns=['Acumulados'])
+        season_stats_rival['Media'] = round(season_stats_rival['Acumulados'] / len(season_games), 1)
+        
+        # Datos de tiros VBC
+        season_shots_vbc = pd.DataFrame(season_games[['T1a VBC', 'T1i VBC', 'T2a VBC', 'T2i VBC', 'T3a VBC', 'T3i VBC']].sum(), columns=['Acumulados'])
+        season_shots_vbc['Media'] = round(season_shots_vbc['Acumulados'] / len(season_games), 1)
+        season_shots_vbc['%'] = round(season_shots_vbc['Acumulados']*100 / season_shots_vbc['Acumulados'].shift(-1), 1)
+        
+        # Datos de tiros Rival
+        season_shots_rival = pd.DataFrame(season_games[['T1a Rival', 'T1i Rival', 'T2a Rival', 'T2i Rival', 'T3a Rival', 'T3i Rival']].sum(), columns=['Acumulados'])
+        season_shots_rival['Media'] = round(season_shots_rival['Acumulados'] / len(season_games), 1)
+        season_shots_rival['%'] = round(season_shots_rival['Acumulados']*100 / season_shots_rival['Acumulados'].shift(-1), 1)
+        
+        # Crear 4 columnas para mostrar los datos
+        col1, col2, col3, col4, col5 = st.columns(5)
+        
+        with col1:
+            st.write("VBC Estadísticas")
+            st.dataframe(
+                season_stats_vbc,
+                column_config={
+                    "Acumulados": st.column_config.NumberColumn(width="small"),
+                    "Media":      st.column_config.NumberColumn(width="small"),
+                }
+            )
+        with col2:
+            st.write("Rival Estadísticas")
+            st.dataframe(
+                season_stats_rival,
+                column_config={
+                    "Acumulados": st.column_config.NumberColumn(width="small"),
+                    "Media":      st.column_config.NumberColumn(width="small"),
+                }
+            )
+        with col3:
+            st.write("VBC Tiros")
+            st.dataframe(
+                season_shots_vbc.iloc[::2],
+                column_config={
+                    "Acumulados": st.column_config.NumberColumn(width="small"),
+                    "Media":      st.column_config.NumberColumn(width="small"),
+                    "%":          st.column_config.NumberColumn(width="small"),
+                }
+            )
+        with col4:
+            st.write("Rival Tiros")
+            st.dataframe(
+                season_shots_rival.iloc[::2],
+                column_config={
+                    "Acumulados": st.column_config.NumberColumn(width="small"),
+                    "Media":      st.column_config.NumberColumn(width="small"),
+                    "%":          st.column_config.NumberColumn(width="small"),
+                }
+            )
+
 elif marco == "Récords equipo":
+    # Crear dataframe con los partidos de la ACB, cambia formato fecha a dd/mm/yyyy y de partido seleccionar dos últimos elementos separados por -
+    df_games_records = df_games_ACB.copy()
+    df_games_records['Fecha'] = pd.to_datetime(df_games_records['Fecha']).dt.strftime('%d/%m/%Y')
+    df_games_records['Partido'] = df_games_records['Partido'].apply(lambda x: '-'.join(x.split('-')[-2:]))
     lh = 10
     #Crear un marco para mostrar los récords del equipo
     st.subheader("Récords del equipo")
     #Crear una tabla con los 10 mejores récords del equipo en puntos, puntos en una parte, puntos en un cuarto, rebotes, asistencias, robos, tapones, valoración, tiros de 1,2 y 3 puntos anotados y porcentaje de acierto en un partido
     #Puntos partido
-    max10_points = df_games_ACB.sort_values(by='Puntos VBC',ascending=False).head(lh)
+    max10_points = df_games_records.sort_values(by='Puntos VBC',ascending=False).head(lh)
     #Seleccionar las columnas a mostrar
     columns_to_show = ['ID Temporada', 'Jornada', 'Fecha', 'Partido', 'Puntos VBC', 'Puntos Rival', 'Entrenador VBC', 'Enlace']
     st.write("Récords en puntos")
-    st.dataframe(max10_points[columns_to_show], hide_index=True)
+    st.dataframe(max10_points[columns_to_show], hide_index=True, column_config={"Enlace": st.column_config.LinkColumn()})
     
     # Diferencia de puntos
-    max10_diff = df_games_ACB.sort_values(by='Diferencia',ascending=False).head(lh)
+    max10_diff = df_games_records.sort_values(by='Diferencia',ascending=False).head(lh)
     #Seleccionar las columnas a mostrar
     columns_to_show = ['ID Temporada', 'Jornada', 'Fecha', 'Partido', 'Diferencia', 'Entrenador VBC', 'Enlace']
     st.write("Récords en diferencia de puntos")
-    st.dataframe(max10_diff[columns_to_show], hide_index=True)
+    st.dataframe(max10_diff[columns_to_show], hide_index=True, column_config={"Enlace": st.column_config.LinkColumn()})
 
     # Puntos en una parte, máximo en P1VBC o P2VBC
-    max10_p1 = df_games_ACB.sort_values(by='P1VBC',ascending=False).head(lh)
-    max10_p2 = df_games_ACB.sort_values(by='P2VBC',ascending=False).head(lh)
+    max10_p1 = df_games_records.sort_values(by='P1VBC',ascending=False).head(lh)
+    max10_p2 = df_games_records.sort_values(by='P2VBC',ascending=False).head(lh)
     # Seleccionar las 10 mejores de ambas e indicar si es la primera o la segunda parte
     max10_p1['Parte'] = "Primera"
     max10_p2['Parte'] = "Segunda"
@@ -700,14 +2025,14 @@ elif marco == "Récords equipo":
     # Seleccionar las columnas a mostrar
     columns_to_show = ['ID Temporada', 'Jornada', 'Fecha', 'Partido', 'Puntos', 'Entrenador VBC', 'Parte', 'Enlace']
     st.write("Récords de puntos en una parte")
-    st.dataframe(max10_parts[columns_to_show], hide_index=True)
+    st.dataframe(max10_parts[columns_to_show], hide_index=True, column_config={"Enlace": st.column_config.LinkColumn()})
     
     # Puntos en un cuarto, máximo en Q1VBC, Q2VBC, Q3VBC o Q4VBC
     # Seleccionar los 10 partidos con más puntos en un cuarto
-    max10_q1 = df_games_ACB.sort_values(by='Q1VBC',ascending=False).head(lh)
-    max10_q2 = df_games_ACB.sort_values(by='Q2VBC',ascending=False).head(lh)
-    max10_q3 = df_games_ACB.sort_values(by='Q3VBC',ascending=False).head(lh)
-    max10_q4 = df_games_ACB.sort_values(by='Q4VBC',ascending=False).head(lh)
+    max10_q1 = df_games_records.sort_values(by='Q1VBC',ascending=False).head(lh)
+    max10_q2 = df_games_records.sort_values(by='Q2VBC',ascending=False).head(lh)
+    max10_q3 = df_games_records.sort_values(by='Q3VBC',ascending=False).head(lh)
+    max10_q4 = df_games_records.sort_values(by='Q4VBC',ascending=False).head(lh)
     # Seleccionar las 10 mejores de cada cuarto
     max10_q1['Cuarto'] = "Q1"
     max10_q2['Cuarto'] = "Q2"
@@ -722,99 +2047,99 @@ elif marco == "Récords equipo":
     # Seleccionar las columnas a mostrar
     columns_to_show = ['ID Temporada', 'Jornada', 'Fecha', 'Partido', 'Puntos', 'Entrenador VBC', 'Cuarto', 'Enlace']
     st.write("Récords de puntos en un cuarto")
-    st.dataframe(max10_quarters[columns_to_show], hide_index=True)
+    st.dataframe(max10_quarters[columns_to_show], hide_index=True, column_config={"Enlace": st.column_config.LinkColumn()})
         
     # Rebotes
-    max10_rebounds = df_games_ACB.sort_values(by='Rebotes VBC',ascending=False).head(lh)
+    max10_rebounds = df_games_records.sort_values(by='Rebotes VBC',ascending=False).head(lh)
     #Seleccionar las columnas a mostrar
     columns_to_show = ['ID Temporada', 'Jornada', 'Fecha', 'Partido', 'Rebotes VBC', 'Rebotes Rival', 'Entrenador VBC', 'Enlace']
     st.write("Récords en rebotes")
-    st.dataframe(max10_rebounds[columns_to_show], hide_index=True)
+    st.dataframe(max10_rebounds[columns_to_show], hide_index=True, column_config={"Enlace": st.column_config.LinkColumn()})
     
     # Asistencias 
-    max10_assists = df_games_ACB.sort_values(by='Asistencias VBC',ascending=False).head(lh)
+    max10_assists = df_games_records.sort_values(by='Asistencias VBC',ascending=False).head(lh)
     #Seleccionar las columnas a mostrar
     columns_to_show = ['ID Temporada', 'Jornada', 'Fecha', 'Partido', 'Asistencias VBC', 'Asistencias Rival', 'Entrenador VBC', 'Enlace']
     st.write("Récords en asistencias")
-    st.dataframe(max10_assists[columns_to_show], hide_index=True)
+    st.dataframe(max10_assists[columns_to_show], hide_index=True, column_config={"Enlace": st.column_config.LinkColumn()})
 
     # Robos
-    max10_steals = df_games_ACB.sort_values(by='Robos VBC',ascending=False).head(lh)
+    max10_steals = df_games_records.sort_values(by='Robos VBC',ascending=False).head(lh)
     #Seleccionar las columnas a mostrar
     columns_to_show = ['ID Temporada', 'Jornada', 'Fecha', 'Partido', 'Robos VBC', 'Robos Rival', 'Entrenador VBC', 'Enlace']
     st.write("Récords en robos")
-    st.dataframe(max10_steals[columns_to_show], hide_index=True)
+    st.dataframe(max10_steals[columns_to_show], hide_index=True, column_config={"Enlace": st.column_config.LinkColumn()})
 
     # Tapones
-    max10_blocks = df_games_ACB.sort_values(by='Tapones VBC',ascending=False).head(lh)
+    max10_blocks = df_games_records.sort_values(by='Tapones VBC',ascending=False).head(lh)
     #Seleccionar las columnas a mostrar
     columns_to_show = ['ID Temporada', 'Jornada', 'Fecha', 'Partido', 'Tapones VBC', 'Tapones Rival', 'Entrenador VBC', 'Enlace']
     st.write("Récords en tapones")
-    st.dataframe(max10_blocks[columns_to_show], hide_index=True)
+    st.dataframe(max10_blocks[columns_to_show], hide_index=True, column_config={"Enlace": st.column_config.LinkColumn()})
 
     # Valoración
-    max10_val = df_games_ACB.sort_values(by='Val VBC',ascending=False).head(lh)
+    max10_val = df_games_records.sort_values(by='Val VBC',ascending=False).head(lh)
     #Seleccionar las columnas a mostrar
     columns_to_show = ['ID Temporada', 'Jornada', 'Fecha', 'Partido', 'Val VBC', 'Val Rival', 'Entrenador VBC', 'Enlace']
     st.write("Récords en valoración")
-    st.dataframe(max10_val[columns_to_show], hide_index=True)
+    st.dataframe(max10_val[columns_to_show], hide_index=True, column_config={"Enlace": st.column_config.LinkColumn()})
 
     # Tiros de 1,2 y 3 puntos anotados
     # Tiros de 1 punto
-    max10_t1a = df_games_ACB.sort_values(by='T1a VBC',ascending=False).head(lh)
+    max10_t1a = df_games_records.sort_values(by='T1a VBC',ascending=False).head(lh)
     # Multiplicar por 100 para mostrar el porcentaje
     max10_t1a['T1% VBC'] = max10_t1a['T1% VBC']*100
     #Seleccionar las columnas a mostrar
     columns_to_show = ['ID Temporada', 'Jornada', 'Fecha', 'Partido', 'T1a VBC', 'T1% VBC', 'Entrenador VBC', 'Enlace']
     st.write("Récords en tiros libres")
-    st.dataframe(max10_t1a[columns_to_show], hide_index=True)
+    st.dataframe(max10_t1a[columns_to_show], hide_index=True, column_config={"Enlace": st.column_config.LinkColumn()})
 
     # Tiros de 2 puntos
-    max10_t2a = df_games_ACB.sort_values(by='T2a VBC',ascending=False).head(lh)
+    max10_t2a = df_games_records.sort_values(by='T2a VBC',ascending=False).head(lh)
     # Multiplicar por 100 para mostrar el porcentaje
     max10_t2a['T2% VBC'] = max10_t2a['T2% VBC']*100
     #Seleccionar las columnas a mostrar
     columns_to_show = ['ID Temporada', 'Jornada', 'Fecha', 'Partido', 'T2a VBC', 'T2% VBC', 'Entrenador VBC', 'Enlace']
     st.write("Récords en tiros de 2 puntos")
-    st.dataframe(max10_t2a[columns_to_show], hide_index=True)
+    st.dataframe(max10_t2a[columns_to_show], hide_index=True, column_config={"Enlace": st.column_config.LinkColumn()})
 
     # Tiros de 3 puntos
-    max10_t3a = df_games_ACB.sort_values(by='T3a VBC',ascending=False).head(lh)
+    max10_t3a = df_games_records.sort_values(by='T3a VBC',ascending=False).head(lh)
     # Multiplicar por 100 para mostrar el porcentaje
     max10_t3a['T3% VBC'] = max10_t3a['T3% VBC']*100
     #Seleccionar las columnas a mostrar
     columns_to_show = ['ID Temporada', 'Jornada', 'Fecha', 'Partido', 'T3a VBC', 'T3% VBC', 'Entrenador VBC', 'Enlace']
     st.write("Récords en tiros de 3 puntos")
-    st.dataframe(max10_t3a[columns_to_show], hide_index=True)
+    st.dataframe(max10_t3a[columns_to_show], hide_index=True, column_config={"Enlace": st.column_config.LinkColumn()})
 
     # Porcentaje de acierto
     # Tiros de 1 punto
-    max10_t1p = df_games_ACB.sort_values(by=['T1% VBC','T1a VBC'],ascending=False).head(lh)
+    max10_t1p = df_games_records.sort_values(by=['T1% VBC','T1a VBC'],ascending=False).head(lh)
     # Multiplicar por 100 para mostrar el porcentaje
     max10_t1p['T1% VBC'] = max10_t1p['T1% VBC']*100
     #Seleccionar las columnas a mostrar
     columns_to_show = ['ID Temporada', 'Jornada', 'Fecha', 'Partido', 'T1% VBC', 'T1a VBC', 'Entrenador VBC', 'Enlace']
     st.write("Récords en porcentaje de tiros libres")
-    st.dataframe(max10_t1p[columns_to_show], hide_index=True)
+    st.dataframe(max10_t1p[columns_to_show], hide_index=True, column_config={"Enlace": st.column_config.LinkColumn()})
 
     # Tiros de 2 puntos
-    max10_t2p = df_games_ACB.sort_values(by=['T2% VBC','T2a VBC'],ascending=False).head(lh)
+    max10_t2p = df_games_records.sort_values(by=['T2% VBC','T2a VBC'],ascending=False).head(lh)
     # Multiplicar por 100 para mostrar el porcentaje
     max10_t2p['T2% VBC'] = max10_t2p['T2% VBC']*100
     #Seleccionar las columnas a mostrar
     columns_to_show = ['ID Temporada', 'Jornada', 'Fecha', 'Partido', 'T2% VBC', 'T2a VBC', 'Entrenador VBC', 'Enlace']
     st.write("Récords en porcentaje de tiros de 2 puntos")
-    st.dataframe(max10_t2p[columns_to_show], hide_index=True)
+    st.dataframe(max10_t2p[columns_to_show], hide_index=True, column_config={"Enlace": st.column_config.LinkColumn()})
 
     # Tiros de 3 puntos
-    max10_t3p = df_games_ACB.sort_values(by=['T3% VBC','T3a VBC'],ascending=False).head(lh)
+    max10_t3p = df_games_records.sort_values(by=['T3% VBC','T3a VBC'],ascending=False).head(lh)
     # Multiplicar por 100 para mostrar el porcentaje
     max10_t3p['T3% VBC'] = max10_t3p['T3% VBC']*100
     #Seleccionar las columnas a mostrar
     columns_to_show = ['ID Temporada', 'Jornada', 'Fecha', 'Partido', 'T3% VBC', 'T3a VBC', 'Entrenador VBC', 'Enlace']
     st.write("Récords en porcentaje de tiros de 3 puntos")
-    st.dataframe(max10_t3p[columns_to_show], hide_index=True)
-
+    st.dataframe(max10_t3p[columns_to_show], hide_index=True, column_config={"Enlace": st.column_config.LinkColumn()})
+    
 elif marco == "Estadísticas jugadores de una temporada":
     
     #Seleccionar una temporada, ordenar las temporadas de mayor a menor
@@ -959,481 +2284,3 @@ elif marco == "Estadísticas jugadores de una temporada":
         # Si después de procesar a todos los jugadores no hay estadísticas, mostrar mensaje
         if len(todos_jugadores_stats) == 0:
             st.warning("No hay datos disponibles para los filtros seleccionados.")
-        else:
-            # Crear dataframe con las estadísticas de todos los jugadores
-            df_todos_jugadores = pd.DataFrame(todos_jugadores_stats)
-            
-            # Mostrar información sobre los filtros aplicados
-            filtros_aplicados = []
-            if resultado_filtro != "Todos":
-                filtros_aplicados.append(f"Resultado: {resultado_filtro}")
-            if jornada_inicio > min_jornada or jornada_fin < max_jornada:
-                filtros_aplicados.append(f"Jornadas: {jornada_inicio} a {jornada_fin}")
-            
-            if filtros_aplicados:
-                st.write(f"**Filtros aplicados:** {', '.join(filtros_aplicados)}")
-            
-            # Mostrar la tabla con todas las estadísticas directamente (sin dividir en columnas)
-            st.dataframe(
-                df_todos_jugadores,
-                hide_index=True,
-                column_config={
-                    "Nombre": st.column_config.TextColumn(width="medium"),
-                    "Partidos": st.column_config.NumberColumn(width="small"),
-                    "% Victorias": st.column_config.NumberColumn(format="%.1f%%", width="small"),
-                    "Puntos": st.column_config.NumberColumn(width="small"),
-                    "Rebotes": st.column_config.NumberColumn(width="small"),
-                    "Asistencias": st.column_config.NumberColumn(width="small"),
-                    "Robos": st.column_config.NumberColumn(width="small"),
-                    "Tapones": st.column_config.NumberColumn(width="small"),
-                    "Valoración": st.column_config.NumberColumn(width="small"),
-                    "T. Libres": st.column_config.NumberColumn(width="small"),
-                    "T1%": st.column_config.NumberColumn(format="%.1f%%", width="small"),
-                    "T2 puntos": st.column_config.NumberColumn(width="small"),
-                    "T2%": st.column_config.NumberColumn(format="%.1f%%", width="small"),
-                    "T3 puntos": st.column_config.NumberColumn(width="small"),
-                    "T3%": st.column_config.NumberColumn(format="%.1f%%", width="small")
-                }
-            )
-elif marco == "Estadísticas contra un rival":
-    
-    st.subheader("Estadísticas contra un rival")
-    # Selecciona equipos de la temporada actual
-    season = df_games_ACB['ID Temporada'].max()
-    # Filtra los equipos de la temporada actual
-    equipos = df_games_ACB[df_games_ACB['ID Temporada'] == season]['Equipo Rival'].unique()  
-    # Selecciona el rival
-    rival = st.selectbox("Selecciona un rival", equipos)
-    # Filtra los partidos contra el rival seleccionado, utiliza el id del equipo
-    id_rival = df_games_ACB[df_games_ACB['Equipo Rival'] == rival]['ID Rival'].unique()[0]
-    # Selecciona todos los partidos contra el rival    
-    partidos_rival = df_games_ACB[df_games_ACB['ID Rival'] == id_rival]
-    # Calcula estadísticas medias por partido, separando por VBC y Rival y local y visitante
-    partidos_local = partidos_rival[partidos_rival['VBC Local'] == 1]
-    partidos_visitante = partidos_rival[partidos_rival['VBC Local'] == 0]
-    # Crear una tabla VBC local con número de partidos, victorias, derrotas y medias de puntos, rebotes, asistencias, robos, tapones y valoración
-    stats_local = pd.DataFrame({
-        'Partidos': [len(partidos_local)],
-        'Victorias': [len(partidos_local[partidos_local['VBC Victoria'] == 1])],
-        'Derrotas': [len(partidos_local[partidos_local['VBC Victoria'] == 0])],
-        'Puntos': [round(partidos_local['Puntos VBC'].mean(), 1)],
-        'Rebotes': [round(partidos_local['Rebotes VBC'].mean(), 1)],
-        'Asistencias': [round(partidos_local['Asistencias VBC'].mean(), 1)],
-        'Robos': [round(partidos_local['Robos VBC'].mean(), 1)],
-        'Tapones': [round(partidos_local['Tapones VBC'].mean(), 1)],
-        'Valoración': [round(partidos_local['Val VBC'].mean(), 1)],
-        'Puntos Rival': [round(partidos_local['Puntos Rival'].mean(), 1)],
-        'Rebotes Rival': [round(partidos_local['Rebotes Rival'].mean(), 1)],
-        'Asistencias Rival': [round(partidos_local['Asistencias Rival'].mean(), 1)],
-        'Robos Rival': [round(partidos_local['Robos Rival'].mean(), 1)],
-        'Tapones Rival': [round(partidos_local['Tapones Rival'].mean(), 1)],
-        'Valoración Rival': [round(partidos_local['Val Rival'].mean(), 1)],        
-    })
-    
-    # Crear una tabla VBC visitante con número de partidos, victorias, derrotas y medias de puntos, rebotes, asistencias, robos, tapones y valoración
-    stats_visitante = pd.DataFrame({
-        'Partidos': [len(partidos_visitante)],
-        'Victorias': [len(partidos_visitante[partidos_visitante['VBC Victoria'] == 1])],
-        'Derrotas': [len(partidos_visitante[partidos_visitante['VBC Victoria'] == 0])],
-        'Puntos': [round(partidos_visitante['Puntos VBC'].mean(), 1)],
-        'Rebotes': [round(partidos_visitante['Rebotes VBC'].mean(), 1)],
-        'Asistencias': [round(partidos_visitante['Asistencias VBC'].mean(), 1)],
-        'Robos': [round(partidos_visitante['Robos VBC'].mean(), 1)],
-        'Tapones': [round(partidos_visitante['Tapones VBC'].mean(), 1)],
-        'Valoración': [round(partidos_visitante['Val VBC'].mean(), 1)],
-        'Puntos Rival': [round(partidos_visitante['Puntos Rival'].mean(), 1)],
-        'Rebotes Rival': [round(partidos_visitante['Rebotes Rival'].mean(), 1)],
-        'Asistencias Rival': [round(partidos_visitante['Asistencias Rival'].mean(), 1)],
-        'Robos Rival': [round(partidos_visitante['Robos Rival'].mean(), 1)],
-        'Tapones Rival': [round(partidos_visitante['Tapones Rival'].mean(), 1)],
-        'Valoración Rival': [round(partidos_visitante['Val Rival'].mean(), 1)],        
-    })
-    
-    # Transponer las tablas para cambiar filas por columnas
-    stats_local = stats_local.T
-    stats_visitante = stats_visitante.T
-    
-    # Renombrar las columnas de las tablas transpuestas
-    stats_local.columns = ['Como Local']
-    stats_visitante.columns = ['Como Visitante']
-    
-    # Combinar las estadísticas de local y visitante
-    stats_total = pd.DataFrame({
-        'Partidos': [len(partidos_rival)],
-        'Victorias': [len(partidos_rival[partidos_rival['VBC Victoria'] == 1])],
-        'Derrotas': [len(partidos_rival[partidos_rival['VBC Victoria'] == 0])],
-        'Puntos': [round(partidos_rival['Puntos VBC'].mean(), 1)],
-        'Rebotes': [round(partidos_rival['Rebotes VBC'].mean(), 1)],
-        'Asistencias': [round(partidos_rival['Asistencias VBC'].mean(), 1)],
-        'Robos': [round(partidos_rival['Robos VBC'].mean(), 1)],
-        'Tapones': [round(partidos_rival['Tapones VBC'].mean(), 1)],
-        'Valoración': [round(partidos_rival['Val VBC'].mean(), 1)],
-        'Puntos Rival': [round(partidos_rival['Puntos Rival'].mean(), 1)],
-        'Rebotes Rival': [round(partidos_rival['Rebotes Rival'].mean(), 1)],
-        'Asistencias Rival': [round(partidos_rival['Asistencias Rival'].mean(), 1)],
-        'Robos Rival': [round(partidos_rival['Robos Rival'].mean(), 1)],
-        'Tapones Rival': [round(partidos_rival['Tapones Rival'].mean(), 1)],
-        'Valoración Rival': [round(partidos_rival['Val Rival'].mean(), 1)],
-    })
-    
-    # Transponer las estadísticas totales
-    stats_total = stats_total.T
-    
-    # Renombrar las columnas de las tablas transpuestas
-    stats_total.columns = ['Total']
-    
-    # Crear 3 columnas para mostrar las estadísticas
-    col1, col2, col3, col4 = st.columns(4)
-    
-    # Visualizar las estadísticas en las columnas
-    with col1:
-        st.write("Estadísticas VBC Local")
-        st.dataframe(stats_local, height=565, column_config={
-            stats_local.index.name: st.column_config.TextColumn(width="medium")
-        })
-    
-    with col2:
-        st.write("Estadísticas VBC Visitante")
-        st.dataframe(stats_visitante, height=565, column_config={
-            stats_visitante.index.name: st.column_config.TextColumn(width="medium")
-        })
-    
-    with col3:
-        st.write("Estadísticas Totales")
-        st.dataframe(stats_total, height=565, column_config={
-            stats_total.index.name: st.column_config.TextColumn(width="medium")
-        })
-
-elif marco == "Entrenadores":
-    # Crear un marco para mostrar los entrenadores
-    st.subheader("Entrenadores")
-    # Buscar todos los entrenadores de VBC por ID Entrenador VBC (el nombre es la columna Entrenador VBC)
-    # Calcula los que más partidos han dirigido, más victorias y más derrotas (local, visitante y total)
-    entrenadores = df_games_ACB.groupby(['ID Entrenador VBC', 'Entrenador VBC']).agg(
-        Partidos=('ID Partido', 'count'),
-        Victorias=('VBC Victoria', lambda x: (x == 1).sum()),
-        Derrotas=('VBC Victoria', lambda x: (x == 0).sum())
-    ).reset_index()
-    # Añadir porcentaje de victorias
-    entrenadores['%'] = round((entrenadores['Victorias'] / entrenadores['Partidos']) * 100, 1)
-    # Ordenar por número de partidos
-    entrenadores = entrenadores.sort_values(by='Partidos', ascending=False)
-    # Cambiar el nombre de las columnas y eliminar la columna ID Entrenador VBC
-    entrenadores = entrenadores.rename(columns={'Entrenador VBC': 'Entrenador'})
-    # Eliminar la columna ID Entrenador VBC para la visualización
-    entrenadores_display = entrenadores.drop(columns=['ID Entrenador VBC'])
-    
-    # Filtrar los partidos como local 
-    entrenadores_local = df_games_ACB[df_games_ACB['VBC Local'] == 1].groupby(['ID Entrenador VBC', 'Entrenador VBC']).agg(
-        Partidos=('ID Partido', 'count'),
-        Victorias=('VBC Victoria', lambda x: (x == 1).sum()),
-        Derrotas=('VBC Victoria', lambda x: (x == 0).sum())
-    ).reset_index()
-    # Añadir porcentaje de victorias
-    entrenadores_local['Porcentaje'] = round((entrenadores_local['Victorias'] / entrenadores_local['Partidos']) * 100, 1)
-    # Ordenar por número de partidos
-    entrenadores_local = entrenadores_local.sort_values(by='Partidos', ascending=False)
-    # Cambiar el nombre de las columnas
-    entrenadores_local = entrenadores_local.rename(columns={'Entrenador VBC': 'Entrenador'})
-    # Eliminar la columna ID Entrenador VBC para la visualización
-    entrenadores_local_display = entrenadores_local.drop(columns=['ID Entrenador VBC'])
-    
-    # Filtrar los partidos como visitante
-    entrenadores_visitante = df_games_ACB[df_games_ACB['VBC Local'] == 0].groupby(['ID Entrenador VBC', 'Entrenador VBC']).agg(
-        Partidos=('ID Partido', 'count'),
-        Victorias=('VBC Victoria', lambda x: (x == 1).sum()),
-        Derrotas=('VBC Victoria', lambda x: (x == 0).sum())
-    ).reset_index()
-    # Añadir porcentaje de victorias
-    entrenadores_visitante['Porcentaje'] = round((entrenadores_visitante['Victorias'] / entrenadores_visitante['Partidos']) * 100, 1)
-    # Ordenar por número de partidos
-    entrenadores_visitante = entrenadores_visitante.sort_values(by='Partidos', ascending=False)
-    # Cambiar el nombre de las columnas
-    entrenadores_visitante = entrenadores_visitante.rename(columns={'Entrenador VBC': 'Entrenador'})
-    # Eliminar la columna ID Entrenador VBC para la visualización
-    entrenadores_visitante_display = entrenadores_visitante.drop(columns=['ID Entrenador VBC'])
-    
-    # Crear 3 columnas para mostrar los resultados
-    col1, col2, col3 = st.columns(3)
-    
-    # Mostrar los resultados en las columnas
-    with col1:
-        st.write("Entrenadores (Total)")
-        st.dataframe(entrenadores_display, hide_index=True, column_config={
-            'Entrenador': st.column_config.TextColumn(width="medium"),
-            'Partidos': st.column_config.NumberColumn(width="small"),
-            'Victorias': st.column_config.NumberColumn(width="small"),
-            'Derrotas': st.column_config.NumberColumn(width="small"),
-            '%': st.column_config.NumberColumn(width="small", format="%.1f%% ")
-        })
-    
-    with col2:
-        st.write("Entrenadores como local")
-        st.dataframe(entrenadores_local_display, hide_index=True, column_config={
-            'Entrenador': st.column_config.TextColumn(width="medium"),
-            'Partidos': st.column_config.NumberColumn(width="small"),
-            'Victorias': st.column_config.NumberColumn(width="small"),
-            'Derrotas': st.column_config.NumberColumn(width="small"),
-            'Porcentaje': st.column_config.NumberColumn(width="small", format="%.1f%%")
-        })
-    
-    with col3:
-        st.write("Entrenadores como visitante")
-        st.dataframe(entrenadores_visitante_display, hide_index=True, column_config={
-            'Entrenador': st.column_config.TextColumn(width="medium"),
-            'Partidos': st.column_config.NumberColumn(width="small"),
-            'Victorias': st.column_config.NumberColumn(width="small"),
-            'Derrotas': st.column_config.NumberColumn(width="small"),
-            'Porcentaje': st.column_config.NumberColumn(width="small", format="%.1f%%")
-        })
-elif marco == "Comparativa temporada anterior":
-    # Seleccionar jugadores de la temporada actual
-    st.subheader("Comparativa temporada anterior")
-    # Filtrar los jugadores de la temporada actual
-    season = df_games_ACB['ID Temporada'].max()
-    season_players = df_players_ACB[df_players_ACB['ID Temporada'] == season]
-    # Obtener los IDs de los jugadores de la temporada actual
-    current_player_ids = season_players['ID Jugador'].unique()
-    # Filtrar los jugadores de la temporada anterior
-    previous_season = season - 1
-    previous_season_players = df_players_ACB[df_players_ACB['ID Temporada'] == previous_season]
-    # Filtrar los jugadores que están en la temporada actual y en la anterior
-    previous_season_players = previous_season_players[previous_season_players['ID Jugador'].isin(current_player_ids)]
-    # Agrupar por ID Jugador y calcular las estadísticas medias por partido
-    previous_season_stats = previous_season_players.groupby('ID Jugador').agg(
-        Partidos=('ID Partido', 'count'),
-        Puntos=('Puntos', lambda x: round(x.mean(), 1)),
-        Rebotes=('Rebotes', lambda x: round(x.mean(), 1)),
-        Asistencias=('Asistencias', lambda x: round(x.mean(), 1)),
-        Robos=('Robos', lambda x: round(x.mean(), 1)),
-        Tapones=('Tapones', lambda x: round(x.mean(), 1)),
-        Val=('Val', lambda x: round(x.mean(), 1)),
-        T1a=('T1a', lambda x: round(x.mean(), 1)),
-        T1i=('T1i', lambda x: round(x.mean(), 1)),
-        T2a=('T2a', lambda x: round(x.mean(), 1)),
-        T2i=('T2i', lambda x: round(x.mean(), 1)),
-        T3a=('T3a', lambda x: round(x.mean(), 1)),
-        T3i=('T3i', lambda x: round(x.mean(), 1))
-    ).reset_index()
-    # Calcular los porcentajes de tiro
-    previous_season_stats['T1%'] = round(previous_season_stats['T1a'] / previous_season_stats['T1i'] * 100, 1).fillna(0)
-    previous_season_stats['T2%'] = round(previous_season_stats['T2a'] / previous_season_stats['T2i'] * 100, 1).fillna(0)
-    previous_season_stats['T3%'] = round(previous_season_stats['T3a'] / previous_season_stats['T3i'] * 100, 1).fillna(0)
-    # Calcular datos de la temporada actual
-    current_season_stats = season_players.groupby('ID Jugador').agg(
-        Partidos=('ID Partido', 'count'),
-        Puntos=('Puntos', lambda x: round(x.mean(), 1)),
-        Rebotes=('Rebotes', lambda x: round(x.mean(), 1)),
-        Asistencias=('Asistencias', lambda x: round(x.mean(), 1)),
-        Robos=('Robos', lambda x: round(x.mean(), 1)),
-        Tapones=('Tapones', lambda x: round(x.mean(), 1)),
-        Val=('Val', lambda x: round(x.mean(), 1)),
-        T1a=('T1a', lambda x: round(x.mean(), 1)),
-        T1i=('T1i', lambda x: round(x.mean(), 1)),
-        T2a=('T2a', lambda x: round(x.mean(), 1)),
-        T2i=('T2i', lambda x: round(x.mean(), 1)),
-        T3a=('T3a', lambda x: round(x.mean(), 1)),
-        T3i=('T3i', lambda x: round(x.mean(), 1))
-    ).reset_index()
-    # Calcular los porcentajes de tiro
-    current_season_stats['T1%'] = round(current_season_stats['T1a'] / current_season_stats['T1i'] * 100, 1).fillna(0)
-    current_season_stats['T2%'] = round(current_season_stats['T2a'] / current_season_stats['T2i'] * 100, 1).fillna(0)
-    current_season_stats['T3%'] = round(current_season_stats['T3a'] / current_season_stats['T3i'] * 100, 1).fillna(0)
-
-    # Crea un DataFrame por cada jugador con las estadísticas de la temporada actual y la anterior y muestra a 3 columnas
-    current_player_ids = current_season_stats['ID Jugador'].unique()
-    previous_player_ids = previous_season_stats['ID Jugador'].unique()
-    # Filtrar los jugadores que están en ambas temporadas
-    common_player_ids = set(current_player_ids) & set(previous_player_ids)   
-
-    # Para cada jugador común, crea un DataFrame con las estadísticas de ambas temporadas y la diferencia
-    # Visualiza los datos en 3 columnas
-    cols = st.columns(3)
-
-    for i, player_id in enumerate(common_player_ids):
-        # Filtrar las estadísticas del jugador actual
-        current_stats = current_season_stats[current_season_stats['ID Jugador'] == player_id].iloc[0]
-        previous_stats = previous_season_stats[previous_season_stats['ID Jugador'] == player_id].iloc[0]
-        
-        # Calcular la diferencia entre las temporadas
-        difference = current_stats - previous_stats
-        
-        # Crear un DataFrame para el jugador
-        player_df = pd.DataFrame({
-            'Estadística': ['Partidos', 'Puntos', 'Rebotes', 'Asistencias', 'Robos', 'Tapones', 'Valoración',
-                            'T1a', 'T1i', 'T1%', 'T2a', 'T2i', 'T2%', 'T3a', 'T3i', 'T3%'],
-            f'Actual': [
-                current_stats['Partidos'], current_stats['Puntos'], current_stats['Rebotes'],
-                current_stats['Asistencias'], current_stats['Robos'], current_stats['Tapones'],
-                current_stats['Val'], current_stats['T1a'], current_stats['T1i'], current_stats['T1%'],
-                current_stats['T2a'], current_stats['T2i'], current_stats['T2%'],
-                current_stats['T3a'], current_stats['T3i'], current_stats['T3%']
-            ],
-            f'Anterior': [
-                previous_stats['Partidos'], previous_stats['Puntos'], previous_stats['Rebotes'],
-                previous_stats['Asistencias'], previous_stats['Robos'], previous_stats['Tapones'],
-                previous_stats['Val'], previous_stats['T1a'], previous_stats['T1i'], previous_stats['T1%'],
-                previous_stats['T2a'], previous_stats['T2i'], previous_stats['T2%'],
-                previous_stats['T3a'], previous_stats['T3i'], previous_stats['T3%']
-            ],
-            'Diferencia': [
-                difference['Partidos'], difference['Puntos'], difference['Rebotes'],
-                difference['Asistencias'], difference['Robos'], difference['Tapones'],
-                difference['Val'], difference['T1a'], difference['T1i'],
-                round(difference.get('T1%', 0), 1), difference['T2a'], difference['T2i'],
-                round(difference.get('T2%', 0), 1), difference['T3a'], difference['T3i'],
-                round(difference.get('T3%', 0), 1)
-            ]
-        })
-        # Mostrar el nombre del jugador
-        player_name = df_players_ACB[df_players_ACB['ID Jugador'] == player_id]['Nombre'].unique()[0]
-        # Mostrar el nombre del jugador en la columna correspondiente
-        with cols[i % 3]:
-            st.write(f"**{player_name}**")
-            # Mostrar el DataFrame del jugador
-            st.dataframe(player_df, hide_index=True, height=17*35, column_config={
-                
-                'Estadística': st.column_config.TextColumn(width="medium"),
-                f'Temporada {season}': st.column_config.NumberColumn(width="small"),
-                f'Temporada {previous_season}': st.column_config.NumberColumn(width="small"),
-                'Diferencia': st.column_config.NumberColumn(width="small")
-            })
-elif marco == "Totales":
-    # Crear un marco para mostrar las estadísticas totales desde el inicio de la ACB, las mismas que se muestran en Acumulados de la temporada actual, sin filtros
-    st.subheader("Estadísticas Totales de la ACB")
-    # Calcular las estadísticas totales desde el inicio de la ACB
-    #Crear un marco para mostrar las estadísticas totales del equipo
-    st.subheader("Estadísticas totales del equipo")
-    
-    # Calcular el total de partidos jugados, victorias y derrotas, total como local y como visitante y % de cada uno
-    total_games = len(df_games_ACB)
-    total_wins = df_games_ACB['VBC Victoria'].sum()
-    total_losses = total_games - total_wins
-    total_home = df_games_ACB['VBC Local'].sum()
-    total_away = total_games - total_home
-    total_home_wins = df_games_ACB[df_games_ACB['VBC Local'] == 1]['VBC Victoria'].sum()
-    total_away_wins = df_games_ACB[df_games_ACB['VBC Local'] == 0]['VBC Victoria'].sum()
-    total_home_losses = total_home - total_home_wins
-    total_away_losses = total_away - total_away_wins
-    total_home_wins_percentage = round(total_home_wins * 100 / total_home, 1) if total_home > 0 else 0
-    total_away_wins_percentage = round(total_away_wins * 100 / total_away, 1) if total_away > 0 else 0
-    total_wins_percentage = round(total_wins * 100 / total_games, 1) if total_games > 0 else 0
-    total_losses_percentage = round(total_losses * 100 / total_games, 1) if total_games > 0 else 0
-    
-    # Crear un dataframe con los datos
-    team_stats = pd.DataFrame({
-        'Partidos': [total_games],
-        'Victorias': [total_wins],
-        'Derrotas': [total_losses],
-        'Local': [total_home],
-        'Visitante': [total_away],
-        'Vic. Local': [total_home_wins],
-        'Vic. Visitante': [total_away_wins],
-        'Der. Local': [total_home_losses],
-        'Der. Visitante': [total_away_losses],
-        'Victorias %': [total_wins_percentage],
-        'Derrotas %': [total_losses_percentage],
-        'Vic. Local %': [total_home_wins_percentage],
-        'Vic. Visitante %': [total_away_wins_percentage],
-    })
-    
-    # Crear 3 columnas para mostrar los datos
-    col1, col2, col3 = st.columns(3)
-    with col1:
-        st.write("Partidos")
-        st.dataframe(
-            team_stats[['Partidos', 'Victorias', 'Derrotas']],
-            hide_index=True,
-            column_config={
-                "Partidos": st.column_config.NumberColumn(width="small"),
-                "Victorias": st.column_config.NumberColumn(width="small"),
-                "Derrotas": st.column_config.NumberColumn(width="small"),
-            }
-        )
-    with col2:
-        st.write("Local/Visitante")
-        st.dataframe(
-            team_stats[['Local', 'Visitante', 'Vic. Local', 'Vic. Visitante', 'Der. Local', 'Der. Visitante']],
-            hide_index=True,
-            column_config={
-                "Local": st.column_config.NumberColumn(width="small"),
-                "Visitante": st.column_config.NumberColumn(width="small"),
-                "Vic. Local": st.column_config.NumberColumn(width="small"),
-                "Vic. Visitante": st.column_config.NumberColumn(width="small"),
-                "Der. Local": st.column_config.NumberColumn(width="small"),
-                "Der. Visitante": st.column_config.NumberColumn(width="small"),
-            }
-        )
-    with col3:
-        st.write("Porcentajes")
-        st.dataframe(
-            team_stats[['Victorias %', 'Derrotas %', 'Vic. Local %', 'Vic. Visitante %']],
-            hide_index=True,
-            column_config={
-                "Victorias %": st.column_config.NumberColumn(width="small"),
-                "Derrotas %": st.column_config.NumberColumn(width="small"),
-                "Vic. Local %": st.column_config.NumberColumn(width="small"),
-                "Vic. Visitante %": st.column_config.NumberColumn(width="small"),
-            }
-        )
-        
-    # Calcular los acumulados de VBC usando los datos totales Puntos, Rebotes, Asistencias, Robos, Tapones y Valoración de VBC y Rival, Tiros de VBC y Rival
-    team_stats_vbc = pd.DataFrame(df_games_ACB[['Puntos VBC', 'Rebotes VBC', 'Asistencias VBC', 'Robos VBC', 'Tapones VBC', 'Val VBC']].sum(), columns=['Acumulados'])
-    team_stats_vbc['Media'] = round(team_stats_vbc['Acumulados'] / total_games, 1)
-    team_stats_rival = pd.DataFrame(df_games_ACB[['Puntos Rival', 'Rebotes Rival', 'Asistencias Rival', 'Robos Rival', 'Tapones Rival', 'Val Rival']].sum(), columns=['Acumulados'])
-    team_stats_rival['Media'] = round(team_stats_rival['Acumulados'] / total_games, 1)
-    # Datos de tiros VBC
-    team_shots_vbc = pd.DataFrame(df_games_ACB[['T1a VBC', 'T1i VBC', 'T2a VBC', 'T2i VBC', 'T3a VBC', 'T3i VBC']].sum(), columns=['Acumulados'])
-    team_shots_vbc['Media'] = round(team_shots_vbc['Acumulados'] / total_games, 1)
-    team_shots_vbc['%'] = round(team_shots_vbc['Acumulados']*100 / team_shots_vbc['Acumulados'].shift(-1), 1)
-    # Datos de tiros Rival
-    team_shots_rival = pd.DataFrame(df_games_ACB[['T1a Rival', 'T1i Rival', 'T2a Rival', 'T2i Rival', 'T3a Rival', 'T3i Rival']].sum(), columns=['Acumulados'])
-    team_shots_rival['Media'] = round(team_shots_rival['Acumulados'] / total_games, 1)
-    team_shots_rival['%'] = round(team_shots_rival['Acumulados']*100 / team_shots_rival['Acumulados'].shift(-1), 1)
-    # Crear 4 columnas para mostrar los datos
-    col1, col2, col3, col4, col5 = st.columns(5)
-    with col1:
-        st.write("VBC Estadísticas")
-        st.dataframe(
-            team_stats_vbc,
-            column_config={
-                "Acumulados": st.column_config.NumberColumn(width="small"),
-                "Media":      st.column_config.NumberColumn(width="small"),
-            }
-        )
-    with col2:
-        st.write("Rival Estadísticas")
-        st.dataframe(
-            team_stats_rival,
-            column_config={
-                "Acumulados": st.column_config.NumberColumn(width="small"),
-                "Media":      st.column_config.NumberColumn(width="small"),
-            }
-        )
-    with col3:
-        st.write("VBC Tiros")
-        st.dataframe(
-            team_shots_vbc.iloc[::2],
-            column_config={
-                "Acumulados": st.column_config.NumberColumn(width="small"),
-                "Media":      st.column_config.NumberColumn(width="small"),
-                "%":          st.column_config.NumberColumn(width="small"),
-            }
-        )
-    with col4:
-        st.write("Rival Tiros")
-        st.dataframe(
-            team_shots_rival.iloc[::2],
-            column_config={
-                "Acumulados": st.column_config.NumberColumn(width="small"),
-                "Media":      st.column_config.NumberColumn(width="small"),
-                "%":          st.column_config.NumberColumn(width="small"),
-            }
-        )
-
-
-
-
-
-
-
