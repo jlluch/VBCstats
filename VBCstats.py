@@ -21,7 +21,7 @@ st.set_page_config(
 st.markdown("""
 <style>
     [data-testid="stSidebar"] {
-        width: 14rem !important;
+        width: 15rem !important;
     }
 </style>
 """, unsafe_allow_html=True)
@@ -218,11 +218,21 @@ if "pagina_contada" not in st.session_state or st.session_state.pagina_contada !
 else:
     visitas = None  # Ya contada
 
-
-st.sidebar.markdown(f"**Visitas:** {visitas}")
-
 st.sidebar.header("Selecciona una competición")
-st.sidebar.markdown('Autor: Xavi Lluch\n https://x.com/xavi_runner\n\n Github: [JLLUCH](https://github.com/jlluch/VBCstats)')
+st.sidebar.header("Estadísticas de VBC")
+st.sidebar.markdown("Número de partidos:")
+st.sidebar.markdown("---")
+st.sidebar.markdown(f"**ACB:** {len(df_games_ACB)}")
+st.sidebar.markdown(f"**Eurocup:** {len(df_games_Eurocup)}")    
+st.sidebar.markdown(f"**Euroleague:** {len(df_games_Euroleague)}")
+st.sidebar.markdown(f"**Saporta:** {len(df_games_Saporta)}")
+st.sidebar.markdown(f"**Copa del Rey:** {len(df_games_CopaRey)}")
+st.sidebar.markdown(f"**Total:** {len(df_games_Total)}")
+# Separador
+st.sidebar.markdown("---")
+st.sidebar.markdown(f"**Visitas:** {visitas}")
+st.sidebar.markdown("---")
+st.sidebar.markdown('Autor: Xavi Lluch\n https://x.com/xavi_runner\n Github: [JLLUCH](https://github.com/jlluch/VBCstats)')
 
 # Ejecuta la página seleccionada
 pg.run()
