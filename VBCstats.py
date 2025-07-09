@@ -219,6 +219,7 @@ else:
     visitas = None  # Ya contada
 
 
+st.sidebar.markdown(f"**Visitas:** {visitas}")
 
 st.sidebar.header("Selecciona una competición")
 st.sidebar.markdown('Autor: Xavi Lluch\n https://x.com/xavi_runner\n\n Github: [JLLUCH](https://github.com/jlluch/VBCstats)')
