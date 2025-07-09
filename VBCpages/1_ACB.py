@@ -657,10 +657,7 @@ elif marco == "Líderes de una temporada":
     # Muestra los resultados en tablas y en columnas de streamlit separadas
     mt1a, mt1p, mt2a, mt2p, mt3a, mt3p = st.columns(6)
     mt1a.dataframe(max_t1a, width=180, column_config={"T.Libres": st.column_config.TextColumn(width="small")})
-    mt1p.dataframe(max_t1p, width=180, column_config={"T1%": st.c
-   df_games_records = df_games_ACB.copy()
-    df_games_records['Fecha'] = pd.to_datetime(df_games_records['Fecha']).dt.strftime('%d/%m/%Y')
-    df_games_records['Partido'] = df_games_records['Partido'].apply(lambda x: '-'.join(x.split('-')[-2:])) olumn_config.TextColumn(width="small")})
+    mt1p.dataframe(max_t1p, width=180, column_config={"T1%": st.column_config.TextColumn(width="small")})
     mt2a.dataframe(max_t2a, width=180, column_config={"T2": st.column_config.TextColumn(width="small")})
     mt2p.dataframe(max_t2p, width=180, column_config={"T2%": st.column_config.TextColumn(width="small")})
     mt3a.dataframe(max_t3a, width=180, column_config={"T3": st.column_config.TextColumn(width="small")})
