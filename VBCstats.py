@@ -219,9 +219,7 @@ else:
     visitas = None  # Ya contada
 
 st.sidebar.header("Selecciona una competición")
-st.sidebar.header("Estadísticas de VBC")
-st.sidebar.markdown("Número de partidos:")
-st.sidebar.markdown("---")
+st.sidebar.header("Número de partidos:")
 st.sidebar.markdown(f"**ACB:** {len(df_games_ACB)}")
 st.sidebar.markdown(f"**Eurocup:** {len(df_games_Eurocup)}")    
 st.sidebar.markdown(f"**Euroleague:** {len(df_games_Euroleague)}")
