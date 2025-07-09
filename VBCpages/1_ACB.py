@@ -52,7 +52,11 @@ if marco == "Estadísticas de un partido":
         columns_to_show = ['ID Temporada', 'Jornada', 'Fase', 'Fecha', 'Hora', 'Puntos VBC','Equipo Rival','Puntos Rival', 'Entrenador VBC', 'Entrenador Rival']
     else:
         columns_to_show = ['ID Temporada', 'Jornada', 'Fase', 'Fecha', 'Hora', 'Equipo Rival','Puntos Rival', 'Puntos VBC', 'Entrenador Rival', 'Entrenador VBC']
-    st.dataframe(df_games_ACB[(df_games_ACB['ID Partido'] == id_game)][columns_to_show], hide_index=True)
+    #st.dataframe(df_games_ACB[(df_games_ACB['ID Partido'] == id_game)][columns_to_show], hide_index=True)
+    # Muestar el dataframe con las estadísticas del partido seleccionado con formato de fecha dd/mm/yyyy
+    df_partido = df_games_ACB[(df_games_ACB['ID Partido'] == id_game)][columns_to_show]
+    df_partido['Fecha'] = pd.to_datetime(df_partido['Fecha']).dt.strftime('%d/%m/%Y')
+    st.dataframe(df_partido, hide_index=True)
     
     st.subheader("Estadísticas Valencia Basket")
     columns_to_show = ['Minutos VBC', 'T2a VBC','T2i VBC', 'T2% VBC', 'T3a VBC', 'T3i VBC', 'T3% VBC', 'T1a VBC',
