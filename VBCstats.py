@@ -238,7 +238,7 @@ st.sidebar.markdown(f"**Total:** {len(df_games_Total)}")
 st.sidebar.markdown("---")
 st.sidebar.markdown(f"**Visitas:** {visitas}")
 st.sidebar.markdown("---")
-st.sidebar.markdown('Autor: Xavi Lluch\n https://x.com/xavi_runner\n Github: [JLLUCH](https://github.com/jlluch/VBCstats)')
+st.sidebar.markdown('Autor: Xavi Lluch\n Twitter: [xavi_runner](https://x.com/xavi_runner)\n Github: [JLLUCH](https://github.com/jlluch/VBCstats)')
 
 # Ejecuta la página seleccionada
 pg.run()
