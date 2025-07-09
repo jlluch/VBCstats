@@ -26,9 +26,19 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
     
+# Cargar visitas iniciales
+@st.cache_data
+def load_visits():
+    scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
+    creds = ServiceAccountCredentials.from_json_keyfile_dict(
+        st.secrets["gcp_service_account"], scope)
+    client = gspread.authorize(creds)
 
+    sheet = client.open("vbcStats").sheet1
+    data = sheet.get_all_records()
+    return data[-1]["Visitas"] if data else 0
 
-
+visitas = load_visits()
 
 def load_encrypted_data(file_path):
     try:
