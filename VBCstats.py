@@ -215,8 +215,6 @@ nombre_pagina = pg.title
 if "pagina_contada" not in st.session_state or st.session_state.pagina_contada != nombre_pagina:
     visitas = contar_visita_google_sheets(nombre_pagina)
     st.session_state.pagina_contada = nombre_pagina
-else:
-    visitas = None  # Ya contada
 
 st.sidebar.header("Selecciona una competición")
 st.sidebar.header("Número de partidos:")
