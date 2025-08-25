@@ -79,12 +79,12 @@ if marco == "Estadísticas de un partido":
     # Filtrar los jugadores del Valencia Basket en el partido seleccionado
     players_vbc = df_players_ACB[(df_players_ACB['ID Partido'] == id_game)]
     # Mostrar los jugadores del Valencia Basket en el partido seleccionado
-    st.dataframe(players_vbc[['Dorsal', 'Nombre', 'Minutos', 'Puntos', 'R.Def', 'R.Ofe', 'Rebotes', 'Asistencias', 'Robos', 'Perdidas', 'Tapones', 'Val', '+/-']],
+    st.dataframe(players_vbc[['Dorsal', 'Nombre', 'Min', 'Puntos', 'R.Def', 'R.Ofe', 'Rebotes', 'Asistencias', 'Robos', 'Perdidas', 'Tapones', 'Val', '+/-']],
                     hide_index=True,
                     column_config={
                         "Dorsal": st.column_config.NumberColumn(width="small"),
                         "Nombre": st.column_config.TextColumn(width="medium"),
-                        "Minutos": st.column_config.NumberColumn(width="small"),
+                        "Min": st.column_config.NumberColumn(width="small"),
                         "Puntos": st.column_config.NumberColumn(width="small"),
                         "R.Def": st.column_config.NumberColumn(width="small"),
                         "R.Ofe": st.column_config.NumberColumn(width="small"),
@@ -138,6 +138,7 @@ elif marco == "Líderes históricos":
         max_games = df_players_ACB.groupby('Nombre')['ID Partido'].count().sort_values(ascending=False)
         #Cambiar nombre de la columna
         max_games = max_games.rename("Partidos")
+        max_minutes = df_players_ACB.groupby('Nombre')['Minutos'].sum().sort_values(ascending=False)
         max_points = df_players_ACB.groupby('Nombre')['Puntos'].sum().sort_values(ascending=False)
         max_rebounds = df_players_ACB.groupby('Nombre')['Rebotes'].sum().sort_values(ascending=False)
         max_assists = df_players_ACB.groupby('Nombre')['Asistencias'].sum().sort_values(ascending=False)
@@ -192,6 +193,7 @@ elif marco == "Líderes históricos":
         current_players_df = df_players_ACB[df_players_ACB['ID Jugador'].isin(current_players)]
         # Encuentra el jugador con la mayor estadística en cada tabla
         max_games_current = current_players_df.groupby('Nombre')['ID Partido'].count().sort_values(ascending=False).head(1)
+        max_minutes_current = current_players_df.groupby('Nombre')['Minutos'].sum().sort_values(ascending=False).head(1)
         max_points_current = current_players_df.groupby('Nombre')['Puntos'].sum().sort_values(ascending=False).head(1)
         max_rebounds_current = current_players_df.groupby('Nombre')['Rebotes'].sum().sort_values(ascending=False).head(1)
         max_assists_current = current_players_df.groupby('Nombre')['Asistencias'].sum().sort_values(ascending=False).head(1)
@@ -204,6 +206,7 @@ elif marco == "Líderes históricos":
         # Añadir los jugadores de la temporada actual a las tablas
         max_games = pd.concat([max_games.head(lh), max_games_current]).reset_index()
         max_games = max_games.rename(columns={0: 'Partidos'})
+        max_minutes = pd.concat([max_minutes.head(lh), max_minutes_current]).reset_index()
         max_points = pd.concat([max_points.head(lh), max_points_current]).reset_index()
         max_rebounds = pd.concat([max_rebounds.head(lh), max_rebounds_current]).reset_index()
         max_assists = pd.concat([max_assists.head(lh), max_assists_current]).reset_index()
@@ -228,9 +231,15 @@ elif marco == "Líderes históricos":
                 styles.iloc[-1, :] = 'font-weight: bold; color: #FF2222;'  # Cambia el color y el estilo según tus preferencias
             return styles
 
-        mg, mp, mr, ma = st.columns(4)
+        mg, mn, mp, mr = st.columns(4)
         mg.dataframe(
             max_games.style.apply(highlight_last_row, axis=None),
+            hide_index=True,
+            height=12*35,
+            column_config={"Nombre": st.column_config.TextColumn(width="medium")}
+        )
+        mn.dataframe(
+            max_minutes.style.apply(highlight_last_row, axis=None),
             hide_index=True,
             height=12*35,
             column_config={"Nombre": st.column_config.TextColumn(width="medium")}
@@ -247,14 +256,15 @@ elif marco == "Líderes históricos":
             height=12*35,
             column_config={"Nombre": st.column_config.TextColumn(width="medium")}
         )
+        
+
+        ma, ms, mb, mv = st.columns(4)
         ma.dataframe(
             max_assists.style.apply(highlight_last_row, axis=None),
             hide_index=True,
             height=12*35,
             column_config={"Nombre": st.column_config.TextColumn(width="medium")}
         )
-
-        ms, mb, mv, mn = st.columns(4)
         ms.dataframe(
             max_steals.style.apply(highlight_last_row, axis=None),
             hide_index=True,
@@ -585,6 +595,11 @@ elif marco == "Líderes de una temporada":
     # Calcular la media por partido, teniendo en cuenta los partidos que ha jugado cada jugador
     max_points['Media'] = round(max_points['Puntos']/max_games,1)        
     max_points = max_points.sort_values(by='Puntos',ascending=False).head(lh)
+
+    max_minutes = pd.DataFrame(season_games.groupby('Nombre')['Minutos'].sum())
+    # Calcular la media por partido, teniendo en cuenta los partidos que ha jugado cada jugador
+    max_minutes['Media'] = round(max_minutes['Minutos']/max_games,1)
+    max_minutes = max_minutes.sort_values(by='Minutos',ascending=False).head(lh)
     
     max_rebounds = pd.DataFrame(season_games.groupby('Nombre')['Rebotes'].sum())
     # Calcular la media por partido, teniendo en cuenta los partidos que ha jugado cada jugador
@@ -643,13 +658,14 @@ elif marco == "Líderes de una temporada":
     max_t3p = max_t3p.rename("T3%")
     
     # Muestra los resultados en tablas y en columnas de streamlit separadas
-    mg, mp, mr, ma = st.columns(4)
+    mg, mp, mr, mi = st.columns(4)
     mg.dataframe(max_games)
     mp.dataframe(max_points)
     mr.dataframe(max_rebounds)
+    mi.dataframe(max_minutes)
+
+    ma, ms, mb, mv = st.columns(4)
     ma.dataframe(max_assists)
-    
-    ms, mb, mv, vc = st.columns(4)
     ms.dataframe(max_steals)
     mb.dataframe(max_blocks)
     mv.dataframe(max_val)
@@ -985,7 +1001,7 @@ elif marco == "Estadísticas jugadores de una temporada":
                     "Nombre": st.column_config.TextColumn(width="medium"),
                     "Partidos": st.column_config.NumberColumn(width="small"),
                     "% Victorias": st.column_config.NumberColumn(format="%.1f%%", width="small"),
-                    "Minutos": st.column_config.NumberColumn(width="small"),
+                    "Minutos": st.column_config.NumberColumn(format="%.1f%%", width="small"),
                     "Puntos": st.column_config.NumberColumn(width="small"),
                     "Rebotes": st.column_config.NumberColumn(width="small"),
                     "Asistencias": st.column_config.NumberColumn(width="small"),
@@ -1207,6 +1223,7 @@ elif marco == "Comparativa temporada anterior":
     # Agrupar por ID Jugador y calcular las estadísticas medias por partido
     previous_season_stats = previous_season_players.groupby('ID Jugador').agg(
         Partidos=('ID Partido', 'count'),
+        Minutos=('Minutos', lambda x: round(x.mean(), 1)),
         Puntos=('Puntos', lambda x: round(x.mean(), 1)),
         Rebotes=('Rebotes', lambda x: round(x.mean(), 1)),
         Asistencias=('Asistencias', lambda x: round(x.mean(), 1)),
@@ -1227,6 +1244,7 @@ elif marco == "Comparativa temporada anterior":
     # Calcular datos de la temporada actual
     current_season_stats = season_players.groupby('ID Jugador').agg(
         Partidos=('ID Partido', 'count'),
+        Minutos=('Minutos', lambda x: round(x.mean(), 1)),
         Puntos=('Puntos', lambda x: round(x.mean(), 1)),
         Rebotes=('Rebotes', lambda x: round(x.mean(), 1)),
         Asistencias=('Asistencias', lambda x: round(x.mean(), 1)),
@@ -1265,24 +1283,24 @@ elif marco == "Comparativa temporada anterior":
         
         # Crear un DataFrame para el jugador
         player_df = pd.DataFrame({
-            'Estadística': ['Partidos', 'Puntos', 'Rebotes', 'Asistencias', 'Robos', 'Tapones', 'Valoración',
+            'Estadística': ['Partidos', 'Minutos', 'Puntos', 'Rebotes', 'Asistencias', 'Robos', 'Tapones', 'Valoración',
                             'T1a', 'T1i', 'T1%', 'T2a', 'T2i', 'T2%', 'T3a', 'T3i', 'T3%'],
             f'Actual': [
-                current_stats['Partidos'], current_stats['Puntos'], current_stats['Rebotes'],
+                current_stats['Partidos'], current_stats['Minutos'], current_stats['Puntos'], current_stats['Rebotes'],
                 current_stats['Asistencias'], current_stats['Robos'], current_stats['Tapones'],
                 current_stats['Val'], current_stats['T1a'], current_stats['T1i'], current_stats['T1%'],
                 current_stats['T2a'], current_stats['T2i'], current_stats['T2%'],
                 current_stats['T3a'], current_stats['T3i'], current_stats['T3%']
             ],
             f'Anterior': [
-                previous_stats['Partidos'], previous_stats['Puntos'], previous_stats['Rebotes'],
+                previous_stats['Partidos'], previous_stats['Minutos'], previous_stats['Puntos'], previous_stats['Rebotes'],
                 previous_stats['Asistencias'], previous_stats['Robos'], previous_stats['Tapones'],
                 previous_stats['Val'], previous_stats['T1a'], previous_stats['T1i'], previous_stats['T1%'],
                 previous_stats['T2a'], previous_stats['T2i'], previous_stats['T2%'],
                 previous_stats['T3a'], previous_stats['T3i'], previous_stats['T3%']
             ],
             'Diferencia': [
-                difference['Partidos'], difference['Puntos'], difference['Rebotes'],
+                difference['Partidos'], difference['Minutos'], difference['Puntos'], difference['Rebotes'],
                 difference['Asistencias'], difference['Robos'], difference['Tapones'],
                 difference['Val'], difference['T1a'], difference['T1i'],
                 round(difference.get('T1%', 0), 1), difference['T2a'], difference['T2i'],
