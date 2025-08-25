@@ -79,12 +79,12 @@ if marco == "Estadísticas de un partido":
     # Filtrar los jugadores del Valencia Basket en el partido seleccionado
     players_vbc = df_players_Euroleague[(df_players_Euroleague['ID Partido'] == id_game)]
     # Mostrar los jugadores del Valencia Basket en el partido seleccionado
-    st.dataframe(players_vbc[['Dorsal', 'Nombre', 'Minutos', 'Puntos', 'R.Def', 'R.Ofe', 'Rebotes', 'Asistencias', 'Robos', 'Perdidas', 'Tapones', 'Val', '+/-']],
+    st.dataframe(players_vbc[['Dorsal', 'Nombre', 'Min', 'Puntos', 'R.Def', 'R.Ofe', 'Rebotes', 'Asistencias', 'Robos', 'Perdidas', 'Tapones', 'Val', '+/-']],
                     hide_index=True,
                     column_config={
                         "Dorsal": st.column_config.NumberColumn(width="small"),
                         "Nombre": st.column_config.TextColumn(width="medium"),
-                        "Minutos": st.column_config.NumberColumn(width="small"),
+                        "Min": st.column_config.TextColumn(width="small"),
                         "Puntos": st.column_config.NumberColumn(width="small"),
                         "R.Def": st.column_config.NumberColumn(width="small"),
                         "R.Ofe": st.column_config.NumberColumn(width="small"),
@@ -135,6 +135,7 @@ elif marco == "Líderes históricos":
         max_games = df_players_Euroleague.groupby('Nombre')['ID Partido'].count().sort_values(ascending=False)
         #Cambiar nombre de la columna
         max_games = max_games.rename("Partidos")
+        max_minutes = df_players_Euroleague.groupby('Nombre')['Minutos'].sum().sort_values(ascending=False)
         max_points = df_players_Euroleague.groupby('Nombre')['Puntos'].sum().sort_values(ascending=False)
         max_rebounds = df_players_Euroleague.groupby('Nombre')['Rebotes'].sum().sort_values(ascending=False)
         max_assists = df_players_Euroleague.groupby('Nombre')['Asistencias'].sum().sort_values(ascending=False)
@@ -183,11 +184,16 @@ elif marco == "Líderes históricos":
         max_t3p['T3'] = shots.loc[max_t3p.index, 'T3']        
        
         # Muestra los resultados en tablas y en columnas de streamlit separadas
-        mg, mp, mr, ma = st.columns(4)
+        mg, mi, mp, mr = st.columns(4)
         mg.dataframe(
             max_games,
             height=12*35,
             column_config={"Nombre": st.column_config.TextColumn(width="medium")}
+        )
+        mi.dataframe(
+            max_minutes,
+            height=12*35,
+            column_config={"Nombre": st.column_config.TextColumn(width="medium"), "Minutos": st.column_config.NumberColumn(format="%.1f", width="small")}
         )
         mp.dataframe(
             max_points,
@@ -199,13 +205,13 @@ elif marco == "Líderes históricos":
             height=12*35,
             column_config={"Nombre": st.column_config.TextColumn(width="medium")}
         )
+        
+        ma, ms, mb, mv = st.columns(4)
         ma.dataframe(
             max_assists,
             height=12*35,
             column_config={"Nombre": st.column_config.TextColumn(width="medium")}
         )
-
-        ms, mb, mv, mn = st.columns(4)
         ms.dataframe(
             max_steals,
             height=12*35,
@@ -255,6 +261,12 @@ elif marco == "Líderes históricos":
         filtered_players = filtered_players[filtered_players >= 30].index
 
         max_games = df_players_Euroleague[df_players_Euroleague['Nombre'].isin(filtered_players)].groupby('Nombre')['ID Partido'].count()
+
+        max_minutes = pd.DataFrame(df_players_Euroleague[df_players_Euroleague['Nombre'].isin(filtered_players)].groupby('Nombre')['Minutos'].sum())
+        # Calcular la media por partido, teniendo en cuenta los partidos que ha jugado cada jugador
+        max_minutes['Media'] = round(max_minutes['Minutos']/max_games,1)
+        max_minutes = max_minutes.sort_values(by='Media',ascending=False).head(lh)
+
         max_points = pd.DataFrame(df_players_Euroleague[df_players_Euroleague['Nombre'].isin(filtered_players)].groupby('Nombre')['Puntos'].sum())
         # Calcular la media por partido, teniendo en cuenta los partidos que ha jugado cada jugador
         max_points['Media'] = round(max_points['Puntos']/max_games,1)        
@@ -309,8 +321,11 @@ elif marco == "Líderes históricos":
         max_T3a = max_T3a.sort_values(by='Media',ascending=False).head(lh)
         
         # Muestra los resultados en tablas y en columnas de streamlit separadas
-        mp, mr, ma = st.columns(3)
+        mp, mi = st.columns(2)
         mp.dataframe(max_points,column_config={"Nombre": st.column_config.TextColumn(width="medium")})
+        mi.dataframe(max_minutes,column_config={"Nombre": st.column_config.TextColumn(width="medium"), "Minutos": st.column_config.NumberColumn(format="%.1f", width="small")})
+        
+        mr, ma = st.columns(2)
         mr.dataframe(max_rebounds,column_config={"Nombre": st.column_config.TextColumn(width="medium")})
         ma.dataframe(max_assists,column_config={"Nombre": st.column_config.TextColumn(width="medium")})
         
@@ -526,6 +541,11 @@ elif marco == "Líderes de una temporada":
     # Mostrar los resultados en una tabla   
     season_games = df_players_Euroleague[df_players_Euroleague['ID Temporada'] == season]
     max_games = season_games.groupby('Nombre')['ID Partido'].count()
+
+    max_minutes = pd.DataFrame(season_games.groupby('Nombre')['Minutos'].sum())
+    max_minutes['Media'] = round(max_minutes['Minutos']/max_games,1)
+    max_minutes = max_minutes.sort_values(by='Minutos',ascending=False).head(lh)
+
     max_points = pd.DataFrame(season_games.groupby('Nombre')['Puntos'].sum())
     # Calcular la media por partido, teniendo en cuenta los partidos que ha jugado cada jugador
     max_points['Media'] = round(max_points['Puntos']/max_games,1)        
@@ -588,13 +608,14 @@ elif marco == "Líderes de una temporada":
     max_t3p = max_t3p.rename("T3%")
     
     # Muestra los resultados en tablas y en columnas de streamlit separadas
-    mg, mp, mr, ma = st.columns(4)
+    mg, mi, mp, mr = st.columns(4)
     mg.dataframe(max_games)
+    mi.dataframe(max_minutes, column_config={"Nombre": st.column_config.TextColumn(width="medium"), "Minutos": st.column_config.NumberColumn(format="%.1f", width="small")})
     mp.dataframe(max_points)
     mr.dataframe(max_rebounds)
+        
+    ma, ms, mb, mv = st.columns(4)
     ma.dataframe(max_assists)
-    
-    ms, mb, mv, vc = st.columns(4)
     ms.dataframe(max_steals)
     mb.dataframe(max_blocks)
     mv.dataframe(max_val)
@@ -873,6 +894,7 @@ elif marco == "Estadísticas jugadores de una temporada":
             if tipo_estadistica == "Total":
                 jugador_row.update({
                     'Puntos': jugador_stats['Puntos'].sum(),
+                    'Minutos': round(jugador_stats['Minutos'].sum(), 1),
                     'Rebotes': jugador_stats['Rebotes'].sum(),
                     'Asistencias': jugador_stats['Asistencias'].sum(),
                     'Robos': jugador_stats['Robos'].sum(),
@@ -888,6 +910,7 @@ elif marco == "Estadísticas jugadores de una temporada":
             else:  # "Por Partido"
                 jugador_row.update({
                     'Puntos': round(jugador_stats['Puntos'].sum() / partidos_jugados, 1),
+                    'Minutos': round(jugador_stats['Minutos'].sum() / partidos_jugados, 1),
                     'Rebotes': round(jugador_stats['Rebotes'].sum() / partidos_jugados, 1),
                     'Asistencias': round(jugador_stats['Asistencias'].sum() / partidos_jugados, 1),
                     'Robos': round(jugador_stats['Robos'].sum() / partidos_jugados, 1),
@@ -926,6 +949,7 @@ elif marco == "Estadísticas jugadores de una temporada":
                 hide_index=True,
                 column_config={
                     "Nombre": st.column_config.TextColumn(width="medium"),
+                    "Minutos": st.column_config.NumberColumn(width="small"),
                     "Partidos": st.column_config.NumberColumn(width="small"),
                     "% Victorias": st.column_config.NumberColumn(format="%.1f%%", width="small"),
                     "Puntos": st.column_config.NumberColumn(width="small"),

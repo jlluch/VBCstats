@@ -609,7 +609,7 @@ elif marco == "Líderes de una temporada":
     max_t3p = max_t3p.rename("T3%")
     
     # Muestra los resultados en tablas y en columnas de streamlit separadas
-    mg, mi, mp, mr, ma = st.columns(4)
+    mg, mi, mp, mr = st.columns(4)
     mg.dataframe(max_games)
     mi.dataframe(max_minutes, column_config={"Nombre": st.column_config.TextColumn(width="medium"), "Minutos": st.column_config.NumberColumn(format="%.1f", width="small")})
     mp.dataframe(max_points)
