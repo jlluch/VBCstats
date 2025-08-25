@@ -84,7 +84,7 @@ if marco == "Estadísticas de un partido":
                     column_config={
                         "Dorsal": st.column_config.NumberColumn(width="small"),
                         "Nombre": st.column_config.TextColumn(width="medium"),
-                        "Min": st.column_config.NumberColumn(width="small"),
+                        "Min": st.column_config.TextColumn(width="small"),
                         "Puntos": st.column_config.NumberColumn(width="small"),
                         "R.Def": st.column_config.NumberColumn(width="small"),
                         "R.Ofe": st.column_config.NumberColumn(width="small"),
@@ -242,7 +242,7 @@ elif marco == "Líderes históricos":
             max_minutes.style.apply(highlight_last_row, axis=None),
             hide_index=True,
             height=12*35,
-            column_config={"Nombre": st.column_config.TextColumn(width="medium")}
+            column_config={"Nombre": st.column_config.TextColumn(width="medium"), "Minutos": st.column_config.NumberColumn(format="%.1f", width="small")}
         )
         mp.dataframe(
             max_points.style.apply(highlight_last_row, axis=None),
@@ -324,7 +324,12 @@ elif marco == "Líderes históricos":
         # Calcular la media por partido, teniendo en cuenta los partidos que ha jugado cada jugador
         max_points['Media'] = round(max_points['Puntos']/max_games,1)        
         max_points = max_points.sort_values(by='Media',ascending=False).head(lh)
-        
+
+        max_minutes = pd.DataFrame(df_players_ACB[df_players_ACB['Nombre'].isin(filtered_players)].groupby('Nombre')['Minutos'].sum())
+        # Calcular la media por partido, teniendo en cuenta los partidos que ha jugado cada jugador
+        max_minutes['Media'] = round(max_minutes['Minutos']/max_games,1)
+        max_minutes = max_minutes.sort_values(by='Media',ascending=False).head(lh)
+
         max_rebounds = pd.DataFrame(df_players_ACB[df_players_ACB['Nombre'].isin(filtered_players)].groupby('Nombre')['Rebotes'].sum())
         # Calcular la media por partido, teniendo en cuenta los partidos que ha jugado cada jugador
         max_rebounds['Media'] = round(max_rebounds['Rebotes']/max_games,1)
@@ -374,8 +379,11 @@ elif marco == "Líderes históricos":
         max_T3a = max_T3a.sort_values(by='Media',ascending=False).head(lh)
         
         # Muestra los resultados en tablas y en columnas de streamlit separadas
-        mp, mr, ma = st.columns(3)
+        mp, mi = st.columns(2)
         mp.dataframe(max_points,column_config={"Nombre": st.column_config.TextColumn(width="medium")})
+        mi.dataframe(max_minutes,column_config={"Nombre": st.column_config.TextColumn(width="medium"),"Minutos": st.column_config.NumberColumn(format="%.1f", width="small")})
+
+        mr, ma = st.columns(2)
         mr.dataframe(max_rebounds,column_config={"Nombre": st.column_config.TextColumn(width="medium")})
         ma.dataframe(max_assists,column_config={"Nombre": st.column_config.TextColumn(width="medium")})
         
@@ -658,11 +666,12 @@ elif marco == "Líderes de una temporada":
     max_t3p = max_t3p.rename("T3%")
     
     # Muestra los resultados en tablas y en columnas de streamlit separadas
-    mg, mp, mr, mi = st.columns(4)
+    mg, mi, mp, mr = st.columns(4)
     mg.dataframe(max_games)
+    mi.dataframe(max_minutes,column_config={"Minutos": st.column_config.NumberColumn(format="%.1f", width="small")})
     mp.dataframe(max_points)
     mr.dataframe(max_rebounds)
-    mi.dataframe(max_minutes)
+    
 
     ma, ms, mb, mv = st.columns(4)
     ma.dataframe(max_assists)
@@ -1001,7 +1010,7 @@ elif marco == "Estadísticas jugadores de una temporada":
                     "Nombre": st.column_config.TextColumn(width="medium"),
                     "Partidos": st.column_config.NumberColumn(width="small"),
                     "% Victorias": st.column_config.NumberColumn(format="%.1f%%", width="small"),
-                    "Minutos": st.column_config.NumberColumn(format="%.1f%%", width="small"),
+                    "Minutos": st.column_config.NumberColumn(format="%.1f", width="small"),
                     "Puntos": st.column_config.NumberColumn(width="small"),
                     "Rebotes": st.column_config.NumberColumn(width="small"),
                     "Asistencias": st.column_config.NumberColumn(width="small"),
