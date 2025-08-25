@@ -928,6 +928,7 @@ elif marco == "Estadísticas jugadores de una temporada":
             if tipo_estadistica == "Total":
                 jugador_row.update({
                     'Puntos': jugador_stats['Puntos'].sum(),
+                    'Minutos': jugador_stats['Minutos'].sum(),
                     'Rebotes': jugador_stats['Rebotes'].sum(),
                     'Asistencias': jugador_stats['Asistencias'].sum(),
                     'Robos': jugador_stats['Robos'].sum(),
@@ -943,6 +944,7 @@ elif marco == "Estadísticas jugadores de una temporada":
             else:  # "Por Partido"
                 jugador_row.update({
                     'Puntos': round(jugador_stats['Puntos'].sum() / partidos_jugados, 1),
+                    'Minutos': round(jugador_stats['Minutos'].sum() / partidos_jugados, 1),
                     'Rebotes': round(jugador_stats['Rebotes'].sum() / partidos_jugados, 1),
                     'Asistencias': round(jugador_stats['Asistencias'].sum() / partidos_jugados, 1),
                     'Robos': round(jugador_stats['Robos'].sum() / partidos_jugados, 1),
@@ -983,6 +985,7 @@ elif marco == "Estadísticas jugadores de una temporada":
                     "Nombre": st.column_config.TextColumn(width="medium"),
                     "Partidos": st.column_config.NumberColumn(width="small"),
                     "% Victorias": st.column_config.NumberColumn(format="%.1f%%", width="small"),
+                    "Minutos": st.column_config.NumberColumn(width="small"),
                     "Puntos": st.column_config.NumberColumn(width="small"),
                     "Rebotes": st.column_config.NumberColumn(width="small"),
                     "Asistencias": st.column_config.NumberColumn(width="small"),
