@@ -305,57 +305,57 @@ elif marco == "Líderes históricos":
         # Mostrar los resultados en una tabla
         #st.write ("Jugadores con al menos 30 partidos")
         # Filtrar jugadores con al menos 30 partidos
-        filtered_players = df_players_SuperCopa.groupby('Nombre')['ID Partido'].count()
+        #filtered_players = df_players_SuperCopa.groupby('Nombre')['ID Partido'].count()
         #filtered_players = filtered_players[filtered_players >= 30].index
 
-        max_games = df_players_SuperCopa[df_players_SuperCopa['Nombre'].isin(filtered_players)].groupby('Nombre')['ID Partido'].count()
-        max_points = pd.DataFrame(df_players_SuperCopa[df_players_SuperCopa['Nombre'].isin(filtered_players)].groupby('Nombre')['Puntos'].sum())
+        max_games = df_players_SuperCopa.groupby('Nombre')['ID Partido'].count()
+        max_points = pd.DataFrame(df_players_SuperCopa.groupby('Nombre')['Puntos'].sum())
         # Calcular la media por partido, teniendo en cuenta los partidos que ha jugado cada jugador
         max_points['Media'] = round(max_points['Puntos']/max_games,1)        
         max_points = max_points.sort_values(by='Media',ascending=False).head(lh)
         
-        max_rebounds = pd.DataFrame(df_players_SuperCopa[df_players_SuperCopa['Nombre'].isin(filtered_players)].groupby('Nombre')['Rebotes'].sum())
+        max_rebounds = pd.DataFrame(df_players_SuperCopa.groupby('Nombre')['Rebotes'].sum())
         # Calcular la media por partido, teniendo en cuenta los partidos que ha jugado cada jugador
         max_rebounds['Media'] = round(max_rebounds['Rebotes']/max_games,1)
         max_rebounds = max_rebounds.sort_values(by='Media',ascending=False).head(lh)
         
-        max_assists = pd.DataFrame(df_players_SuperCopa[df_players_SuperCopa['Nombre'].isin(filtered_players)].groupby('Nombre')['Asistencias'].sum())
+        max_assists = pd.DataFrame(df_players_SuperCopa.groupby('Nombre')['Asistencias'].sum())
         # Calcular la media por partido, teniendo en cuenta los partidos que ha jugado cada jugador
         max_assists['Media'] = round(max_assists['Asistencias']/max_games,1)
         max_assists = max_assists.sort_values(by='Media',ascending=False).head(lh)
         
-        max_steals = pd.DataFrame(df_players_SuperCopa[df_players_SuperCopa['Nombre'].isin(filtered_players)].groupby('Nombre')['Robos'].sum())
+        max_steals = pd.DataFrame(df_players_SuperCopa.groupby('Nombre')['Robos'].sum())
         # Calcular la media por partido, teniendo en cuenta los partidos que ha jugado cada jugador
         max_steals['Media'] = round(max_steals['Robos']/max_games,1)
         max_steals = max_steals.sort_values(by='Media',ascending=False).head(lh)
         
-        max_blocks = pd.DataFrame(df_players_SuperCopa[df_players_SuperCopa['Nombre'].isin(filtered_players)].groupby('Nombre')['Tapones'].sum())
+        max_blocks = pd.DataFrame(df_players_SuperCopa.groupby('Nombre')['Tapones'].sum())
         # Calcular la media por partido, teniendo en cuenta los partidos que ha jugado cada jugador
         max_blocks['Media'] = round(max_blocks['Tapones']/max_games,1)
         max_blocks = max_blocks.sort_values(by='Media',ascending=False).head(lh)
         
-        max_val = pd.DataFrame(df_players_SuperCopa[df_players_SuperCopa['Nombre'].isin(filtered_players)].groupby('Nombre')['Val'].sum())
+        max_val = pd.DataFrame(df_players_SuperCopa.groupby('Nombre')['Val'].sum())
         # Calcular la media por partido, teniendo en cuenta los partidos que ha jugado cada jugador
         max_val['Media'] = round(max_val['Val']/max_games,1)
         max_val = max_val.sort_values(by='Media',ascending=False).head(lh)
         
         # Calcular el mayor número de tiros de 1,2 y 3 puntos anotados por partido
         # Mostrar los resultados en una tabla
-        max_T1a = pd.DataFrame(df_players_SuperCopa[df_players_SuperCopa['Nombre'].isin(filtered_players)].groupby('Nombre')['T1a'].sum())
+        max_T1a = pd.DataFrame(df_players_SuperCopa.groupby('Nombre')['T1a'].sum())
         # Renombrar la columna
         max_T1a = max_T1a.rename(columns={"T1a": "T.Libres"})
         # Calcular la media por partido, teniendo en cuenta los partidos que ha jugado cada jugador
         max_T1a['Media'] = round(max_T1a['T.Libres']/max_games,1)
         max_T1a = max_T1a.sort_values(by='Media',ascending=False).head(lh)
 
-        max_T2a = pd.DataFrame(df_players_SuperCopa[df_players_SuperCopa['Nombre'].isin(filtered_players)].groupby('Nombre')['T2a'].sum())
+        max_T2a = pd.DataFrame(df_players_SuperCopa.groupby('Nombre')['T2a'].sum())
         # Renombrar la columna
         max_T2a = max_T2a.rename(columns={"T2a": "T2"})
         # Calcular la media por partido, teniendo en cuenta los partidos que ha jugado cada jugador
         max_T2a['Media'] = round(max_T2a['T2']/max_games,1)
         max_T2a = max_T2a.sort_values(by='Media',ascending=False).head(lh)
         
-        max_T3a = pd.DataFrame(df_players_SuperCopa[df_players_SuperCopa['Nombre'].isin(filtered_players)].groupby('Nombre')['T3a'].sum())
+        max_T3a = pd.DataFrame(df_players_SuperCopa.groupby('Nombre')['T3a'].sum())
         # Renombrar la columna
         max_T3a = max_T3a.rename(columns={"T3a": "T3"})
         # Calcular la media por partido, teniendo en cuenta los partidos que ha jugado cada jugador
