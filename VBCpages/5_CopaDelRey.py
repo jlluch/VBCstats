@@ -149,7 +149,7 @@ elif marco == "Líderes históricos":
         # Calcular el mayor número de tiros de 1,2 y 3 puntos anotados (mínimo 100) y el mayor porcentaje de tiros de 1,2 y 3 puntos anotados (mínimo 100 intentos)
         # Mostrar los resultados en una tabla
         # Crea una tabla con el acumulado de tiros de 1,2 y 3 puntos anotados, intentados y el porcentaje de acierto de cada jugador
-        tmin = 10 # Mínimo de tiros para mostrar el porcentaje
+        tmin = 5 # Mínimo de tiros para mostrar el porcentaje
         shots = df_players_CopaRey.groupby('Nombre')[['T1a', 'T1i', 'T2a', 'T2i', 'T3a', 'T3i']].sum()
         # Calula el porcentaje de acierto de cada jugador con 1 decimal
         shots['T1%'] = round(shots['T1a'] / shots['T1i'] * 100,1)
@@ -303,10 +303,10 @@ elif marco == "Líderes históricos":
     else: # Por partido
         # Calcular los "lh" jugadores con la mayor media por partido de puntos, rebotes, asistencias, robos, tapones y valoración
         # Mostrar los resultados en una tabla
-        st.write ("Jugadores con al menos 30 partidos")
+        #st.write ("Jugadores con al menos 30 partidos")
         # Filtrar jugadores con al menos 30 partidos
         filtered_players = df_players_CopaRey.groupby('Nombre')['ID Partido'].count()
-        filtered_players = filtered_players[filtered_players >= 30].index
+        #filtered_players = filtered_players[filtered_players >= 30].index
 
         max_games = df_players_CopaRey[df_players_CopaRey['Nombre'].isin(filtered_players)].groupby('Nombre')['ID Partido'].count()
         max_points = pd.DataFrame(df_players_CopaRey[df_players_CopaRey['Nombre'].isin(filtered_players)].groupby('Nombre')['Puntos'].sum())
