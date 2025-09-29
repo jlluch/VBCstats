@@ -84,7 +84,11 @@ def load_data():
     file_path = path+"estadisticas_jugadores_VBC_CopaRey.csv.enc"
     if 'df_players_CopaRey' not in st.session_state:
         df_players_CopaRey = load_encrypted_data(file_path)
-        
+    
+    file_path = path+"estadisticas_jugadores_VBC_SuperCopa.csv.enc"
+    if 'df_players_SuperCopa' not in st.session_state:
+        df_players_SuperCopa = load_encrypted_data(file_path)
+
     df_players_Eurocup['ID Jugador'] = df_players_Eurocup['ID Jugador'].apply(lambda x: df_players_VBC[df_players_VBC['ID Eurocup'] == x]['ID ACB'].values[0] if not df_players_VBC[df_players_VBC['ID Eurocup'] == x].empty else x)
     df_players_Euroleague['ID Jugador'] = df_players_Euroleague['ID Jugador'].apply(lambda x: df_players_VBC[df_players_VBC['ID Euroleague'] == x]['ID ACB'].values[0] if not df_players_VBC[df_players_VBC['ID Euroleague'] == x].empty else x)
     df_players_Saporta['ID Jugador'] = df_players_Saporta['ID Jugador'].apply(lambda x: df_players_VBC[df_players_VBC['ID Saporta'] == x]['ID ACB'].values[0] if not df_players_VBC[df_players_VBC['ID Saporta'] == x].empty else x)
@@ -109,8 +113,12 @@ def load_data():
     file_path = path+"estadisticas_partidos_VBC_CopaRey.csv.enc"
     if 'df_games_CopaRey' not in st.session_state:
         df_games_CopaRey = load_encrypted_data(file_path)
-        
     
+    file_path = path+"estadisticas_partidos_VBC_SuperCopa.csv.enc"
+    if 'df_games_SuperCopa' not in st.session_state:
+        df_games_SuperCopa = load_encrypted_data(file_path)
+
+
     # Entrenadores de VBC
     df_coaches_VBC = df_games_ACB[['ID Entrenador VBC', 'Entrenador VBC']].drop_duplicates()
 
@@ -120,6 +128,7 @@ def load_data():
     df_games_Euroleague['ID Temporada'] = df_games_Euroleague['ID Temporada'].astype(int)
     df_games_Saporta['ID Temporada'] = df_games_Saporta['ID Temporada'].astype(int)
     df_games_CopaRey['ID Temporada'] = df_games_CopaRey['ID Temporada'].astype(int)
+    df_games_SuperCopa['ID Temporada'] = df_games_SuperCopa['ID Temporada'].astype(int)
 
     # Aplicar la función a cada dataframe de partidos
     df_games_ACB = create_partido_column(df_games_ACB)
@@ -127,9 +136,11 @@ def load_data():
     df_games_Euroleague = create_partido_column(df_games_Euroleague)
     df_games_Saporta = create_partido_column(df_games_Saporta)
     df_games_CopaRey = create_partido_column(df_games_CopaRey)
+    df_games_SuperCopa = create_partido_column(df_games_SuperCopa)
 
     # Crer una columna con el enlace a la página del partido
     df_games_CopaRey['Enlace'] = 'https://www.acb.com/partido/estadisticas/id/' + df_games_CopaRey['ID Partido'].astype(str)
+    df_games_SuperCopa['Enlace'] = 'https://www.acb.com/partido/estadisticas/id/' + df_games_SuperCopa['ID Partido'].astype(str)
     df_games_ACB['Enlace'] = 'https://www.acb.com/partido/estadisticas/id/' + df_games_ACB['ID Partido'].astype(str)
     df_games_Eurocup['Enlace'] = df_games_Eurocup['ID Partido']
     df_games_Euroleague['Enlace'] = df_games_Euroleague['ID Partido']
@@ -141,6 +152,7 @@ def load_data():
     df_games_Euroleague['Diferencia'] = df_games_Euroleague['Puntos VBC'] - df_games_Euroleague['Puntos Rival']
     df_games_Saporta['Diferencia'] = df_games_Saporta['Puntos VBC'] - df_games_Saporta['Puntos Rival']
     df_games_CopaRey['Diferencia'] = df_games_CopaRey['Puntos VBC'] - df_games_CopaRey['Puntos Rival']
+    df_games_SuperCopa['Diferencia'] = df_games_SuperCopa['Puntos VBC'] - df_games_SuperCopa['Puntos Rival']
     
     # Crear una columna con el partido
     df_games_ACB['Partido'] = df_games_ACB.apply(lambda x: f"{x['ID Partido']} - {x['Fecha']} - VBC - {x['Equipo Rival']}"  if x['VBC Local'] else f"{x['ID Partido']} - {x['Fecha']} - {x['Equipo Rival']} - VBC", axis=1)
@@ -148,6 +160,7 @@ def load_data():
     df_games_Euroleague['Partido'] = df_games_Euroleague.apply(lambda x: f"{x['ID Partido']} - {x['Fecha']} - VBC - {x['Equipo Rival']}"  if x['VBC Local'] else f"{x['ID Partido']} - {x['Fecha']} - {x['Equipo Rival']} - VBC", axis=1)
     df_games_Saporta['Partido'] = df_games_Saporta.apply(lambda x: f"{x['ID Partido']} - {x['Fecha']} - VBC - {x['Equipo Rival']}"  if x['VBC Local'] else f"{x['ID Partido']} - {x['Fecha']} - {x['Equipo Rival']} - VBC", axis=1)
     df_games_CopaRey['Partido'] = df_games_CopaRey.apply(lambda x: f"{x['ID Partido']} - {x['Fecha']} - VBC - {x['Equipo Rival']}"  if x['VBC Local'] else f"{x['ID Partido']} - {x['Fecha']} - {x['Equipo Rival']} - VBC", axis=1)   
+    df_games_SuperCopa['Partido'] = df_games_SuperCopa.apply(lambda x: f"{x['ID Partido']} - {x['Fecha']} - VBC - {x['Equipo Rival']}"  if x['VBC Local'] else f"{x['ID Partido']} - {x['Fecha']} - {x['Equipo Rival']} - VBC", axis=1)
     
      # Convertir las columnas de fecha a datetime
     df_games_ACB['Fecha'] = pd.to_datetime(df_games_ACB['Fecha'], format='%d/%m/%Y')
@@ -155,16 +168,17 @@ def load_data():
     df_games_Euroleague['Fecha'] = pd.to_datetime(df_games_Euroleague['Fecha'], format='%Y-%m-%d')
     df_games_Saporta['Fecha'] = pd.to_datetime(df_games_Saporta['Fecha'], format='%d.%m.%y')
     df_games_CopaRey['Fecha'] = pd.to_datetime(df_games_CopaRey['Fecha'], format='%d/%m/%Y')    
-    
-    return df_players_CopaRey, df_games_CopaRey, df_players_ACB, df_games_ACB, df_players_Eurocup, df_games_Eurocup, df_players_Euroleague, df_games_Euroleague, df_players_Saporta, df_games_Saporta, df_players_VBC, df_coaches_VBC
+    df_games_SuperCopa['Fecha'] = pd.to_datetime(df_games_SuperCopa['Fecha'], format='%d/%m/%Y')
+
+    return df_players_SuperCopa,df_games_SuperCopa, df_players_CopaRey, df_games_CopaRey, df_players_ACB, df_games_ACB, df_players_Eurocup, df_games_Eurocup, df_players_Euroleague, df_games_Euroleague, df_players_Saporta, df_games_Saporta, df_players_VBC, df_coaches_VBC
     
 
 #Cargar todos los datos
-df_players_CopaRey, df_games_CopaRey, df_players_ACB, df_games_ACB, df_players_Eurocup, df_games_Eurocup, df_players_Euroleague, df_games_Euroleague, df_players_Saporta, df_games_Saporta, df_players_VBC, df_coaches_VBC = load_data()
+df_players_SuperCopa, df_games_SuperCopa, df_players_CopaRey, df_games_CopaRey, df_players_ACB, df_games_ACB, df_players_Eurocup, df_games_Eurocup, df_players_Euroleague, df_games_Euroleague, df_players_Saporta, df_games_Saporta, df_players_VBC, df_coaches_VBC = load_data()
 
 
-df_games_Total = pd.concat([df_games_ACB, df_games_Eurocup, df_games_Euroleague, df_games_Saporta, df_games_CopaRey], ignore_index=True)
-df_players_Total = pd.concat([df_players_ACB, df_players_Eurocup, df_players_Euroleague, df_players_Saporta, df_players_CopaRey], ignore_index=True)
+df_games_Total = pd.concat([df_games_ACB, df_games_Eurocup, df_games_Euroleague, df_games_Saporta, df_games_CopaRey, df_games_SuperCopa], ignore_index=True)
+df_players_Total = pd.concat([df_players_ACB, df_players_Eurocup, df_players_Euroleague, df_players_Saporta, df_players_CopaRey, df_players_SuperCopa], ignore_index=True)
 
 # Crear un diccionario que mapee ID Jugador a Nombre a partir de df_players_VBC la clave se llama ID Jugador
 player_names = df_players_VBC.set_index('ID ACB')['Nombre ACB'].to_dict()
@@ -173,6 +187,8 @@ player_names = df_players_VBC.set_index('ID ACB')['Nombre ACB'].to_dict()
 coach_names = df_coaches_VBC.set_index('ID Entrenador VBC')['Entrenador VBC'].to_dict()
 
 # Cargar los dataframes en st.session_state para que estén disponibles en todas las páginas
+st.session_state['df_players_SuperCopa'] = df_players_SuperCopa
+st.session_state['df_games_SuperCopa'] = df_games_SuperCopa
 st.session_state['df_players_CopaRey'] = df_players_CopaRey
 st.session_state['df_games_CopaRey'] = df_games_CopaRey
 st.session_state['df_players_ACB'] = df_players_ACB
@@ -233,6 +249,7 @@ st.sidebar.markdown(f"**Eurocup:** {len(df_games_Eurocup)}")
 st.sidebar.markdown(f"**Euroleague:** {len(df_games_Euroleague)}")
 st.sidebar.markdown(f"**Saporta:** {len(df_games_Saporta)}")
 st.sidebar.markdown(f"**Copa del Rey:** {len(df_games_CopaRey)}")
+st.sidebar.markdown(f"**Supercopa:** {len(df_games_SuperCopa)}")
 st.sidebar.markdown(f"**Total:** {len(df_games_Total)}")
 # Separador
 st.sidebar.markdown("---")

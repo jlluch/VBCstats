@@ -1,2 +1,2 @@
-Estadísticas de Valencia Basket: ACB, Euroliga, Eurocup y Copa Saporta (Copa del rey en proceso)
+Estadísticas de Valencia Basket: ACB, Copa del Rey, Super Copa, Euroliga, Eurocup y Copa Saporta
 
