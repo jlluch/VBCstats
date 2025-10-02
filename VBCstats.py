@@ -165,7 +165,7 @@ def load_data():
      # Convertir las columnas de fecha a datetime
     df_games_ACB['Fecha'] = pd.to_datetime(df_games_ACB['Fecha'], format='%d/%m/%Y')
     df_games_Eurocup['Fecha'] = pd.to_datetime(df_games_Eurocup['Fecha'], format='%Y-%m-%d')
-    df_games_Euroleague['Fecha'] = pd.to_datetime(df_games_Euroleague['Fecha'], format='%Y-%m-%d')
+    df_games_Euroleague['Fecha'] = pd.to_datetime(df_games_Euroleague['Fecha'], format='%d/%m/%Y')
     df_games_Saporta['Fecha'] = pd.to_datetime(df_games_Saporta['Fecha'], format='%d.%m.%y')
     df_games_CopaRey['Fecha'] = pd.to_datetime(df_games_CopaRey['Fecha'], format='%d/%m/%Y')    
     df_games_SuperCopa['Fecha'] = pd.to_datetime(df_games_SuperCopa['Fecha'], format='%d/%m/%Y')
