@@ -23,6 +23,10 @@ path = "VBCpages/6_SuperCopa.py"
 name = "Super Copa"
 icon = "🏀"
 [[pages]]
-path = "VBCpages/7_Totales.py"
+path = "VBCpages/7_NoACB.py"
+name = "No ACB"
+icon = "🏀"
+[[pages]]
+path = "VBCpages/8_Totales.py"
 name = "Totales"
 icon = "🏀"

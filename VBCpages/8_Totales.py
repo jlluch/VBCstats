@@ -11,16 +11,18 @@ def load_data():
     df_coaches_VBC = st.session_state.df_coaches_VBC
     df_players_Total = st.session_state.df_players_Total
     df_games_Total = st.session_state.df_games_Total
-    
-    return df_players_VBC, df_coaches_VBC, df_games_Total, df_players_Total
-    
+    df_players_EBA = st.session_state.df_players_EBA
+    df_games_EBA = st.session_state.df_games_EBA
+
+    return df_players_VBC, df_coaches_VBC, df_games_Total, df_players_Total, df_players_EBA, df_games_EBA
+
 
 #Cargar todos los datos
-df_players_VBC, df_coaches_VBC, df_games_Total, df_players_Total = load_data()
+df_players_VBC, df_coaches_VBC, df_games_Total, df_players_Total, df_players_EBA, df_games_EBA = load_data()
 
 # Temporadas de cada competición
 Saporta = [1998,1999,2000,2001]
-Euroleague = [2003, 2010, 2014, 2017, 2019, 2020, 2022, 2023 ]
+Euroleague = [2003, 2010, 2014, 2017, 2019, 2020, 2022, 2023, 2025]
 Eurocup = [2002, 2004, 2007, 2008, 2009, 2011, 2012, 2013, 2014, 2015, 2016, 2018, 2021, 2024]
 
 # Crear un diccionario que mapee ID Jugador a Nombre a partir de df_players_VBC la clave se llama ID Jugador
@@ -46,13 +48,13 @@ if marco == "Totales equipo":
     st.subheader("Estadísticas totales del equipo")
     
     # Calcular el total de partidos jugados, victorias y derrotas, total como local y como visitante y % de cada uno
-    total_games = len(df_games_Total)
-    total_wins = df_games_Total['VBC Victoria'].sum()
+    total_games = len(df_games_Total)+len(df_games_EBA)
+    total_wins = df_games_Total['VBC Victoria'].sum() + df_games_EBA['VBC Victoria'].sum()
     total_losses = total_games - total_wins
-    total_home = df_games_Total['VBC Local'].sum()
+    total_home = df_games_Total['VBC Local'].sum() + df_games_EBA['VBC Local'].sum()
     total_away = total_games - total_home
-    total_home_wins = df_games_Total[df_games_Total['VBC Local'] == 1]['VBC Victoria'].sum()
-    total_away_wins = df_games_Total[df_games_Total['VBC Local'] == 0]['VBC Victoria'].sum()
+    total_home_wins = df_games_Total[df_games_Total['VBC Local'] == 1]['VBC Victoria'].sum() + df_games_EBA[df_games_EBA['VBC Local'] == 1]['VBC Victoria'].sum()
+    total_away_wins = df_games_Total[df_games_Total['VBC Local'] == 0]['VBC Victoria'].sum() + df_games_EBA[df_games_EBA['VBC Local'] == 0]['VBC Victoria'].sum()
     total_home_losses = total_home - total_home_wins
     total_away_losses = total_away - total_away_wins
     total_home_wins_percentage = round(total_home_wins * 100 / total_home, 1) if total_home > 0 else 0
@@ -119,8 +121,10 @@ if marco == "Totales equipo":
         
     # Calcular los acumulados de VBC usando los datos totales Puntos, Rebotes, Asistencias, Robos, Tapones y Valoración de VBC y Rival, Tiros de VBC y Rival
     team_stats_vbc = pd.DataFrame(df_games_Total[['Puntos VBC', 'Rebotes VBC', 'Asistencias VBC', 'Robos VBC', 'Tapones VBC', 'Val VBC']].sum(), columns=['Acumulados'])
+    team_stats_vbc.iat[0, 0] += df_games_EBA['Puntos VBC'].sum()
     team_stats_vbc['Media'] = round(team_stats_vbc['Acumulados'] / total_games, 1)
     team_stats_rival = pd.DataFrame(df_games_Total[['Puntos Rival', 'Rebotes Rival', 'Asistencias Rival', 'Robos Rival', 'Tapones Rival', 'Val Rival']].sum(), columns=['Acumulados'])
+    team_stats_rival.iat[0, 0] += df_games_EBA['Puntos Rival'].sum()
     team_stats_rival['Media'] = round(team_stats_rival['Acumulados'] / total_games, 1)
     # Datos de tiros VBC
     team_shots_vbc = pd.DataFrame(df_games_Total[['T1a VBC', 'T1i VBC', 'T2a VBC', 'T2i VBC', 'T3a VBC', 'T3i VBC']].sum(), columns=['Acumulados'])
@@ -170,6 +174,7 @@ if marco == "Totales equipo":
                 "%":          st.column_config.NumberColumn(width="small"),
             }
         )
+    st.write("* En partidos, victorias, derrotas y puntos se incluyen los partidos de Liga EBA jugados en la temporada 1995-96.")
 
 elif marco == "Estadísticas de una temporada conjunta":
     
@@ -715,13 +720,26 @@ elif marco == "Líderes históricos":
         # Calcular los "lh" jugadores con el mayor número de partidos jugados, puntos, rebotes, asistencias, robos, tapones y valoración
         # Añadir una fila en cada tabla con el judador de la temporada actual 
         # Mostrar los resultados en una tabla
-
+        # Selecciona los jugadores EBA con valor en ID Jugador, elimnando los nan y convertir a entero
+        eba_players = list(df_players_EBA['ID Jugador'].dropna().astype(int).unique())
         st.markdown('<span style="color: #FF2222;">En rojo los jugadores de la temporada actual</span>', unsafe_allow_html=True)
 
-        max_games = df_players_Total.groupby('ID Jugador')['ID Partido'].count().sort_values(ascending=False)
+        max_games = df_players_Total.groupby('ID Jugador')['ID Partido'].count()
+        max_points = df_players_Total.groupby('ID Jugador')['Puntos'].sum()
         #Cambiar nombre de la columna
         max_games = max_games.rename("Partidos")
-        max_points = df_players_Total.groupby('ID Jugador')['Puntos'].sum().sort_values(ascending=False)
+        # Suma el número de partidos de los jugadores EB con ID a max_games
+        # Busca los jugadores de EBA con ID en max_games
+        for player_id in eba_players:
+            if player_id in max_points.index:
+                eba_puntos = df_players_EBA[df_players_EBA['ID Jugador'] == player_id]['Puntos'].iloc[0]
+                max_points.loc[player_id] += eba_puntos
+                eba_partidos = df_players_EBA[df_players_EBA['ID Jugador'] == player_id]['Partidos'].iloc[0]
+                max_games.loc[player_id] += eba_partidos
+        # Ordenar los resultados de mayor a menor
+        max_points = max_points.sort_values(ascending=False)
+        max_games = max_games.sort_values(ascending=False)
+        
         max_rebounds = df_players_Total.groupby('ID Jugador')['Rebotes'].sum().sort_values(ascending=False)
         max_assists = df_players_Total.groupby('ID Jugador')['Asistencias'].sum().sort_values(ascending=False)
         max_steals = df_players_Total.groupby('ID Jugador')['Robos'].sum().sort_values(ascending=False)
@@ -866,7 +884,8 @@ elif marco == "Líderes históricos":
             height=12*35,
             column_config={"Nombre": st.column_config.TextColumn(width="medium")}
         )
-
+        st.write("En Partidos y Puntos se incluyen los de la temporada EBA")
+        
         ms, mb, mv, mn = st.columns(4)
         ms.dataframe(
             max_steals[['Nombre', 'Robos']].style.apply(highlight_last_row, axis=None),
@@ -1289,6 +1308,12 @@ elif marco == "Entrenadores":
         Victorias=('VBC Victoria', lambda x: (x == 1).sum()),
         Derrotas=('VBC Victoria', lambda x: (x == 0).sum())
     ).reset_index()
+    # Buscar el entrenador con ID: 20300232 y sumarle los partidos: 41, victorias: 31 y derrotas: 10 de EBA
+    eba_coach_id = 20300232
+    eba_stats = {'Partidos': 41, 'Victorias': 31, 'Derrotas': 10}
+    if eba_coach_id in entrenadores['ID Entrenador VBC'].values:
+        entrenadores.loc[entrenadores['ID Entrenador VBC'] == eba_coach_id, ['Partidos', 'Victorias', 'Derrotas']] += pd.Series(eba_stats)
+    
     # Añadir el nombre del entrenador
     entrenadores['Entrenador'] = entrenadores['ID Entrenador VBC'].map(coach_names)
     

@@ -88,6 +88,10 @@ def load_data():
     file_path = path+"estadisticas_jugadores_VBC_SuperCopa.csv.enc"
     if 'df_players_SuperCopa' not in st.session_state:
         df_players_SuperCopa = load_encrypted_data(file_path)
+        
+    file_path = path+"estadisticas_jugadores_VBC_EBA.csv.enc"
+    if 'df_players_EBA' not in st.session_state:
+        df_players_EBA = load_encrypted_data(file_path)
 
     df_players_Eurocup['ID Jugador'] = df_players_Eurocup['ID Jugador'].apply(lambda x: df_players_VBC[df_players_VBC['ID Eurocup'] == x]['ID ACB'].values[0] if not df_players_VBC[df_players_VBC['ID Eurocup'] == x].empty else x)
     df_players_Euroleague['ID Jugador'] = df_players_Euroleague['ID Jugador'].apply(lambda x: df_players_VBC[df_players_VBC['ID Euroleague'] == x]['ID ACB'].values[0] if not df_players_VBC[df_players_VBC['ID Euroleague'] == x].empty else x)
@@ -118,6 +122,9 @@ def load_data():
     if 'df_games_SuperCopa' not in st.session_state:
         df_games_SuperCopa = load_encrypted_data(file_path)
 
+    file_path = path+"estadisticas_partidos_VBC_EBA.csv.enc"
+    if 'df_games_EBA' not in st.session_state:
+        df_games_EBA = load_encrypted_data(file_path)
 
     # Entrenadores de VBC
     df_coaches_VBC = df_games_ACB[['ID Entrenador VBC', 'Entrenador VBC']].drop_duplicates()
@@ -170,11 +177,11 @@ def load_data():
     df_games_CopaRey['Fecha'] = pd.to_datetime(df_games_CopaRey['Fecha'], format='%d/%m/%Y')    
     df_games_SuperCopa['Fecha'] = pd.to_datetime(df_games_SuperCopa['Fecha'], format='%d/%m/%Y')
 
-    return df_players_SuperCopa,df_games_SuperCopa, df_players_CopaRey, df_games_CopaRey, df_players_ACB, df_games_ACB, df_players_Eurocup, df_games_Eurocup, df_players_Euroleague, df_games_Euroleague, df_players_Saporta, df_games_Saporta, df_players_VBC, df_coaches_VBC
+    return df_players_EBA, df_games_EBA, df_players_SuperCopa, df_games_SuperCopa, df_players_CopaRey, df_games_CopaRey, df_players_ACB, df_games_ACB, df_players_Eurocup, df_games_Eurocup, df_players_Euroleague, df_games_Euroleague, df_players_Saporta, df_games_Saporta, df_players_VBC, df_coaches_VBC
     
 
 #Cargar todos los datos
-df_players_SuperCopa, df_games_SuperCopa, df_players_CopaRey, df_games_CopaRey, df_players_ACB, df_games_ACB, df_players_Eurocup, df_games_Eurocup, df_players_Euroleague, df_games_Euroleague, df_players_Saporta, df_games_Saporta, df_players_VBC, df_coaches_VBC = load_data()
+df_players_EBA, df_games_EBA, df_players_SuperCopa, df_games_SuperCopa, df_players_CopaRey, df_games_CopaRey, df_players_ACB, df_games_ACB, df_players_Eurocup, df_games_Eurocup, df_players_Euroleague, df_games_Euroleague, df_players_Saporta, df_games_Saporta, df_players_VBC, df_coaches_VBC = load_data()
 
 
 df_games_Total = pd.concat([df_games_ACB, df_games_Eurocup, df_games_Euroleague, df_games_Saporta, df_games_CopaRey, df_games_SuperCopa], ignore_index=True)
@@ -187,6 +194,8 @@ player_names = df_players_VBC.set_index('ID ACB')['Nombre ACB'].to_dict()
 coach_names = df_coaches_VBC.set_index('ID Entrenador VBC')['Entrenador VBC'].to_dict()
 
 # Cargar los dataframes en st.session_state para que estén disponibles en todas las páginas
+st.session_state['df_players_EBA'] = df_players_EBA
+st.session_state['df_games_EBA'] = df_games_EBA
 st.session_state['df_players_SuperCopa'] = df_players_SuperCopa
 st.session_state['df_games_SuperCopa'] = df_games_SuperCopa
 st.session_state['df_players_CopaRey'] = df_players_CopaRey
@@ -250,7 +259,8 @@ st.sidebar.markdown(f"**Euroleague:** {len(df_games_Euroleague)}")
 st.sidebar.markdown(f"**Saporta:** {len(df_games_Saporta)}")
 st.sidebar.markdown(f"**Copa del Rey:** {len(df_games_CopaRey)}")
 st.sidebar.markdown(f"**Supercopa:** {len(df_games_SuperCopa)}")
-st.sidebar.markdown(f"**Total:** {len(df_games_Total)}")
+st.sidebar.markdown(f"**No ACB:** 41")
+st.sidebar.markdown(f"**Total:** {len(df_games_Total)+41}")
 # Separador
 st.sidebar.markdown("---")
 st.sidebar.markdown(f"**Visitas:** {visitas}")
