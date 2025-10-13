@@ -328,12 +328,20 @@ elif marco == "Estadísticas de una temporada conjunta":
         # Datos de tiros VBC
         season_shots_vbc = pd.DataFrame(season_games[['T1a VBC', 'T1i VBC', 'T2a VBC', 'T2i VBC', 'T3a VBC', 'T3i VBC']].sum(), columns=['Acumulados'])
         season_shots_vbc['Media'] = round(season_shots_vbc['Acumulados'] / len(season_games), 1)
-        season_shots_vbc['%'] = round(season_shots_vbc['Acumulados']*100 / season_shots_vbc['Acumulados'].shift(-1), 1)
+        # Calcular porcentajes correctos: T1a/T1i, T2a/T2i, T3a/T3i
+        season_shots_vbc.loc['T1a VBC', '%'] = round(season_shots_vbc.loc['T1a VBC', 'Acumulados'] / season_shots_vbc.loc['T1i VBC', 'Acumulados'] * 100, 1) if season_shots_vbc.loc['T1i VBC', 'Acumulados'] > 0 else 0
+        season_shots_vbc.loc['T2a VBC', '%'] = round(season_shots_vbc.loc['T2a VBC', 'Acumulados'] / season_shots_vbc.loc['T2i VBC', 'Acumulados'] * 100, 1) if season_shots_vbc.loc['T2i VBC', 'Acumulados'] > 0 else 0
+        season_shots_vbc.loc['T3a VBC', '%'] = round(season_shots_vbc.loc['T3a VBC', 'Acumulados'] / season_shots_vbc.loc['T3i VBC', 'Acumulados'] * 100, 1) if season_shots_vbc.loc['T3i VBC', 'Acumulados'] > 0 else 0
+        season_shots_vbc.loc[['T1i VBC', 'T2i VBC', 'T3i VBC'], '%'] = 0  # Set percentage to 0 for attempts
         
         # Datos de tiros Rival
         season_shots_rival = pd.DataFrame(season_games[['T1a Rival', 'T1i Rival', 'T2a Rival', 'T2i Rival', 'T3a Rival', 'T3i Rival']].sum(), columns=['Acumulados'])
         season_shots_rival['Media'] = round(season_shots_rival['Acumulados'] / len(season_games), 1)
-        season_shots_rival['%'] = round(season_shots_rival['Acumulados']*100 / season_shots_rival['Acumulados'].shift(-1), 1)
+        # Calcular porcentajes correctos: T1a/T1i, T2a/T2i, T3a/T3i
+        season_shots_rival.loc['T1a Rival', '%'] = round(season_shots_rival.loc['T1a Rival', 'Acumulados'] / season_shots_rival.loc['T1i Rival', 'Acumulados'] * 100, 1) if season_shots_rival.loc['T1i Rival', 'Acumulados'] > 0 else 0
+        season_shots_rival.loc['T2a Rival', '%'] = round(season_shots_rival.loc['T2a Rival', 'Acumulados'] / season_shots_rival.loc['T2i Rival', 'Acumulados'] * 100, 1) if season_shots_rival.loc['T2i Rival', 'Acumulados'] > 0 else 0
+        season_shots_rival.loc['T3a Rival', '%'] = round(season_shots_rival.loc['T3a Rival', 'Acumulados'] / season_shots_rival.loc['T3i Rival', 'Acumulados'] * 100, 1) if season_shots_rival.loc['T3i Rival', 'Acumulados'] > 0 else 0
+        season_shots_rival.loc[['T1i Rival', 'T2i Rival', 'T3i Rival'], '%'] = 0  # Set percentage to 0 for attempts
         
         # Crear 4 columnas para mostrar los datos
         col1, col2, col3, col4, col5 = st.columns(5)
