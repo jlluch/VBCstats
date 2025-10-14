@@ -191,8 +191,7 @@ elif marco == "Líderes históricos":
             column_config={"Nombre": st.column_config.TextColumn(width="medium")}
         )
         mn.dataframe(
-            max_minutes.style.apply(highlight_last_row, axis=None),
-            hide_index=True,
+            max_minutes,
             height=12*35,
             column_config={"Nombre": st.column_config.TextColumn(width="medium"), "Minutos": st.column_config.NumberColumn(format="%.1f", width="small")}
         )
@@ -902,7 +901,7 @@ elif marco == "Estadísticas jugadores de una temporada":
             else:  # "Por Partido"
                 jugador_row.update({
                     'Puntos': round(jugador_stats['Puntos'].sum() / partidos_jugados, 1),
-
+                    'Minutos': round(jugador_stats['Minutos'].sum() / partidos_jugados, 1),
                     'Rebotes': round(jugador_stats['Rebotes'].sum() / partidos_jugados, 1),
                     'Asistencias': round(jugador_stats['Asistencias'].sum() / partidos_jugados, 1),
                     'Robos': round(jugador_stats['Robos'].sum() / partidos_jugados, 1),
