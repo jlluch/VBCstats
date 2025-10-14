@@ -890,7 +890,7 @@ elif marco == "Líderes históricos":
             max_minutes[['Nombre', 'Minutos']].style.apply(highlight_last_row, axis=None),
             hide_index=True,
             height=12*35,
-            column_config={"Nombre": st.column_config.TextColumn(width="medium")}
+            column_config={"Nombre": st.column_config.TextColumn(width="medium"), "Minutos": st.column_config.NumberColumn(format="%.1f", width="small")}
         )
         mp.dataframe(
             max_points[['Nombre', 'Puntos']].style.apply(highlight_last_row, axis=None),
@@ -975,10 +975,7 @@ elif marco == "Líderes históricos":
 
         max_games = df_players_Total[df_players_Total['ID Jugador'].isin(filtered_players)].groupby('ID Jugador')['ID Partido'].count()
         
-        max_minutes = pd.DataFrame(df_players_Total[df_players_Total['Nombre'].isin(filtered_players)].groupby('Nombre')['Minutos'].sum())
-        # Calcular la media por partido, teniendo en cuenta los partidos que ha jugado cada jugador
-        max_minutes['Media'] = round(max_minutes['Minutos']/max_games,1)
-        max_minutes = max_minutes.sort_values(by='Media',ascending=False).head(lh)
+        
         
         max_points = pd.DataFrame(df_players_Total[df_players_Total['ID Jugador'].isin(filtered_players)].groupby('ID Jugador')['Puntos'].sum())
         # Calcular la media por partido, teniendo en cuenta los partidos que ha jugado cada jugador
@@ -987,6 +984,13 @@ elif marco == "Líderes históricos":
         max_points = max_points.reset_index()
         max_points['Nombre'] = max_points['ID Jugador'].map(player_names)
         
+        max_minutes = pd.DataFrame(df_players_Total[df_players_Total['Nombre'].isin(filtered_players)].groupby('Nombre')['Minutos'].sum())
+        # Calcular la media por partido, teniendo en cuenta los partidos que ha jugado cada jugador
+        max_minutes['Media'] = round(max_minutes['Minutos']/max_games,1)
+        max_minutes = max_minutes.sort_values(by='Media',ascending=False).head(lh)
+        max_minutes = max_minutes.reset_index()
+        max_minutes['Nombre'] = max_minutes['ID Jugador'].map(player_names)
+
         max_rebounds = pd.DataFrame(df_players_Total[df_players_Total['ID Jugador'].isin(filtered_players)].groupby('ID Jugador')['Rebotes'].sum())
         # Calcular la media por partido, teniendo en cuenta los partidos que ha jugado cada jugador
         max_rebounds['Media'] = round(max_rebounds['Rebotes']/max_games,1)
