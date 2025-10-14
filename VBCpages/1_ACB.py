@@ -256,7 +256,6 @@ elif marco == "Líderes históricos":
             height=12*35,
             column_config={"Nombre": st.column_config.TextColumn(width="medium")}
         )
-        
 
         ma, ms, mb, mv = st.columns(4)
         ma.dataframe(
@@ -672,7 +671,6 @@ elif marco == "Líderes de una temporada":
     mp.dataframe(max_points)
     mr.dataframe(max_rebounds)
     
-
     ma, ms, mb, mv = st.columns(4)
     ma.dataframe(max_assists)
     ms.dataframe(max_steals)

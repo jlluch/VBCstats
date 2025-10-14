@@ -519,6 +519,7 @@ elif marco == "Estadísticas jugadores de una temporada conjunta":
             if tipo_estadistica == "Total":
                 jugador_row.update({
                     'Puntos': jugador_stats['Puntos'].sum(),
+                    'Minutos': jugador_stats['Minutos'].sum(),
                     'Rebotes': jugador_stats['Rebotes'].sum(),
                     'Asistencias': jugador_stats['Asistencias'].sum(),
                     'Robos': jugador_stats['Robos'].sum(),
@@ -534,6 +535,7 @@ elif marco == "Estadísticas jugadores de una temporada conjunta":
             else:  # "Por Partido"
                 jugador_row.update({
                     'Puntos': round(jugador_stats['Puntos'].sum() / partidos_jugados, 1),
+                    'Minutos': round(jugador_stats['Minutos'].sum() / partidos_jugados, 1),
                     'Rebotes': round(jugador_stats['Rebotes'].sum() / partidos_jugados, 1),
                     'Asistencias': round(jugador_stats['Asistencias'].sum() / partidos_jugados, 1),
                     'Robos': round(jugador_stats['Robos'].sum() / partidos_jugados, 1),
@@ -564,6 +566,7 @@ elif marco == "Estadísticas jugadores de una temporada conjunta":
                     "Nombre": st.column_config.TextColumn(width="medium"),
                     "Partidos": st.column_config.NumberColumn(width="small"),
                     "% Victorias": st.column_config.NumberColumn(format="%.1f%%", width="small"),
+                    "Minutos": st.column_config.NumberColumn(format="%.1f", width="small"),
                     "Puntos": st.column_config.NumberColumn(width="small"),
                     "Rebotes": st.column_config.NumberColumn(width="small"),
                     "Asistencias": st.column_config.NumberColumn(width="small"),
@@ -576,7 +579,8 @@ elif marco == "Estadísticas jugadores de una temporada conjunta":
                     "T2%": st.column_config.NumberColumn(format="%.1f%%", width="small"),
                     "T3 puntos": st.column_config.NumberColumn(width="small"),
                     "T3%": st.column_config.NumberColumn(format="%.1f%%", width="small")
-                }
+                },
+                height=len(df_todos_jugadores) * 35  # Ajusta la altura para mostrar todas las filas
             )
 elif marco == "Acumulados Temporadas":
     # Crear un marco para mostrar los acumulados de cad temporada en una tabla, con:
@@ -734,6 +738,7 @@ elif marco == "Líderes históricos":
 
         max_games = df_players_Total.groupby('ID Jugador')['ID Partido'].count()
         max_points = df_players_Total.groupby('ID Jugador')['Puntos'].sum()
+        max_minutes = df_players_Total.groupby('ID Jugador')['Minutos'].sum()
         #Cambiar nombre de la columna
         max_games = max_games.rename("Partidos")
         # Suma el número de partidos de los jugadores EB con ID a max_games
@@ -744,9 +749,12 @@ elif marco == "Líderes históricos":
                 max_points.loc[player_id] += eba_puntos
                 eba_partidos = df_players_EBA[df_players_EBA['ID Jugador'] == player_id]['Partidos'].iloc[0]
                 max_games.loc[player_id] += eba_partidos
+                eba_minutos = df_players_EBA[df_players_EBA['ID Jugador'] == player_id]['Minutos'].iloc[0]
+                max_minutes.loc[player_id] += eba_minutos
         # Ordenar los resultados de mayor a menor
         max_points = max_points.sort_values(ascending=False)
         max_games = max_games.sort_values(ascending=False)
+        max_minutes = max_minutes.sort_values(ascending=False)
         
         max_rebounds = df_players_Total.groupby('ID Jugador')['Rebotes'].sum().sort_values(ascending=False)
         max_assists = df_players_Total.groupby('ID Jugador')['Asistencias'].sum().sort_values(ascending=False)
@@ -802,6 +810,7 @@ elif marco == "Líderes históricos":
         # Encuentra el jugador con la mayor estadística en cada tabla
         max_games_current = current_players_df.groupby('ID Jugador')['ID Partido'].count().sort_values(ascending=False).head(1)
         max_points_current = current_players_df.groupby('ID Jugador')['Puntos'].sum().sort_values(ascending=False).head(1)
+        max_minutes_current = current_players_df.groupby('ID Jugador')['Minutos'].sum().sort_values(ascending=False).head(1)
         max_rebounds_current = current_players_df.groupby('ID Jugador')['Rebotes'].sum().sort_values(ascending=False).head(1)
         max_assists_current = current_players_df.groupby('ID Jugador')['Asistencias'].sum().sort_values(ascending=False).head(1)
         max_steals_current = current_players_df.groupby('ID Jugador')['Robos'].sum().sort_values(ascending=False).head(1)
@@ -818,6 +827,9 @@ elif marco == "Líderes históricos":
         max_points = pd.concat([max_points.head(lh), max_points_current]).reset_index()
         max_points['Nombre'] = max_points['ID Jugador'].map(player_names)
         
+        max_minutes = pd.concat([max_minutes.head(lh), max_minutes_current]).reset_index()
+        max_minutes['Nombre'] = max_minutes['ID Jugador'].map(player_names)
+
         max_rebounds = pd.concat([max_rebounds.head(lh), max_rebounds_current]).reset_index()
         max_rebounds['Nombre'] = max_rebounds['ID Jugador'].map(player_names)
         
@@ -867,55 +879,57 @@ elif marco == "Líderes históricos":
 
         # Mostrar los resultados en tablas
         # Solo muestra la columna "Nombre" y la estadística correspondiente
-        mg, mp, mr, ma = st.columns(4)
+        mg, mn, mp, mr = st.columns(4)
         mg.dataframe(
-            max_games[['Nombre', 'Partidos']].style.apply(highlight_last_row, axis=None),
+            max_games.style.apply(highlight_last_row, axis=None),
             hide_index=True,
             height=12*35,
             column_config={"Nombre": st.column_config.TextColumn(width="medium")}
         )
+        mn.dataframe(
+            max_minutes.style.apply(highlight_last_row, axis=None),
+            hide_index=True,
+            height=12*35,
+            column_config={"Nombre": st.column_config.TextColumn(width="medium"), "Minutos": st.column_config.NumberColumn(format="%.1f", width="small")}
+        )
         mp.dataframe(
-            max_points[['Nombre', 'Puntos']].style.apply(highlight_last_row, axis=None),
+            max_points.style.apply(highlight_last_row, axis=None),
             hide_index=True,
             height=12*35,
             column_config={"Nombre": st.column_config.TextColumn(width="medium")}
         )
         mr.dataframe(
-            max_rebounds[['Nombre', 'Rebotes']].style.apply(highlight_last_row, axis=None),
+            max_rebounds.style.apply(highlight_last_row, axis=None),
             hide_index=True,
             height=12*35,
             column_config={"Nombre": st.column_config.TextColumn(width="medium")}
         )
-        ma.dataframe(
-            max_assists[['Nombre', 'Asistencias']].style.apply(highlight_last_row, axis=None),
-            hide_index=True,
-            height=12*35,
-            column_config={"Nombre": st.column_config.TextColumn(width="medium")}
-        )
-        st.write("En Partidos y Puntos se incluyen los de la temporada EBA")
+        st.write("En Partido, Minutoss y Puntos se incluyen los de la temporada EBA")
         
-        ms, mb, mv, mn = st.columns(4)
+        ma, ms, mb, mv = st.columns(4)
+        ma.dataframe(
+            max_assists.style.apply(highlight_last_row, axis=None),
+            hide_index=True,
+            height=12*35,
+            column_config={"Nombre": st.column_config.TextColumn(width="medium")}
+        )
         ms.dataframe(
-            max_steals[['Nombre', 'Robos']].style.apply(highlight_last_row, axis=None),
+            max_steals.style.apply(highlight_last_row, axis=None),
             hide_index=True,
             height=12*35,
             column_config={"Nombre": st.column_config.TextColumn(width="medium")}
         )
         mb.dataframe(
-            max_blocks[['Nombre', 'Tapones']].style.apply(highlight_last_row, axis=None),
+            max_blocks.style.apply(highlight_last_row, axis=None),
             hide_index=True,
             height=12*35,
             column_config={"Nombre": st.column_config.TextColumn(width="medium")}
         )
-        # Mostrar la valoración como entero
         mv.dataframe(
-            max_val[['Nombre', 'Valoración']].style.apply(highlight_last_row, axis=None),
+            max_val.style.apply(highlight_last_row, axis=None),
             hide_index=True,
             height=12*35,
-            column_config={
-                "Nombre": st.column_config.TextColumn(width="medium"),
-                "Valoración": st.column_config.NumberColumn(format="%d", width="small")
-            }
+            column_config={"Nombre": st.column_config.TextColumn(width="medium")}
         )
 
         st.write("Máximos tiros anotados de 1,2 y 3 puntos")
