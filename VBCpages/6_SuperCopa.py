@@ -322,6 +322,11 @@ elif marco == "Líderes históricos":
         # Calcular la media por partido, teniendo en cuenta los partidos que ha jugado cada jugador
         max_points['Media'] = round(max_points['Puntos']/max_games,1)        
         max_points = max_points.sort_values(by='Media',ascending=False).head(lh)
+
+        max_minutes = pd.DataFrame(df_players_SuperCopa.groupby('Nombre')['Minutos'].sum())
+        # Calcular la media por partido, teniendo en cuenta los partidos que ha jugado cada jugador
+        max_minutes['Media'] = round(max_minutes['Minutos']/max_games,1)
+        max_minutes = max_minutes.sort_values(by='Media',ascending=False).head(lh)
         
         max_rebounds = pd.DataFrame(df_players_SuperCopa.groupby('Nombre')['Rebotes'].sum())
         # Calcular la media por partido, teniendo en cuenta los partidos que ha jugado cada jugador
@@ -372,8 +377,11 @@ elif marco == "Líderes históricos":
         max_T3a = max_T3a.sort_values(by='Media',ascending=False).head(lh)
         
         # Muestra los resultados en tablas y en columnas de streamlit separadas
-        mp, mr, ma = st.columns(3)
+        mp, mi = st.columns(2)
         mp.dataframe(max_points,column_config={"Nombre": st.column_config.TextColumn(width="medium")})
+        mi.dataframe(max_minutes,column_config={"Nombre": st.column_config.TextColumn(width="medium"),"Minutos": st.column_config.NumberColumn(format="%.1f", width="small")})
+
+        mr, ma = st.columns(2)
         mr.dataframe(max_rebounds,column_config={"Nombre": st.column_config.TextColumn(width="medium")})
         ma.dataframe(max_assists,column_config={"Nombre": st.column_config.TextColumn(width="medium")})
         
