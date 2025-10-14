@@ -1056,7 +1056,7 @@ elif marco == "Líderes históricos":
         # Muestra los resultados en tablas y en columnas de streamlit separadas
         mp, mn, mr, ma = st.columns(4)
         mp.dataframe(max_points[['Nombre', 'Puntos', 'Media']], hide_index=True, column_config={"Nombre": st.column_config.TextColumn(width="medium")})
-        mn.dataframe(max_minutes[['Nombre', 'Minutos', 'Media']], hide_index=True, column_config={"Nombre": st.column_config.TextColumn(width="medium")})
+        mn.dataframe(max_minutes[['Nombre', 'Minutos', 'Media']], hide_index=True, column_config={"Nombre": st.column_config.TextColumn(width="medium"),"Minutos": st.column_config.NumberColumn(format="%.1f", width="small")})
         mr.dataframe(max_rebounds[['Nombre', 'Rebotes', 'Media']], hide_index=True, column_config={"Nombre": st.column_config.TextColumn(width="medium")})
         ma.dataframe(max_assists[['Nombre', 'Asistencias', 'Media']], hide_index=True, column_config={"Nombre": st.column_config.TextColumn(width="medium")})
         
