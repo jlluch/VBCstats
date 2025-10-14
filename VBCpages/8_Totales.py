@@ -975,16 +975,14 @@ elif marco == "Líderes históricos":
 
         max_games = df_players_Total[df_players_Total['ID Jugador'].isin(filtered_players)].groupby('ID Jugador')['ID Partido'].count()
         
-        
-        
         max_points = pd.DataFrame(df_players_Total[df_players_Total['ID Jugador'].isin(filtered_players)].groupby('ID Jugador')['Puntos'].sum())
         # Calcular la media por partido, teniendo en cuenta los partidos que ha jugado cada jugador
         max_points['Media'] = round(max_points['Puntos']/max_games,1)        
         max_points = max_points.sort_values(by='Media',ascending=False).head(lh)
         max_points = max_points.reset_index()
         max_points['Nombre'] = max_points['ID Jugador'].map(player_names)
-        
-        max_minutes = pd.DataFrame(df_players_Total[df_players_Total['Nombre'].isin(filtered_players)].groupby('Nombre')['Minutos'].sum())
+
+        max_minutes = pd.DataFrame(df_players_Total[df_players_Total['ID Jugador'].isin(filtered_players)].groupby('ID Jugador')['Minutos'].sum())
         # Calcular la media por partido, teniendo en cuenta los partidos que ha jugado cada jugador
         max_minutes['Media'] = round(max_minutes['Minutos']/max_games,1)
         max_minutes = max_minutes.sort_values(by='Media',ascending=False).head(lh)
