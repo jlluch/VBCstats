@@ -41,7 +41,7 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 #Crear un selectbox para cada marco
-marco = st.selectbox("Selecciona una opción", ["Totales equipo", "Estadísticas de una temporada conjunta", "Estadísticas jugadores de una temporada conjunta", "Acumulados Temporadas", "Líderes históricos", "Récords equipo", "Entrenadores"])
+marco = st.selectbox("Selecciona una opción", ["Estadísticas de una temporada conjunta", "Estadísticas jugadores de una temporada conjunta", "Acumulados Temporadas", "Totales equipo",  "Líderes históricos", "Récords equipo", "Entrenadores"])
 
 if marco == "Totales equipo":
     #Crear un marco para mostrar las estadísticas totales del equipo
