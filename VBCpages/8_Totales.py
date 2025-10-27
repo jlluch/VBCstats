@@ -525,11 +525,11 @@ elif marco == "Estadísticas jugadores de una temporada conjunta":
                     'Robos': jugador_stats['Robos'].sum(),
                     'Tapones': jugador_stats['Tapones'].sum(),
                     'Valoración': jugador_stats['Val'].sum(),
-                    'T. Libres': jugador_stats['T1a'].sum(),
+                    'T. Libres': f"{jugador_stats['T1a'].sum()}/{jugador_stats['T1i'].sum()}",
                     'T1%': t1_porcentaje,
-                    'T2 puntos': jugador_stats['T2a'].sum(),
+                    'T2 puntos': f"{jugador_stats['T2a'].sum()}/{jugador_stats['T2i'].sum()}",
                     'T2%': t2_porcentaje,
-                    'T3 puntos': jugador_stats['T3a'].sum(),
+                    'T3 puntos': f"{jugador_stats['T3a'].sum()}/{jugador_stats['T3i'].sum()}",
                     'T3%': t3_porcentaje
                 })
             else:  # "Por Partido"
@@ -541,11 +541,11 @@ elif marco == "Estadísticas jugadores de una temporada conjunta":
                     'Robos': round(jugador_stats['Robos'].sum() / partidos_jugados, 1),
                     'Tapones': round(jugador_stats['Tapones'].sum() / partidos_jugados, 1),
                     'Valoración': round(jugador_stats['Val'].sum() / partidos_jugados, 1),
-                    'T. Libres': round(jugador_stats['T1a'].sum() / partidos_jugados, 1),
+                    'T. Libres': f"{round(jugador_stats['T1a'].sum() / partidos_jugados, 1)}/{round(jugador_stats['T1i'].sum() / partidos_jugados, 1)}",
                     'T1%': t1_porcentaje,
-                    'T2 puntos': round(jugador_stats['T2a'].sum() / partidos_jugados, 1),
+                    'T2 puntos': f"{round(jugador_stats['T2a'].sum() / partidos_jugados, 1)}/{round(jugador_stats['T2i'].sum() / partidos_jugados, 1)}",
                     'T2%': t2_porcentaje,
-                    'T3 puntos': round(jugador_stats['T3a'].sum() / partidos_jugados, 1),
+                    'T3 puntos': f"{round(jugador_stats['T3a'].sum() / partidos_jugados, 1)}/{round(jugador_stats['T3i'].sum() / partidos_jugados, 1)}",
                     'T3%': t3_porcentaje
                 })
             
@@ -573,11 +573,11 @@ elif marco == "Estadísticas jugadores de una temporada conjunta":
                     "Robos": st.column_config.NumberColumn(width="small"),
                     "Tapones": st.column_config.NumberColumn(width="small"),
                     "Valoración": st.column_config.NumberColumn(width="small"),
-                    "T. Libres": st.column_config.NumberColumn(width="small"),
+                    "T. Libres": st.column_config.TextColumn(width="small"),
                     "T1%": st.column_config.NumberColumn(format="%.1f%%", width="small"),
-                    "T2 puntos": st.column_config.NumberColumn(width="small"),
+                    "T2 puntos": st.column_config.TextColumn(width="small"),
                     "T2%": st.column_config.NumberColumn(format="%.1f%%", width="small"),
-                    "T3 puntos": st.column_config.NumberColumn(width="small"),
+                    "T3 puntos": st.column_config.TextColumn(width="small"),
                     "T3%": st.column_config.NumberColumn(format="%.1f%%", width="small")
                 },
                 height=len(df_todos_jugadores) * 40  # Ajusta la altura para mostrar todas las filas
