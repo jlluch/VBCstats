@@ -573,11 +573,11 @@ elif marco == "Estadísticas jugadores de una temporada conjunta":
                     "Robos": st.column_config.NumberColumn(width="small"),
                     "Tapones": st.column_config.NumberColumn(width="small"),
                     "Valoración": st.column_config.NumberColumn(width="small"),
-                    "T. Libres": st.column_config.TextColumn(width="small", justify="right"),
+                    "T. Libres": st.column_config.TextColumn(width="small", alignment="right"),
                     "T1%": st.column_config.NumberColumn(format="%.1f%%", width="small"),
-                    "T2 puntos": st.column_config.TextColumn(width="small", justify="right"),
+                    "T2 puntos": st.column_config.TextColumn(width="small", alignment="right"),
                     "T2%": st.column_config.NumberColumn(format="%.1f%%", width="small"),
-                    "T3 puntos": st.column_config.TextColumn(width="small", justify="right"),
+                    "T3 puntos": st.column_config.TextColumn(width="small", alignment="right"),
                     "T3%": st.column_config.NumberColumn(format="%.1f%%", width="small")
                 },
                 height=len(df_todos_jugadores) * 40  # Ajusta la altura para mostrar todas las filas
