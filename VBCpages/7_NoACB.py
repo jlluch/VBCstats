@@ -3,7 +3,7 @@
 # Fecha: 2025-10-10 
 #
 # """
-from turtle import width
+# from turtle import width
 import streamlit as st
 import pandas as pd
 
