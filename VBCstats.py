@@ -52,12 +52,6 @@ def load_encrypted_data(file_path):
 #Crear una función para cargar los datos de cada competición, de partidos y de jugadores
 #Hacer cache de los datos para que no se carguen cada vez que se actualiza la página
 
-# Crear una columna con el partido
-def create_partido_column(df):
-    df['Partido'] = df.apply(lambda x: f"VBC - {x['Equipo Rival']}" if x['VBC Local'] else f"{x['Equipo Rival']} - VBC", axis=1)
-    return df
-
-
 @st.cache_data 
 def load_data():
     path = r"Data/"
@@ -137,43 +131,13 @@ def load_data():
     df_games_CopaRey['ID Temporada'] = df_games_CopaRey['ID Temporada'].astype(int)
     df_games_SuperCopa['ID Temporada'] = df_games_SuperCopa['ID Temporada'].astype(int)
 
-    # Aplicar la función a cada dataframe de partidos
-    df_games_ACB = create_partido_column(df_games_ACB)
-    df_games_Eurocup = create_partido_column(df_games_Eurocup)
-    df_games_Euroleague = create_partido_column(df_games_Euroleague)
-    df_games_Saporta = create_partido_column(df_games_Saporta)
-    df_games_CopaRey = create_partido_column(df_games_CopaRey)
-    df_games_SuperCopa = create_partido_column(df_games_SuperCopa)
 
-    # Crer una columna con el enlace a la página del partido
-    df_games_CopaRey['Enlace'] = 'https://www.acb.com/partido/estadisticas/id/' + df_games_CopaRey['ID Partido'].astype(str)
-    df_games_SuperCopa['Enlace'] = 'https://www.acb.com/partido/estadisticas/id/' + df_games_SuperCopa['ID Partido'].astype(str)
-    df_games_ACB['Enlace'] = 'https://www.acb.com/partido/estadisticas/id/' + df_games_ACB['ID Partido'].astype(str)
-    df_games_Eurocup['Enlace'] = df_games_Eurocup['ID Partido']
-    df_games_Euroleague['Enlace'] = df_games_Euroleague['ID Partido']
-    df_games_Saporta['Enlace'] = 'https://www.fibaeurope.com/' + df_games_Saporta['ID Partido'].astype(str)
-
-    # Crear una columna con la diferencia de puntos
-    df_games_ACB['Diferencia'] = df_games_ACB['Puntos VBC'] - df_games_ACB['Puntos Rival']
-    df_games_Eurocup['Diferencia'] = df_games_Eurocup['Puntos VBC'] - df_games_Eurocup['Puntos Rival']
-    df_games_Euroleague['Diferencia'] = df_games_Euroleague['Puntos VBC'] - df_games_Euroleague['Puntos Rival']
-    df_games_Saporta['Diferencia'] = df_games_Saporta['Puntos VBC'] - df_games_Saporta['Puntos Rival']
-    df_games_CopaRey['Diferencia'] = df_games_CopaRey['Puntos VBC'] - df_games_CopaRey['Puntos Rival']
-    df_games_SuperCopa['Diferencia'] = df_games_SuperCopa['Puntos VBC'] - df_games_SuperCopa['Puntos Rival']
-    
-    # Crear una columna con el partido
-    df_games_ACB['Partido'] = df_games_ACB.apply(lambda x: f"{x['ID Partido']} - {x['Fecha']} - VBC - {x['Equipo Rival']}"  if x['VBC Local'] else f"{x['ID Partido']} - {x['Fecha']} - {x['Equipo Rival']} - VBC", axis=1)
-    df_games_Eurocup['Partido'] = df_games_Eurocup.apply(lambda x: f"{x['ID Partido']} - {x['Fecha']} - VBC - {x['Equipo Rival']}"  if x['VBC Local'] else f"{x['ID Partido']} - {x['Fecha']} - {x['Equipo Rival']} - VBC", axis=1)
-    df_games_Euroleague['Partido'] = df_games_Euroleague.apply(lambda x: f"{x['ID Partido']} - {x['Fecha']} - VBC - {x['Equipo Rival']}"  if x['VBC Local'] else f"{x['ID Partido']} - {x['Fecha']} - {x['Equipo Rival']} - VBC", axis=1)
-    df_games_Saporta['Partido'] = df_games_Saporta.apply(lambda x: f"{x['ID Partido']} - {x['Fecha']} - VBC - {x['Equipo Rival']}"  if x['VBC Local'] else f"{x['ID Partido']} - {x['Fecha']} - {x['Equipo Rival']} - VBC", axis=1)
-    df_games_CopaRey['Partido'] = df_games_CopaRey.apply(lambda x: f"{x['ID Partido']} - {x['Fecha']} - VBC - {x['Equipo Rival']}"  if x['VBC Local'] else f"{x['ID Partido']} - {x['Fecha']} - {x['Equipo Rival']} - VBC", axis=1)   
-    df_games_SuperCopa['Partido'] = df_games_SuperCopa.apply(lambda x: f"{x['ID Partido']} - {x['Fecha']} - VBC - {x['Equipo Rival']}"  if x['VBC Local'] else f"{x['ID Partido']} - {x['Fecha']} - {x['Equipo Rival']} - VBC", axis=1)
-    
+        
      # Convertir las columnas de fecha a datetime
     df_games_ACB['Fecha'] = pd.to_datetime(df_games_ACB['Fecha'], format='%d/%m/%Y')
-    df_games_Eurocup['Fecha'] = pd.to_datetime(df_games_Eurocup['Fecha'], format='%Y-%m-%d')
+    df_games_Eurocup['Fecha'] = pd.to_datetime(df_games_Eurocup['Fecha'], format='%d/%m/%Y')
     df_games_Euroleague['Fecha'] = pd.to_datetime(df_games_Euroleague['Fecha'], format='%d/%m/%Y')
-    df_games_Saporta['Fecha'] = pd.to_datetime(df_games_Saporta['Fecha'], format='%d.%m.%y')
+    df_games_Saporta['Fecha'] = pd.to_datetime(df_games_Saporta['Fecha'], format='%d/%m/%Y')
     df_games_CopaRey['Fecha'] = pd.to_datetime(df_games_CopaRey['Fecha'], format='%d/%m/%Y')    
     df_games_SuperCopa['Fecha'] = pd.to_datetime(df_games_SuperCopa['Fecha'], format='%d/%m/%Y')
 
