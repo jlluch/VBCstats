@@ -43,7 +43,8 @@ if marco == "Estadísticas de un partido":
     game_list = game_list.iloc[::-1]     
     game = st.selectbox("Selecciona un partido", game_list)
     index = list(game_list).index(game)  # Obtener el índice del partido seleccionado
-    id_game = int((game_list.iloc[index]).split(" - ")[0])  # Obtener el ID del partido
+    # Obtener el ID del partido de df_games_ACB de la fila con 'Temporada'==season y 'Partido'==game
+    id_game = df_games_ACB[(df_games_ACB['ID Temporada'] == season) & (df_games_ACB['Partido'] == game)].iloc[0]['ID Partido']
     #Mostrar las estadísticas del partido seleccionado
     st.subheader("Datos del partido")
     if game[1] == "VBC":
