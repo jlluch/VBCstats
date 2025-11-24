@@ -41,11 +41,8 @@ if marco == "Estadísticas de un partido":
     game_list = df_games_SuperCopa[df_games_SuperCopa['ID Temporada'] == season]['Partido']
     # Invertir el orden de game_list
     game_list = game_list.iloc[::-1]     
-    # Eliminar id del partido
-    game_list2 = game_list.apply(lambda x: x.split(" - ")[1:])
-    game = st.selectbox("Selecciona un partido", game_list2)
-    index = list(game_list2).index(game)  # Obtener el índice del partido seleccionado
-    id_game = int((game_list.iloc[index]).split(" - ")[0])  # Obtener el ID del partido
+    game = st.selectbox("Selecciona un partido", game_list)
+    id_game = df_games_SuperCopa[(df_games_SuperCopa['ID Temporada'] == season) & (df_games_SuperCopa['Partido'] == game)].iloc[0]['ID Partido']
     #Mostrar las estadísticas del partido seleccionado
     st.subheader("Datos del partido")
     if game[1] == "VBC":
