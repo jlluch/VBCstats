@@ -13,23 +13,20 @@ def load_data():
     df_games_Total = st.session_state.df_games_Total
     df_players_EBA = st.session_state.df_players_EBA
     df_games_EBA = st.session_state.df_games_EBA
+    player_names = st.session_state.player_names
+    coach_names = st.session_state.coach_names
 
-    return df_players_VBC, df_coaches_VBC, df_games_Total, df_players_Total, df_players_EBA, df_games_EBA
+    return df_players_VBC, df_coaches_VBC, df_games_Total, df_players_Total, df_players_EBA, df_games_EBA, player_names, coach_names
 
 
 #Cargar todos los datos
-df_players_VBC, df_coaches_VBC, df_games_Total, df_players_Total, df_players_EBA, df_games_EBA = load_data()
+df_players_VBC, df_coaches_VBC, df_games_Total, df_players_Total, df_players_EBA, df_games_EBA, player_names, coach_names = load_data()
 
 # Temporadas de cada competición
 Saporta = [1998,1999,2000,2001]
 Euroleague = [2003, 2010, 2014, 2017, 2019, 2020, 2022, 2023, 2025]
 Eurocup = [2002, 2004, 2007, 2008, 2009, 2011, 2012, 2013, 2014, 2015, 2016, 2018, 2021, 2024]
 
-# Crear un diccionario que mapee ID Jugador a Nombre a partir de df_players_VBC la clave se llama ID Jugador
-player_names = df_players_VBC.set_index('ID ACB')['Nombre ACB'].to_dict()
-
-# Crear un diccionario que mapee ID Entrenador a Nombre a partir de df_coaches_VBC la clave se llama ID Entrenador
-coach_names = df_coaches_VBC.set_index('ID Entrenador VBC')['Entrenador VBC'].to_dict()
 
 st.title("Estadísticas totales")
 # Inyecta CSS para cambiar el ancho del selectbox
@@ -41,7 +38,7 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 #Crear un selectbox para cada marco
-marco = st.selectbox("Selecciona una opción", ["Estadísticas de una temporada conjunta", "Estadísticas jugadores de una temporada conjunta", "Acumulados Temporadas", "Totales equipo",  "Líderes históricos", "Récords equipo", "Entrenadores"])
+marco = st.selectbox("Selecciona una opción", ["Estadísticas de una temporada conjunta", "Estadísticas jugadores de una temporada conjunta", "Acumulados Temporadas", "Totales equipo",  "Líderes históricos", "Récords equipo", "Jugadores", "Entrenadores"])
 
 if marco == "Totales equipo":
     #Crear un marco para mostrar las estadísticas totales del equipo
@@ -1333,6 +1330,131 @@ elif marco == "Récords equipo":
         "Enlace": st.column_config.LinkColumn()
     })
    
+elif marco == "Jugadores":
+    #Crear un marco para mostrar los jugadores
+    st.subheader("Jugadores")
+    # Añadir radio button para seleccionar total o por partido
+    col1, col2 = st.columns([1, 2])
+    with col1:
+        tipo_estadistica = st.radio("Tipo de estadística", ["Total", "Por Partido"], horizontal=True)
+
+    # Selecciona un jugador por búsqueda de nombre
+    jugador = st.selectbox("Buscar jugador por nombre:", options=player_names.values(), index=0)
+    if jugador:
+        jugador_id = [k for k, v in player_names.items() if v == jugador][0]
+        # Filtrar el dataframe por el ID del jugador seleccionado
+        df_jugador = df_players_Total[df_players_Total['ID Jugador'] == jugador_id]
+        # Mostrar las estadísticas totales del jugador
+        st.write(f"Estadísticas totales de {jugador}:")
+        partidos_jugados = df_jugador['ID Partido'].nunique()
+        victorias = df_games_Total[(df_games_Total['ID Partido'].isin(df_jugador['ID Partido'])) & (df_games_Total['VBC Victoria'] == 1)].shape[0]
+        derrotas = partidos_jugados - victorias
+        porcentaje_victorias = round((victorias / partidos_jugados) * 100, 1) if partidos_jugados > 0 else 0.0
+        jugador_stats = {
+            'Partidos': partidos_jugados,
+            'Victorias': victorias,
+            'Derrotas': derrotas,
+             '% Vic': porcentaje_victorias }
+        
+         # Calcular porcentajes de tiro
+        t1_porcentaje = round(jugador_stats['T1a'].sum() / jugador_stats['T1i'].sum() * 100, 1) if jugador_stats['T1i'].sum() > 0 else 0.0
+        t2_porcentaje = round(jugador_stats['T2a'].sum() / jugador_stats['T2i'].sum() * 100, 1) if jugador_stats['T2i'].sum() > 0 else 0.0
+        t3_porcentaje = round(jugador_stats['T3a'].sum() / jugador_stats['T3i'].sum() * 100, 1) if jugador_stats['T3i'].sum() > 0 else 0.0
+        if tipo_estadistica == "Total":
+            jugador_stats.update({
+                    'Puntos': df_jugador['Puntos'].sum(),
+                    'Minutos': df_jugador['Minutos'].sum(),
+                    'Rebotes': df_jugador['Rebotes'].sum(),
+                    'Asistencias': df_jugador['Asistencias'].sum(),
+                    'Robos': df_jugador['Robos'].sum(),
+                    'Tapones': df_jugador['Tapones'].sum(),
+                    'Valoración': df_jugador['Val'].sum(),
+                    'T. Libres': f"{df_jugador['T1a'].sum()}/{df_jugador['T1i'].sum()}",
+                    'T1%': t1_porcentaje,
+                    'T2 puntos': f"{df_jugador['T2a'].sum()}/{df_jugador['T2i'].sum()}",
+                    'T2%': t2_porcentaje,
+                    'T3 puntos': f"{df_jugador['T3a'].sum()}/{df_jugador['T3i'].sum()}",
+                    'T3%': t3_porcentaje
+                })
+        else:  # Por Partido
+            jugador_stats.update({
+                    'Puntos': round(df_jugador['Puntos'].sum() / partidos_jugados, 1) if partidos_jugados > 0 else 0.0,
+                    'Minutos': round(df_jugador['Minutos'].sum() / partidos_jugados, 1) if partidos_jugados > 0 else 0.0,
+                    'Rebotes': round(df_jugador['Rebotes'].sum() / partidos_jugados, 1) if partidos_jugados > 0 else 0.0,
+                    'Asistencias': round(df_jugador['Asistencias'].sum() / partidos_jugados, 1) if partidos_jugados > 0 else 0.0,
+                    'Robos': round(df_jugador['Robos'].sum() / partidos_jugados, 1) if partidos_jugados > 0 else 0.0,
+                    'Tapones': round(df_jugador['Tapones'].sum() / partidos_jugados, 1) if partidos_jugados > 0 else 0.0,
+                    'Valoración': round(df_jugador['Val'].sum() / partidos_jugados, 1) if partidos_jugados > 0 else 0.0,
+                    'T. Libres': f"{round(df_jugador['T1a'].sum() / partidos_jugados, 1)}/{round(df_jugador['T1i'].sum() / partidos_jugados, 1)}" if partidos_jugados > 0 else "0/0",
+                    'T1%': t1_porcentaje,
+                    'T2 puntos': f"{round(df_jugador['T2a'].sum() / partidos_jugados, 1)}/{round(df_jugador['T2i'].sum() / partidos_jugados, 1)}" if partidos_jugados > 0 else "0/0",
+                    'T2%': t2_porcentaje,
+                    'T3 puntos': f"{round(df_jugador['T3a'].sum() / partidos_jugados, 1)}/{round(df_jugador['T3i'].sum() / partidos_jugados, 1)}" if partidos_jugados > 0 else "0/0",
+                    'T3%': t3_porcentaje
+                })
+        # Mostrar las estadísticas en una tabla
+        stats_df = pd.DataFrame.from_dict(jugador_stats, orient='index', columns=['Valor'])
+        st.dataframe(stats_df, hide_index=False, column_config={
+            'Valor': st.column_config.TextColumn(width="small")
+        })
+        competitions = df_jugador['Competición'].unique()
+        st.write(f"Competición(es) jugada(s): {', '.join(competitions)}")
+        for c in competitions:
+            # Indicar el nomnbre de la competición y mostrar todas las estadísticas del jugador en esa competición
+            st.write(f"Estadísticas en {c}:")
+            df_jugador_comp = df_jugador[df_jugador['Competición'] == c]
+            partidos_jugados_comp = df_jugador_comp['ID Partido'].nunique()
+            victorias_comp = df_games_Total[(df_games_Total['ID Partido'].isin(df_jugador_comp['ID Partido'])) & (df_games_Total['VBC Victoria'] == 1)].shape[0]
+            derrotas_comp = partidos_jugados_comp - victorias_comp
+            porcentaje_victorias_comp = round((victorias_comp / partidos_jugados_comp) * 100, 1) if partidos_jugados_comp > 0 else 0.0
+            jugador_stats_comp = {
+                'Partidos': partidos_jugados_comp,
+                'Victorias': victorias_comp,
+                'Derrotas': derrotas_comp,
+                '%': porcentaje_victorias_comp
+            }
+            # Calcular porcentajes de tiro
+            t1_porcentaje_comp = round(df_jugador_comp['T1a'].sum() / df_jugador_comp['T1i'].sum() * 100, 1) if df_jugador_comp['T1i'].sum() > 0 else 0.0
+            t2_porcentaje_comp = round(df_jugador_comp['T2a'].sum() / df_jugador_comp['T2i'].sum() * 100, 1) if df_jugador_comp['T2i'].sum() > 0 else 0.0
+            t3_porcentaje_comp = round(df_jugador_comp['T3a'].sum() / df_jugador_comp['T3i'].sum() * 100, 1) if df_jugador_comp['T3i'].sum() > 0 else 0.0
+            if tipo_estadistica == "Total":
+                jugador_stats_comp.update({
+                    'Puntos': df_jugador_comp['Puntos'].sum(),
+                    'Minutos': df_jugador_comp['Minutos'].sum(),
+                    'Rebotes': df_jugador_comp['Rebotes'].sum(),
+                    'Asistencias': df_jugador_comp['Asistencias'].sum(),
+                    'Robos': df_jugador_comp['Robos'].sum(),
+                    'Tapones': df_jugador_comp['Tapones'].sum(),
+                    'Valoración': df_jugador_comp['Val'].sum(),
+                    'T. Libres': f"{df_jugador_comp['T1a'].sum()}/{df_jugador_comp['T1i'].sum()}",
+                    'T1%': t1_porcentaje_comp,
+                    'T2 puntos': f"{df_jugador_comp['T2a'].sum()}/{df_jugador_comp['T2i'].sum()}",
+                    'T2%': t2_porcentaje_comp,
+                    'T3 puntos': f"{df_jugador_comp['T3a'].sum()}/{df_jugador_comp['T3i'].sum()}",
+                    'T3%': t3_porcentaje_comp
+                })
+            else:  # Por Partido
+                jugador_stats_comp.update({
+                    'Puntos': round(df_jugador_comp['Puntos'].sum() / partidos_jugados_comp, 1) if partidos_jugados_comp > 0 else 0.0,
+                    'Minutos': round(df_jugador_comp['Minutos'].sum() / partidos_jugados_comp, 1) if partidos_jugados_comp > 0 else 0.0,
+                    'Rebotes': round(df_jugador_comp['Rebotes'].sum() / partidos_jugados_comp, 1) if partidos_jugados_comp > 0 else 0.0,
+                    'Asistencias': round(df_jugador_comp['Asistencias'].sum() / partidos_jugados_comp, 1) if partidos_jugados_comp > 0 else 0.0,
+                    'Robos': round(df_jugador_comp['Robos'].sum() / partidos_jugados_comp, 1) if partidos_jugados_comp > 0 else 0.0,
+                    'Tapones': round(df_jugador_comp['Tapones'].sum() / partidos_jugados_comp, 1) if partidos_jugados_comp > 0 else 0.0,
+                    'Valoración': round(df_jugador_comp['Val'].sum() / partidos_jugados_comp, 1) if partidos_jugados_comp > 0 else 0.0,
+                    'T. Libres': f"{round(df_jugador_comp['T1a'].sum() / partidos_jugados_comp, 1)}/{round(df_jugador_comp['T1i'].sum() / partidos_jugados_comp, 1)}" if partidos_jugados_comp > 0 else "0/0",
+                    'T1%': t1_porcentaje_comp,
+                    'T2 puntos': f"{round(df_jugador_comp['T2a'].sum() / partidos_jugados_comp, 1)}/{round(df_jugador_comp['T2i'].sum() / partidos_jugados_comp, 1)}" if partidos_jugados_comp > 0 else "0/0",
+                    'T2%': t2_porcentaje_comp,
+                    'T3 puntos': f"{round(df_jugador_comp['T3a'].sum() / partidos_jugados_comp, 1)}/{round(df_jugador_comp['T3i'].sum() / partidos_jugados_comp, 1)}" if partidos_jugados_comp > 0 else "0/0",
+                    'T3%': t3_porcentaje_comp
+                })
+            # Mostrar las estadísticas en una tabla
+            stats_df_comp = pd.DataFrame.from_dict(jugador_stats_comp, orient='index', columns=['Valor'])
+            st.dataframe(stats_df_comp, hide_index=False, column_config={
+                'Valor': st.column_config.TextColumn(width="small")
+            })
+
 
 elif marco == "Entrenadores":
     # Crear un marco para mostrar los entrenadores
