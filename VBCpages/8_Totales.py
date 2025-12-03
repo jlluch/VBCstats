@@ -1452,7 +1452,7 @@ elif marco == "Jugadores":
                     'T3%': t3_porcentaje_comp
                 })
             # Mostrar las estadísticas en una fila (columnas)
-            stats_df = pd.DataFrame([jugador_stats])
+            stats_df = pd.DataFrame([jugador_stats_comp])
             st.dataframe(stats_df, hide_index=True)
 
 
