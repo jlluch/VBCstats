@@ -1397,7 +1397,7 @@ elif marco == "Jugadores":
         st.dataframe(stats_df, hide_index=True)
 
         competitions = df_jugador['Competición'].unique()
-        st.write(f"Competición(es) jugada(s): {', '.join(competitions)}")
+        #st.write(f"Competición(es) jugada(s): {', '.join(competitions)}")
         for c in competitions:
             # Indicar el nomnbre de la competición y mostrar todas las estadísticas del jugador en esa competición
             st.write(f"Estadísticas en {c}:")
