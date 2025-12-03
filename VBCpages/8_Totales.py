@@ -1357,9 +1357,9 @@ elif marco == "Jugadores":
              '% Vic': porcentaje_victorias }
         
          # Calcular porcentajes de tiro
-        t1_porcentaje = round(jugador_stats['T1a'].sum() / jugador_stats['T1i'].sum() * 100, 1) if jugador_stats['T1i'].sum() > 0 else 0.0
-        t2_porcentaje = round(jugador_stats['T2a'].sum() / jugador_stats['T2i'].sum() * 100, 1) if jugador_stats['T2i'].sum() > 0 else 0.0
-        t3_porcentaje = round(jugador_stats['T3a'].sum() / jugador_stats['T3i'].sum() * 100, 1) if jugador_stats['T3i'].sum() > 0 else 0.0
+        t1_porcentaje = round(df_jugador['T1a'].sum() / df_jugador['T1i'].sum() * 100, 1) if df_jugador['T1i'].sum() > 0 else 0.0
+        t2_porcentaje = round(df_jugador['T2a'].sum() / df_jugador['T2i'].sum() * 100, 1) if df_jugador['T2i'].sum() > 0 else 0.0
+        t3_porcentaje = round(df_jugador['T3a'].sum() / df_jugador['T3i'].sum() * 100, 1) if df_jugador['T3i'].sum() > 0 else 0.0
         if tipo_estadistica == "Total":
             jugador_stats.update({
                     'Puntos': df_jugador['Puntos'].sum(),
