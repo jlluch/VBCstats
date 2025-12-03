@@ -1395,12 +1395,14 @@ elif marco == "Jugadores":
         # Mostrar las estadísticas en una fila (columnas)
         stats_df = pd.DataFrame([jugador_stats])
         st.dataframe(stats_df, hide_index=True)
+        # Crea un diccionario con el acrónico de la competición y su nombre completo
+        nombre_competicion = {'ACB': 'Liga ACB', 'EC': 'EuroCup', 'EL': 'EuroLeague', 'SP': 'Supercopa', 'CR': 'Copa del Rey', 'SC': 'Supercopa'}
 
         competitions = df_jugador['Competición'].unique()
         #st.write(f"Competición(es) jugada(s): {', '.join(competitions)}")
         for c in competitions:
             # Indicar el nomnbre de la competición y mostrar todas las estadísticas del jugador en esa competición
-            st.write(f"Estadísticas en {c}:")
+            st.write(f"Estadísticas en {nombre_competicion.get(c, c)}:")          
             df_jugador_comp = df_jugador[df_jugador['Competición'] == c]
             partidos_jugados_comp = df_jugador_comp['ID Partido'].nunique()
             victorias_comp = df_games_Total[(df_games_Total['ID Partido'].isin(df_jugador_comp['ID Partido'])) & (df_games_Total['VBC Victoria'] == 1)].shape[0]
@@ -1449,11 +1451,9 @@ elif marco == "Jugadores":
                     'T3 puntos': f"{round(df_jugador_comp['T3a'].sum() / partidos_jugados_comp, 1)}/{round(df_jugador_comp['T3i'].sum() / partidos_jugados_comp, 1)}" if partidos_jugados_comp > 0 else "0/0",
                     'T3%': t3_porcentaje_comp
                 })
-            # Mostrar las estadísticas en una tabla
-            stats_df_comp = pd.DataFrame.from_dict(jugador_stats_comp, orient='index', columns=['Valor'])
-            st.dataframe(stats_df_comp, hide_index=False, column_config={
-                'Valor': st.column_config.TextColumn(width="small")
-            })
+            # Mostrar las estadísticas en una fila (columnas)
+            stats_df = pd.DataFrame([jugador_stats])
+            st.dataframe(stats_df, hide_index=True)
 
 
 elif marco == "Entrenadores":
