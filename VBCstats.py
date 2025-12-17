@@ -130,9 +130,7 @@ def load_data():
     df_games_Saporta['ID Temporada'] = df_games_Saporta['ID Temporada'].astype(int)
     df_games_CopaRey['ID Temporada'] = df_games_CopaRey['ID Temporada'].astype(int)
     df_games_SuperCopa['ID Temporada'] = df_games_SuperCopa['ID Temporada'].astype(int)
-
-
-        
+       
      # Convertir las columnas de fecha a datetime
     df_games_ACB['Fecha'] = pd.to_datetime(df_games_ACB['Fecha'], format='%d/%m/%Y')
     df_games_Eurocup['Fecha'] = pd.to_datetime(df_games_Eurocup['Fecha'], format='%d/%m/%Y')
@@ -141,6 +139,14 @@ def load_data():
     df_games_CopaRey['Fecha'] = pd.to_datetime(df_games_CopaRey['Fecha'], format='%d/%m/%Y')    
     df_games_SuperCopa['Fecha'] = pd.to_datetime(df_games_SuperCopa['Fecha'], format='%d/%m/%Y')
 
+    # Añadir columna Diferencia a los dataframes de partidos
+    df_games_ACB['Diferencia'] = df_games_ACB['Puntos VBC'] - df_games_ACB['Puntos Rival']
+    df_games_Eurocup['Diferencia'] = df_games_Eurocup['Puntos VBC'] - df_games_Eurocup['Puntos Rival']
+    df_games_Euroleague['Diferencia'] = df_games_Euroleague['Puntos VBC'] - df_games_Euroleague['Puntos Rival']
+    df_games_Saporta['Diferencia'] = df_games_Saporta['Puntos VBC'] - df_games_Saporta['Puntos Rival']
+    df_games_CopaRey['Diferencia'] = df_games_CopaRey['Puntos VBC'] - df_games_CopaRey['Puntos Rival']
+    df_games_SuperCopa['Diferencia'] = df_games_SuperCopa['Puntos VBC'] - df_games_SuperCopa['Puntos Rival']
+    
     return df_players_EBA, df_games_EBA, df_players_SuperCopa, df_games_SuperCopa, df_players_CopaRey, df_games_CopaRey, df_players_ACB, df_games_ACB, df_players_Eurocup, df_games_Eurocup, df_players_Euroleague, df_games_Euroleague, df_players_Saporta, df_games_Saporta, df_players_VBC, df_coaches_VBC
     
 
