@@ -1093,6 +1093,7 @@ elif marco == "Récords equipo":
     })
     
     # Diferencia de puntos
+    df_games_records['Diferencia'] = df_games_records['Puntos VBC'] - df_games_records['Puntos Rival']
     max10_diff = df_games_records.sort_values(by='Diferencia',ascending=False).head(lh)
     #Seleccionar las columnas a mostrar
     columns_to_show = ['ID Temporada', 'Jornada', 'Fecha', 'Partido', 'Diferencia','Enlace']
